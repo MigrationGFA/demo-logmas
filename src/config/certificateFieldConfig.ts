@@ -104,9 +104,301 @@ export interface MasterCertificateConfig {
     padding?: number;
   };
 
+  // Official Signature Image overlay configuration
+  signatureImage?: {
+    src: string;
+    x: number;      // % from left
+    y: number;      // % from top
+    width: number;  // % width
+    height: number; // % height
+  };
+
+  // Dynamic Repeating Row Content Zone Configuration (Phase 5 Scalability)
+  contentZone?: CertificateContentZone;
+
   // Field dictionary
   fields: Record<string, CertificateFieldDefinition>;
 }
+
+/**
+ * Dynamic Content Zone configuration for repeating data rows
+ */
+export interface CertificateContentZone {
+  startY: number;       // % from top where the first row begins
+  rowHeight: number;    // % vertical gap between rows
+  labelX: number;       // % left position for labels
+  labelWidth: number;   // % max width for labels
+  valueX: number;       // % left position for values
+  valueWidth: number;   // % max width for values
+  labelFontFamily: string;
+  labelFontSize: string;
+  valueFontFamily: string;
+  valueFontSize: string;
+  labelColor: string;
+  valueColor: string;
+  maxRows: number;       // safety cap so overflow content doesn't run off the card
+}
+
+export interface CertificateContentRow {
+  key: string;
+  label: string;
+  value: string;
+}
+
+/**
+ * Human-readable label dictionary for per-service form field keys
+ */
+export const FIELD_LABELS_MAP: Record<string, string> = {
+  // Personal & Indigene fields
+  nameOfApplicant: "Name of Applicant",
+  fullName: "Full Name of Applicant",
+  applicantName: "Applicant Name",
+  stateOfOrigin: "State of Origin",
+  lgaOfOrigin: "LGA of Origin",
+  state: "State of Origin",
+  lga: "Local Government Area",
+  ward: "Electoral Ward",
+  wardName: "Electoral Ward",
+  lgaWard: "Ward / Community",
+  compoundName: "Family Compound / Quarter",
+  placeOfBirth: "Place of Birth",
+  dateOfBirth: "Date of Birth",
+  gender: "Gender",
+  occupation: "Occupation",
+  phone: "Phone Number",
+  email: "Email Address",
+  nin: "National Identity Number (NIN)",
+
+  // Address fields
+  address: "Official Address",
+  residentialAddress: "Residential Address",
+  secretariatAddress: "Secretariat Address",
+  businessAddress: "Business / Site Address",
+
+  // Business / Permits / Trade
+  businessName: "Business / Enterprise Name",
+  natureOfBusiness: "Nature of Business",
+  descriptionOfGoods: "Description of Goods",
+  countryOfDestination: "Country of Destination",
+  purpose: "Purpose of Application",
+  purposeDescription: "Purpose / Line of Trade",
+
+  // Club / Association / CDA
+  clubName: "Name of Association / Club",
+  associationName: "Association / Body Name",
+  registrationNo: "Registration Number",
+  category: "Designated Category",
+  objectives: "Core Aims & Objectives",
+  aims: "Core Aims & Objectives",
+  motto: "Motto / Slogan",
+  dateFounded: "Date Founded / Established",
+  meetingAddress: "Meeting Place / Secretariat",
+  boardChairman: "President / Chairman",
+  generalSecretary: "General Secretary",
+  membershipCount: "Registered Membership",
+
+  // Health / Environment / Sanitation
+  premisesType: "Type of Premises",
+  sanitationGrade: "Sanitation Standard / Grade",
+  inspectionDate: "Date of Inspection",
+  sanitaryOfficer: "Inspecting Officer",
+
+  // Haulage / Rates / Revenue
+  vehicleNumber: "Vehicle Reg. Number",
+  cargoType: "Cargo / Haulage Type",
+  tonnageCapacity: "Tonnage / Capacity",
+  routePermitted: "Permitted Transit Route",
+  rateAssessment: "Assessed Statutory Rate",
+  propertyReference: "Property / Tenement Ref",
+
+  // Validity / Tenor
+  validity: "Period of Validity",
+  validUntil: "Valid Until",
+  tenor: "Permit Tenor",
+};
+
+/**
+ * Converts a raw camelCase or snake_case key into a human-readable title label
+ */
+export function formatFieldLabel(key: string): string {
+  if (FIELD_LABELS_MAP[key]) return FIELD_LABELS_MAP[key];
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/[_-]/g, " ")
+    .replace(/^\w/, (c) => c.toUpperCase())
+    .trim();
+}
+
+/**
+ * Keys excluded from repeating dynamic rows because they are handled
+ * by universal fixed fields, headers, signatures, or system metadata.
+ */
+const EXCLUDED_ROW_KEYS = new Set([
+  "id",
+  "token",
+  "publicToken",
+  "documentId",
+  "certificateNumber",
+  "applicationNo",
+  "applicationNumber",
+  "status",
+  "statusMessage",
+  "dateOfIssue",
+  "dateOfRegistration",
+  "issuedAt",
+  "validUntil",
+  "expiryDate",
+  "councilHeader",
+  "councilSubHeader",
+  "councilTitle",
+  "councilSubtitle",
+  "councilAddress",
+  "secretariatAddress",
+  "phoneEmailWeb",
+  "certificateTitle",
+  "certifyingIntro",
+  "statutoryNotice",
+  "statutoryLawNotice",
+  "footerDisclaimer",
+  "footerBanner",
+  "qrCodeLabel",
+  "qrUrl",
+  "qrToken",
+  "verificationUrl",
+  "verificationCode",
+  "verificationMessage",
+  "signerName",
+  "signerTitle",
+  "signerSignature",
+  "password",
+  "pin",
+  "passportUrl",
+  "signatureUrl",
+  "documents",
+  "uploadedFiles",
+  "declarationChecked",
+  "requiresInspection",
+  "requiresLgaApproval",
+  "isApproved",
+  "reviewStatus",
+]);
+
+/**
+ * Standard logical priority order for displaying certificate attributes
+ */
+const FIELD_PRIORITY_ORDER: string[] = [
+  "nameOfApplicant",
+  "fullName",
+  "applicantName",
+  "clubName",
+  "associationName",
+  "businessName",
+  "natureOfBusiness",
+  "category",
+  "address",
+  "residentialAddress",
+  "secretariatAddress",
+  "businessAddress",
+  "stateOfOrigin",
+  "lgaOfOrigin",
+  "ward",
+  "wardName",
+  "compoundName",
+  "descriptionOfGoods",
+  "countryOfDestination",
+  "purpose",
+  "purposeDescription",
+  "objectives",
+  "aims",
+  "motto",
+  "registrationNo",
+  "premisesType",
+  "sanitationGrade",
+  "tonnageCapacity",
+  "vehicleNumber",
+  "routePermitted",
+  "rateAssessment",
+  "validity",
+];
+
+/**
+ * Extracts and orders dynamic content rows from a certificate's certificateData/formData
+ */
+export function extractCertificateContentRows(
+  certificate: PublicCertificate,
+  maxRows: number = 8
+): CertificateContentRow[] {
+  const sourceData: Record<string, any> = {
+    ...(certificate.certificateData || {}),
+    ...(certificate.application?.formData || {}),
+  };
+
+  // Ensure baseline applicant information is available if missing from source data
+  if (
+    !sourceData.nameOfApplicant &&
+    !sourceData.fullName &&
+    !sourceData.clubName &&
+    !sourceData.businessName &&
+    certificate.applicant?.name
+  ) {
+    sourceData.nameOfApplicant = certificate.applicant.name;
+  }
+  if (
+    !sourceData.address &&
+    !sourceData.businessAddress &&
+    !sourceData.secretariatAddress &&
+    certificate.applicant?.address
+  ) {
+    sourceData.address = certificate.applicant.address;
+  }
+  if (!sourceData.ward && certificate.applicant?.ward) {
+    sourceData.ward = certificate.applicant.ward;
+  }
+
+  // Filter valid candidate keys
+  const candidateKeys = Object.keys(sourceData).filter((key) => {
+    if (EXCLUDED_ROW_KEYS.has(key)) return false;
+    const val = sourceData[key];
+    if (val === null || val === undefined) return false;
+    if (typeof val === "string" && val.trim() === "") return false;
+    if (typeof val === "boolean") return false;
+    if (typeof val === "object" && !Array.isArray(val)) return false;
+    return true;
+  });
+
+  // Sort by priority order
+  candidateKeys.sort((a, b) => {
+    const indexA = FIELD_PRIORITY_ORDER.indexOf(a);
+    const indexB = FIELD_PRIORITY_ORDER.indexOf(b);
+    const orderA = indexA === -1 ? 999 : indexA;
+    const orderB = indexB === -1 ? 999 : indexB;
+    return orderA - orderB;
+  });
+
+  const rows: CertificateContentRow[] = [];
+  for (const key of candidateKeys) {
+    if (rows.length >= maxRows) break;
+    const rawVal = sourceData[key];
+    const displayVal = Array.isArray(rawVal) ? rawVal.join(", ") : String(rawVal);
+    rows.push({
+      key,
+      label: formatFieldLabel(key),
+      value: displayVal,
+    });
+  }
+
+  return rows;
+}
+
+/**
+ * Official leadership signatories for statutory certificates
+ */
+export const OFFICIAL_CHAIRMAN = {
+  name: "Hon. Dr. Waliat Folasade Adeyemo",
+  title: "Executive Chairman",
+  organization: "Odeda Local Government",
+  fullTitle: "Executive Chairman\nOdeda Local Government",
+} as const;
 
 /**
  * ============================================================================
@@ -137,6 +429,30 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
     width: 14.2,
     height: 9.8,
     padding: 3,
+  },
+
+  signatureImage: {
+    src: "/certificates/signatures/chairman-signature.png",
+    x: 64.0,      // % from left
+    y: 75.8,      // % from top
+    width: 20.0,  // % width
+    height: 5.8,  // % height
+  },
+
+  contentZone: {
+    startY: 44.0,
+    rowHeight: 3.4,
+    labelX: 18.0,
+    labelWidth: 29.0,
+    valueX: 50.0,
+    valueWidth: 35.0,
+    labelFontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
+    labelFontSize: "0.90cqw",
+    valueFontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
+    valueFontSize: "0.95cqw",
+    labelColor: "#0D3B1E",
+    valueColor: "#1E293B",
+    maxRows: 8,
   },
 
   fields: {
@@ -202,6 +518,21 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       format: (c) => `Certificate No: ${c.certificateNumber || "ODE/CERT/2026/001"}`,
     },
 
+    // Top Right Date of Issue
+    dateOfIssue: {
+      key: "dateOfIssue",
+      x: 76.5,
+      y: 23.0,
+      width: 34.0,
+      textAlign: "right",
+      fontFamily: CERTIFICATE_FONTS.ARIMO,
+      fontSize: "0.78cqw",
+      fontWeight: 500,
+      letterSpacing: "0.02em",
+      color: "#334155",
+      format: (c) => `Date of Issue: ${c.certificateData?.dateOfIssue || c.issuedAt || "21st August, 2026"}`,
+    },
+
     // ------------------------------------------------------------------------
     // CERTIFICATE TITLE IN GREEN RIBBON BANNER
     // ------------------------------------------------------------------------
@@ -220,7 +551,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       format: (c) => c.service.name?.toUpperCase() || "CERTIFICATE OF ORIGIN",
     },
 
-    // Certifying Preamble Paragraph
+    // Dynamic Certifying Preamble Paragraph (Scaled to Service description)
     certifyingIntro: {
       key: "certifyingIntro",
       x: 50.0,
@@ -234,320 +565,14 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       lineHeight: "1.4",
       letterSpacing: "0.01em",
       color: "#1E293B",
-      format: () =>
-        "This is to certify that the goods described below originated from Odeda Local Government Area, Ogun State, Nigeria and that they are produced, manufactured or recognized in this area.",
+      format: (c) =>
+        c.certificateData?.certifyingIntro ||
+        (c.service?.description
+          ? `This is to certify that the applicant named below has fulfilled all statutory requirements for ${c.service.name || "Statutory Certification"} in Odeda Local Government Area, Ogun State, Nigeria.`
+          : "This is to certify that the particulars detailed below have been duly inspected, verified, and officially recorded under the statutory authority of Odeda Local Government, Ogun State."),
     },
 
     // ------------------------------------------------------------------------
-    // TABULAR BIODATA / FIELD ROWS (y: 44.0% to 68.0%)
-    // ------------------------------------------------------------------------
-    // Row 1: Name of Applicant
-    nameOfApplicantLabel: {
-      key: "nameOfApplicantLabel",
-      x: 18.0,
-      y: 44.0,
-      width: 30.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => "Name of Applicant",
-    },
-    nameOfApplicantColon: {
-      key: "nameOfApplicantColon",
-      x: 48.0,
-      y: 44.0,
-      width: 3.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => ":",
-    },
-    nameOfApplicantValue: {
-      key: "nameOfApplicantValue",
-      x: 51.0,
-      y: 44.0,
-      width: 34.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "1.05cqw",
-      fontWeight: 700,
-      letterSpacing: "0.02em",
-      color: "#0D3B1E",
-      textTransform: "uppercase",
-      format: (c) => c.certificateData?.nameOfApplicant || c.applicant.name || "Adebayo Olawale Babatunde",
-    },
-
-    // Row 2: Address
-    addressLabel: {
-      key: "addressLabel",
-      x: 18.0,
-      y: 47.3,
-      width: 30.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => "Address",
-    },
-    addressColon: {
-      key: "addressColon",
-      x: 48.0,
-      y: 47.3,
-      width: 3.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => ":",
-    },
-    addressValue: {
-      key: "addressValue",
-      x: 51.0,
-      y: 47.3,
-      width: 34.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.90cqw",
-      fontWeight: 500,
-      lineHeight: "1.25",
-      color: "#1E293B",
-      format: (c) => c.certificateData?.address || c.applicant.address || "Ward 7 (Itesi / Camp), Odeda LGA, Ogun State",
-    },
-
-    // Row 3: Description of Goods / Activity
-    descriptionOfGoodsLabel: {
-      key: "descriptionOfGoodsLabel",
-      x: 18.0,
-      y: 50.8,
-      width: 30.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => "Description of Goods",
-    },
-    descriptionOfGoodsColon: {
-      key: "descriptionOfGoodsColon",
-      x: 48.0,
-      y: 50.8,
-      width: 3.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => ":",
-    },
-    descriptionOfGoodsValue: {
-      key: "descriptionOfGoodsValue",
-      x: 51.0,
-      y: 50.8,
-      width: 34.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 500,
-      color: "#1E293B",
-      format: (c) => c.certificateData?.descriptionOfGoods || "General Merchandise / Indigene Verification Record",
-    },
-
-    // Row 4: Country of Destination
-    countryOfDestinationLabel: {
-      key: "countryOfDestinationLabel",
-      x: 18.0,
-      y: 54.2,
-      width: 30.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => "Country of Destination",
-    },
-    countryOfDestinationColon: {
-      key: "countryOfDestinationColon",
-      x: 48.0,
-      y: 54.2,
-      width: 3.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => ":",
-    },
-    countryOfDestinationValue: {
-      key: "countryOfDestinationValue",
-      x: 51.0,
-      y: 54.2,
-      width: 34.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 500,
-      color: "#1E293B",
-      format: (c) => c.certificateData?.countryOfDestination || "Nigeria",
-    },
-
-    // Row 5: Purpose
-    purposeLabel: {
-      key: "purposeLabel",
-      x: 18.0,
-      y: 57.6,
-      width: 30.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => "Purpose",
-    },
-    purposeColon: {
-      key: "purposeColon",
-      x: 48.0,
-      y: 57.6,
-      width: 3.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => ":",
-    },
-    purposeValue: {
-      key: "purposeValue",
-      x: 51.0,
-      y: 57.6,
-      width: 34.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 500,
-      color: "#1E293B",
-      format: (c) => c.certificateData?.purpose || "For Documentation / Official Use",
-    },
-
-    // Row 6: Ward
-    wardLabel: {
-      key: "wardLabel",
-      x: 18.0,
-      y: 61.0,
-      width: 30.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => "Ward",
-    },
-    wardColon: {
-      key: "wardColon",
-      x: 48.0,
-      y: 61.0,
-      width: 3.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => ":",
-    },
-    wardValue: {
-      key: "wardValue",
-      x: 51.0,
-      y: 61.0,
-      width: 34.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 500,
-      color: "#1E293B",
-      format: (c) => c.certificateData?.ward || c.applicant.ward || "Ward 7 (Itesi / Camp)",
-    },
-
-    // Row 7: Date of Issue
-    dateOfIssueLabel: {
-      key: "dateOfIssueLabel",
-      x: 18.0,
-      y: 64.4,
-      width: 30.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => "Date of Issue",
-    },
-    dateOfIssueColon: {
-      key: "dateOfIssueColon",
-      x: 48.0,
-      y: 64.4,
-      width: 3.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => ":",
-    },
-    dateOfIssueValue: {
-      key: "dateOfIssueValue",
-      x: 51.0,
-      y: 64.4,
-      width: 34.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 500,
-      color: "#1E293B",
-      format: (c) => c.certificateData?.dateOfIssue || "21st August, 2026",
-    },
-
-    // Row 8: Valid Until
-    validUntilLabel: {
-      key: "validUntilLabel",
-      x: 18.0,
-      y: 67.8,
-      width: 30.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => "Valid Until",
-    },
-    validUntilColon: {
-      key: "validUntilColon",
-      x: 48.0,
-      y: 67.8,
-      width: 3.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.92cqw",
-      fontWeight: 700,
-      color: "#0D3B1E",
-      format: () => ":",
-    },
-    validUntilValue: {
-      key: "validUntilValue",
-      x: 51.0,
-      y: 67.8,
-      width: 34.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 600,
-      color: "#0D3B1E",
-      format: (c) => c.certificateData?.validUntil || c.validUntil || "21st August, 2027",
-    },
-
     // ------------------------------------------------------------------------
     // STATUTORY NOTICE & SIGNATURE SECTION
     // ------------------------------------------------------------------------
@@ -583,19 +608,6 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       format: () => "Scan to verify authenticity\nor visit: logmas.gov.ng",
     },
 
-    // Handwritten Signer Signature (Script)
-    signerSignature: {
-      key: "signerSignature",
-      x: 74.0,
-      y: 78.5,
-      width: 25.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.GREAT_VIBES,
-      fontSize: "2.3cqw",
-      color: "#0B3B1B",
-      format: () => "Hon. Akinyemi Odunayo",
-    },
-
     // Chairman Signer Name (above Executive Chairman)
     signerName: {
       key: "signerName",
@@ -608,7 +620,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       fontWeight: 700,
       letterSpacing: "0.02em",
       color: "#0D3B1E",
-      format: (c) => c.issuer.name || "Hon. Akinyemi A. Odunayo",
+      format: () => OFFICIAL_CHAIRMAN.name,
     },
 
     signerTitle: {
@@ -623,7 +635,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       lineHeight: "1.2",
       color: "#334155",
       whiteSpace: "pre-line",
-      format: (c) => c.issuer.title || "Executive Chairman\nOdeda Local Government",
+      format: () => OFFICIAL_CHAIRMAN.fullTitle,
     },
 
     footerDisclaimer: {
@@ -673,6 +685,30 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
     padding: 2,
   },
 
+  signatureImage: {
+    src: "/certificates/signatures/chairman-signature.png",
+    x: 14.5,
+    y: 73.5,
+    width: 14.5,
+    height: 6.2,
+  },
+
+  contentZone: {
+    startY: 48.0,
+    rowHeight: 4.2,
+    labelX: 18.0,
+    labelWidth: 26.0,
+    valueX: 46.0,
+    valueWidth: 42.0,
+    labelFontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
+    labelFontSize: "0.88cqw",
+    valueFontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
+    valueFontSize: "0.92cqw",
+    labelColor: "#0D3B1E",
+    valueColor: "#1E293B",
+    maxRows: 6,
+  },
+
   fields: {
     // Top Right Certificate Number
     certificateNumber: {
@@ -717,171 +753,6 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       color: "#FFFFFF",
       textTransform: "uppercase",
       format: (c) => c.service.name?.toUpperCase() || "CERTIFICATE OF CLUB REGISTRATION",
-    },
-
-    // Prominent Centered Club Name (under "This is to certify that")
-    clubName: {
-      key: "clubName",
-      x: 50.0,
-      y: 45.6,
-      width: 60.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "1.65cqw",
-      fontWeight: 700,
-      letterSpacing: "0.03em",
-      color: "#0D3B1E",
-      textTransform: "capitalize",
-      format: (c) => c.certificateData?.clubName || c.applicant.name || "Youth Empowerment Club",
-    },
-
-    // ------------------------------------------------------------------------
-    // LEFT COLUMN FIELDS (x: 25.8%, y: 58.2% to 71.0%)
-    // ------------------------------------------------------------------------
-    // Left Col Row 1: Club Name Line Value
-    clubNameField: {
-      key: "clubNameField",
-      x: 25.8,
-      y: 58.2,
-      width: 18.5,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.95cqw",
-      fontWeight: 600,
-      color: "#0D3B1E",
-      format: (c) => c.certificateData?.clubName || c.applicant.name || "Youth Empowerment Club",
-    },
-
-    // Left Col Row 2: Registration No. Line Value
-    registrationNumber: {
-      key: "registrationNumber",
-      x: 25.8,
-      y: 62.5,
-      width: 18.5,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.ARIMO,
-      fontSize: "0.92cqw",
-      fontWeight: 600,
-      letterSpacing: "0.03em",
-      color: "#1E293B",
-      format: (c) => c.certificateData?.registrationNo || c.certificateNumber || "ODLG/CR/2026/CLB/00123",
-    },
-
-    // Left Col Row 3: Category Line Value
-    category: {
-      key: "category",
-      x: 25.8,
-      y: 66.8,
-      width: 18.5,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 500,
-      color: "#1E293B",
-      format: (c) => c.certificateData?.category || c.service.category || "Community Development",
-    },
-
-    // Left Col Row 4: Date of Registration Line Value
-    dateOfRegistration: {
-      key: "dateOfRegistration",
-      x: 25.8,
-      y: 71.0,
-      width: 18.5,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 500,
-      color: "#1E293B",
-      format: (c) => c.certificateData?.dateOfRegistration || c.certificateData?.dateOfIssue || "21st August, 2026",
-    },
-
-    // ------------------------------------------------------------------------
-    // RIGHT COLUMN FIELDS (x: 68.2%, y: 58.2% to 70.8%)
-    // ------------------------------------------------------------------------
-    // Right Col Row 1: Address Line Value
-    address: {
-      key: "address",
-      x: 68.2,
-      y: 58.2,
-      width: 20.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.88cqw",
-      fontWeight: 500,
-      lineHeight: "1.2",
-      color: "#1E293B",
-      format: (c) => c.certificateData?.address || c.applicant.address || "Odeda LGA, Ogun State, Nigeria",
-    },
-
-    // Right Col Row 2: Objectives Line Value
-    objectives: {
-      key: "objectives",
-      x: 68.2,
-      y: 62.5,
-      width: 20.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.84cqw",
-      fontWeight: 500,
-      lineHeight: "1.2",
-      color: "#1E293B",
-      format: (c) => c.certificateData?.objectives || "Youth Development, Skill Acquisition, Community Service",
-    },
-
-    // Right Col Row 3: Validity Line Value
-    validity: {
-      key: "validity",
-      x: 68.2,
-      y: 70.8,
-      width: 20.0,
-      textAlign: "left",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.92cqw",
-      fontWeight: 500,
-      color: "#1E293B",
-      format: (c) => c.certificateData?.validity || c.validUntil || "21st August, 2028",
-    },
-
-    // Handwritten Signer Signature (Script)
-    signerSignature: {
-      key: "signerSignature",
-      x: 21.8,
-      y: 79.2,
-      width: 22.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.GREAT_VIBES,
-      fontSize: "2.3cqw",
-      color: "#0B3B1B",
-      format: () => "Hon. Akinyemi Odunayo",
-    },
-
-    // Signer Name above Executive Chairman (Bottom Left)
-    signerName: {
-      key: "signerName",
-      x: 21.8,
-      y: 83.2,
-      width: 22.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.95cqw",
-      fontWeight: 700,
-      letterSpacing: "0.02em",
-      color: "#0D3B1E",
-      format: (c) => c.issuer.name || "Hon. Akinyemi A. Odunayo",
-    },
-
-    signerTitle: {
-      key: "signerTitle",
-      x: 21.8,
-      y: 86.5,
-      width: 22.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND_ITALIC,
-      fontSize: "0.78cqw",
-      color: "#334155",
-      whiteSpace: "pre-line",
-      lineHeight: "1.2",
-      format: (c) => c.issuer.title || "Executive Chairman\nOdeda Local Government",
     },
 
     footerBanner: {

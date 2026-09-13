@@ -7,6 +7,7 @@ import { PublicCertificate } from "@/types/publicCertificate";
 import {
   MasterCertificateConfig,
   CertificateFieldDefinition,
+  extractCertificateContentRows,
 } from "@/config/certificateFieldConfig";
 import { QRCodeSVG } from "@/components/dashboard/qr-code";
 
@@ -23,6 +24,13 @@ export function CertificateRenderer({
   className = "",
   isWatermarked = false,
 }: CertificateRendererProps) {
+  // Extract dynamic repeating content rows if template defines a contentZone
+  const dynamicRows = useMemo(() => {
+    if (!config.contentZone) return [];
+    const maxRows = config.contentZone.maxRows || 8;
+    return extractCertificateContentRows(certificate, maxRows);
+  }, [certificate, config.contentZone]);
+
   // Generate verification URL for QR code
   const qrVerificationUrl = useMemo(() => {
     if (certificate.verification?.verificationUrl) {
@@ -125,6 +133,91 @@ export function CertificateRenderer({
           );
         })}
 
+        {/* 2b. DYNAMIC REPEATING CONTENT ROWS (Universal Service Form Data Schema) */}
+        {config.contentZone &&
+          dynamicRows.map((row, index) => {
+            const rowY = config.contentZone!.startY + index * config.contentZone!.rowHeight;
+            const labelFontFamily = config.contentZone!.labelFontFamily || config.templateDefaults.fontFamily;
+            const labelFontSize = config.contentZone!.labelFontSize || config.templateDefaults.fontSize;
+            const labelColor = config.contentZone!.labelColor || "#0D3B1E";
+            const valueFontFamily = config.contentZone!.valueFontFamily || config.templateDefaults.fontFamily;
+            const valueFontSize = config.contentZone!.valueFontSize || config.templateDefaults.fontSize;
+            const valueColor = config.contentZone!.valueColor || config.templateDefaults.color;
+
+            // Coordinate calculations
+            const colonX = config.contentZone!.labelX + config.contentZone!.labelWidth;
+            const colonWidth = Math.max(1, config.contentZone!.valueX - colonX);
+
+            return (
+              <React.Fragment key={`dynamic-row-${row.key}-${index}`}>
+                {/* Row Label */}
+                <div
+                  id={`cert-row-label-${row.key}`}
+                  className="absolute flex items-center overflow-hidden"
+                  style={{
+                    top: `${rowY}%`,
+                    left: `${config.contentZone!.labelX}%`,
+                    width: `${config.contentZone!.labelWidth}%`,
+                    transform: "translate(0, -50%)",
+                    justifyContent: "flex-start",
+                    textAlign: "left",
+                    fontFamily: labelFontFamily,
+                    fontSize: labelFontSize,
+                    fontWeight: 700,
+                    color: labelColor,
+                    whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  <span className="truncate select-text">{row.label}</span>
+                </div>
+
+                {/* Separator Colon */}
+                <div
+                  id={`cert-row-colon-${row.key}`}
+                  className="absolute flex items-center justify-center select-none"
+                  style={{
+                    top: `${rowY}%`,
+                    left: `${colonX}%`,
+                    width: `${colonWidth}%`,
+                    transform: "translate(0, -50%)",
+                    fontFamily: labelFontFamily,
+                    fontSize: labelFontSize,
+                    fontWeight: 700,
+                    color: labelColor,
+                  }}
+                >
+                  :
+                </div>
+
+                {/* Row Value */}
+                <div
+                  id={`cert-row-value-${row.key}`}
+                  className="absolute flex items-center overflow-hidden"
+                  style={{
+                    top: `${rowY}%`,
+                    left: `${config.contentZone!.valueX}%`,
+                    width: `${config.contentZone!.valueWidth}%`,
+                    transform: "translate(0, -50%)",
+                    justifyContent: "flex-start",
+                    textAlign: "left",
+                    fontFamily: valueFontFamily,
+                    fontSize: valueFontSize,
+                    fontWeight: 600,
+                    color: valueColor,
+                    lineHeight: "1.25",
+                    letterSpacing: "0.01em",
+                    wordBreak: "break-word",
+                    whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  <span className="truncate select-text">{row.value}</span>
+                </div>
+              </React.Fragment>
+            );
+          })}
+
         {/* 3. DYNAMIC OFFICIAL QR VERIFICATION CODE */}
         {config.qrCode && (
           <div
@@ -149,7 +242,23 @@ export function CertificateRenderer({
           </div>
         )}
 
-        {/* 4. SECURITY / REVOKED / PREVIEW BANNER OVERLAY */}
+        {/* 4. OFFICIAL CHAIRMAN SIGNATURE IMAGE ASSET */}
+        {config.signatureImage && (
+          <img
+            id="cert-signature-image"
+            src={config.signatureImage.src}
+            alt="Official Executive Chairman Signature"
+            className="absolute pointer-events-none object-contain select-none"
+            style={{
+              top: `${config.signatureImage.y}%`,
+              left: `${config.signatureImage.x}%`,
+              width: `${config.signatureImage.width}%`,
+              height: `${config.signatureImage.height}%`,
+            }}
+          />
+        )}
+
+        {/* 5. SECURITY / REVOKED / PREVIEW BANNER OVERLAY */}
         {(isWatermarked || isInvalid) && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 overflow-hidden">
             <div

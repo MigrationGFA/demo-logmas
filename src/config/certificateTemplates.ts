@@ -1,8 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * @deprecated UNUSED LEGACY CONFIGURATION
+ * 
+ * This file is superseded by the canonical configuration architecture:
+ * 1. Coordinates & Field Layouts: `src/config/certificateFieldConfig.ts`
+ *    (uses `MasterCertificateConfig`, `PORTRAIT_TEMPLATE_CONFIG`, `LANDSCAPE_TEMPLATE_CONFIG`)
+ * 2. Service-to-Template Mapping & Persistence: `src/config/certificateTemplateMap.ts`
+ *    (uses `SERVICE_TEMPLATE_MAP`, `resolveTemplateForService`, `setServiceTemplateOverride` with 'odeda_custom_template_allocations')
+ * 
+ * This file is retained for reference and backward compatibility. It is disconnected from the active
+ * `CertificateRenderer` and `CertificateViewer`. Do NOT import from this file in new code.
+ */
 import { PublicCertificate } from "@/types/publicCertificate";
 
+/** @deprecated Use `MasterTemplateType` from `@/config/certificateTemplateMap` instead. */
 export type CertificateOrientation = "landscape" | "portrait";
 
+/** @deprecated Use `CertificateFieldDefinition` from `@/config/certificateFieldConfig` instead. */
 export interface FieldPosition {
   key: string;
   label?: string;
@@ -22,6 +36,7 @@ export interface FieldPosition {
   format?: (cert: PublicCertificate) => string;
 }
 
+/** @deprecated Use QR coordinates configured within `MasterCertificateConfig` in `@/config/certificateFieldConfig` instead. */
 export interface QRCodePosition {
   x: number; // percentage from left (0 - 100)
   y: number; // percentage from top (0 - 100)
@@ -31,6 +46,7 @@ export interface QRCodePosition {
   showBorder?: boolean;
 }
 
+/** @deprecated Use `MasterCertificateConfig` from `@/config/certificateFieldConfig` instead. */
 export interface CertificateTemplateConfig {
   id: string;
   name: string;
@@ -47,11 +63,7 @@ export interface CertificateTemplateConfig {
 /**
  * MASTER TEMPLATE CONFIGURATIONS
  * 
- * You can fine-tune any field position by adjusting:
- * - x: percentage from left edge (0 to 100)
- * - y: percentage from top edge (0 to 100)
- * - width: maximum percentage width of the text box (prevents overflow)
- * - fontSize: scale-relative font size (cqw = container query width units)
+ * @deprecated Superseded by `MASTER_CERTIFICATE_CONFIGS` in `src/config/certificateFieldConfig.ts`.
  */
 export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = {
   // =========================================================================
@@ -716,8 +728,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
 /**
  * DEFAULT SERVICE TO TEMPLATE MAPPING
  * 
- * Maps any LOGMAS serviceId to a certificate template config.
- * You have complete freedom to change or add mappings here.
+ * @deprecated Superseded by `SERVICE_TEMPLATE_MAP` in `src/config/certificateTemplateMap.ts`.
  */
 export const DEFAULT_SERVICE_TEMPLATE_MAPPINGS: Record<string, string> = {
   certificate_of_origin: "origin_portrait",
@@ -741,6 +752,7 @@ const STORAGE_KEY_TEMPLATE_OVERRIDES = "odeda_service_template_overrides";
 
 /**
  * Retrieves all saved custom overrides from localStorage
+ * @deprecated Superseded by `getSavedTemplateOverrides` in `src/config/certificateTemplateMap.ts` which uses key 'odeda_custom_template_allocations'.
  */
 export function getSavedTemplateOverrides(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -754,6 +766,7 @@ export function getSavedTemplateOverrides(): Record<string, string> {
 
 /**
  * Save a custom template assignment for a service
+ * @deprecated Superseded by `setServiceTemplateOverride` in `src/config/certificateTemplateMap.ts`.
  */
 export function setServiceTemplateOverride(serviceId: string, templateId: string): void {
   if (typeof window === "undefined") return;
@@ -769,6 +782,7 @@ export function setServiceTemplateOverride(serviceId: string, templateId: string
 
 /**
  * Resolves the effective template configuration for a given service code or template override ID.
+ * @deprecated Superseded by `resolveTemplateForService` in `src/config/certificateTemplateMap.ts` + `getMasterTemplateConfig` in `src/config/certificateFieldConfig.ts`.
  */
 export function getCertificateTemplateConfig(
   serviceCodeOrId?: string,

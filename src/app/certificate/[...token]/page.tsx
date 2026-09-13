@@ -4,11 +4,10 @@ import React from "react";
 import { usePublicCertificate } from "@/hooks/queries/usePublicCertificate";
 import { CertificateViewer } from "@/components/certificate/CertificateViewer";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { Loader2, AlertCircle, FileQuestion, ArrowLeft, Search } from "lucide-react";
+import { Loader2, AlertCircle, FileQuestion, ArrowLeft, Search, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import { OdedaLgaLogo } from "@/components/certificate/shared/CertificateEmblems";
 
 interface CertificatePublicPageProps {
   params: Promise<{ token: string | string[] }>;
@@ -31,10 +30,12 @@ export default function CertificatePublicPage({ params }: CertificatePublicPageP
         </div>
         <main className="flex-1 flex flex-col items-center justify-center p-6">
           <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-            <div className="relative">
-              <OdedaLgaLogo className="w-24 h-24 animate-pulse opacity-80" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-emerald-700 animate-spin" />
+            <div className="relative flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center border border-emerald-300/50 shadow-inner">
+                <ShieldCheck className="w-10 h-10 text-emerald-800 dark:text-emerald-300 animate-pulse" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-900 rounded-full p-1.5 shadow-sm border border-slate-200 dark:border-slate-800">
+                <Loader2 className="w-4 h-4 text-emerald-700 animate-spin" />
               </div>
             </div>
             <div className="space-y-1">
