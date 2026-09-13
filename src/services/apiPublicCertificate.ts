@@ -284,8 +284,10 @@ export const apiPublicCertificate = {
     // 1. Try real backend endpoint first
     try {
       const response = await api.get<{ data: PublicCertificate } | PublicCertificate>(
-        `/api/v1/public/certificates/${cleanToken}`
+        `/certificates/${cleanToken}`
       );
+
+      console.log(response,"response")
       if (response && (response as any).data) {
         return (response as any).data;
       }
