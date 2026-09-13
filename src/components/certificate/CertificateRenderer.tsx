@@ -235,7 +235,7 @@ export function CertificateRenderer({
             <div className="w-full h-full flex items-center justify-center p-0.5 bg-white/95 rounded-[3px] shadow-xs">
               <QRCodeSVG
                 value={qrVerificationUrl}
-                size={140}
+                size={90}
                 className="w-full h-full object-contain"
               />
             </div>

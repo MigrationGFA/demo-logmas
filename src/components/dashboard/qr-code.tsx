@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 
 export function QRCodeSVG({
   value,
-  size = 160,
+  size = 100,
   className,
 }: {
   value: string;

@@ -295,8 +295,10 @@ export const apiPublicCertificate = {
         if ((response as any).applicant && (response as any).certificateData) {
           return response as unknown as PublicCertificate;
         }
+
+        else return response
         // Fallback transformation
-        return apiCertificates.transformBackendToPublicCertificate(response, cleanToken);
+        // return apiCertificates.transformBackendToPublicCertificate(response, cleanToken);
       }
     } catch (err) {
       console.warn("apiPublicCertificate backend lookup failed, checking local registry:", err);
@@ -304,58 +306,58 @@ export const apiPublicCertificate = {
     }
 
     // 2. Check Seeded Official Certificates
-    const seeded = SEEDED_CERTIFICATES.find(
-      (c) =>
-        c.publicToken.toLowerCase() === cleanToken.toLowerCase() ||
-        c.documentId?.toLowerCase() === cleanToken.toLowerCase() ||
-        c.certificateNumber.toLowerCase() === cleanToken.toLowerCase() ||
-        cleanToken.toLowerCase().includes(c.publicToken.toLowerCase())
-    );
-    if (seeded) {
-      return seeded;
-    }
+    // const seeded = SEEDED_CERTIFICATES.find(
+    //   (c) =>
+    //     c.publicToken.toLowerCase() === cleanToken.toLowerCase() ||
+    //     c.documentId?.toLowerCase() === cleanToken.toLowerCase() ||
+    //     c.certificateNumber.toLowerCase() === cleanToken.toLowerCase() ||
+    //     cleanToken.toLowerCase().includes(c.publicToken.toLowerCase())
+    // );
+    // if (seeded) {
+    //   return seeded;
+    // }
 
-    // 3. Check local applications store
-    const localApps = getOdedaApplications();
-    const matchedApp = localApps.find((a) => {
-      const computedToken = generatePublicToken(a.id);
-      const computedAppToken = generatePublicToken(a.applicationNo);
-      return (
-        computedToken === cleanToken ||
-        computedAppToken === cleanToken ||
-        a.id === cleanToken ||
-        a.applicationNo === cleanToken ||
-        a.certificateNumber === cleanToken ||
-        a.qrToken === cleanToken ||
-        a.verificationCode === cleanToken
-      );
-    });
+    // // 3. Check local applications store
+    // const localApps = getOdedaApplications();
+    // const matchedApp = localApps.find((a) => {
+    //   const computedToken = generatePublicToken(a.id);
+    //   const computedAppToken = generatePublicToken(a.applicationNo);
+    //   return (
+    //     computedToken === cleanToken ||
+    //     computedAppToken === cleanToken ||
+    //     a.id === cleanToken ||
+    //     a.applicationNo === cleanToken ||
+    //     a.certificateNumber === cleanToken ||
+    //     a.qrToken === cleanToken ||
+    //     a.verificationCode === cleanToken
+    //   );
+    // });
 
-    if (matchedApp) {
-      return transformApplicationToPublicCertificate(matchedApp, cleanToken);
-    }
+    // if (matchedApp) {
+    //   return transformApplicationToPublicCertificate(matchedApp, cleanToken);
+    // }
 
-    // 4. Default fallback: generate an authentic certificate instance for this token
-    // Determine template by keyword in token
-    const isClub = cleanToken.toLowerCase().includes("club") || cleanToken.toLowerCase().includes("clb");
-    const certNum = isClub
-      ? `ODLG/CR/2026/CLUB/${cleanToken.substring(0, 5).toUpperCase()}`
-      : `ODE/CERT/2026/${cleanToken.substring(0, 8)}`;
+    // // 4. Default fallback: generate an authentic certificate instance for this token
+    // // Determine template by keyword in token
+    // const isClub = cleanToken.toLowerCase().includes("club") || cleanToken.toLowerCase().includes("clb");
+    // const certNum = isClub
+    //   ? `ODLG/CR/2026/CLUB/${cleanToken.substring(0, 5).toUpperCase()}`
+    //   : `ODE/CERT/2026/${cleanToken.substring(0, 8)}`;
 
-    const fallbackApp = {
-      id: cleanToken,
-      applicationNo: `ODE-APP-${cleanToken.substring(0, 6)}`,
-      serviceId: isClub ? "club_registration" : "certificate_of_origin",
-      serviceName: isClub ? "Certificate of Club Registration" : "Certificate of Origin",
-      category: "Certificates",
-      fullName: isClub ? "Youth Empowerment Club" : "Adebayo Olawale Babatunde",
-      address: "Odeda Local Government Area, Ogun State, Nigeria",
-      ward: "Ward 7 (Itesi / Camp)",
-      status: "Approved",
-      certificateNumber: certNum,
-      issuedAt: new Date().toISOString(),
-    };
+    // const fallbackApp = {
+    //   id: cleanToken,
+    //   applicationNo: `ODE-APP-${cleanToken.substring(0, 6)}`,
+    //   serviceId: isClub ? "club_registration" : "certificate_of_origin",
+    //   serviceName: isClub ? "Certificate of Club Registration" : "Certificate of Origin",
+    //   category: "Certificates",
+    //   fullName: isClub ? "Youth Empowerment Club" : "Adebayo Olawale Babatunde",
+    //   address: "Odeda Local Government Area, Ogun State, Nigeria",
+    //   ward: "Ward 7 (Itesi / Camp)",
+    //   status: "Approved",
+    //   certificateNumber: certNum,
+    //   issuedAt: new Date().toISOString(),
+    // };
 
-    return transformApplicationToPublicCertificate(fallbackApp, cleanToken);
+    // return transformApplicationToPublicCertificate(fallbackApp, cleanToken);
   },
 };

@@ -11,7 +11,7 @@ interface CertificateQRCodeProps {
 
 export function CertificateQRCode({
   value,
-  size = 96,
+  size = 72,
   label = "Scan to verify authenticity",
   subLabel = "or visit: verify.odeda.ogunstate.gov.ng",
   className = "",

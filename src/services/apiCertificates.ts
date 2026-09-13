@@ -224,10 +224,10 @@ export const apiCertificates = {
       verification: {
         valid: true,
         verifiedAt: new Date().toISOString(),
-        qrUrl: `https://logmas.gov.ng/certificate/${encodeURIComponent(cert.certificateNumber || effectiveToken)}`,
+        qrUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/certificate/${encodeURIComponent(cert.certificateNumber || effectiveToken)}`,
         qrToken: cert.qrToken,
         verificationCode: cert.verificationCode,
-        verificationUrl: `https://verify.odeda.ogunstate.gov.ng/verify?code=${encodeURIComponent(cert.certificateNumber || cert.verificationCode)}`,
+        verificationUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/verify?code=${encodeURIComponent(cert.certificateNumber || cert.verificationCode)}`,
         verificationMessage:
           "Authentic certificate issued by Odeda Local Government Secretariat.",
       },
