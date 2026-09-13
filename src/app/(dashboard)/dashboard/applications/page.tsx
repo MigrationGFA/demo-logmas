@@ -556,9 +556,9 @@ export default function ApplicationsPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                     onClick={() => {
-                      window.open(getPublicCertificateUrl(app?.certificate.certificateNumber), "_blank");
-                    }}
+                      onClick={() => {
+                        window.open(getPublicCertificateUrl(app?.certificate.certificateNumber), "_blank");
+                      }}
                       className="text-xs h-8 gap-1.5 border-emerald-400 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-semibold"
                     >
                       <FileBadge className="h-3.5 w-3.5" />
@@ -888,7 +888,7 @@ export default function ApplicationsPage() {
                 <div>
                   <span className="text-[10px] text-muted-foreground block font-medium">Certificate No:</span>
                   <span className="font-mono font-bold text-foreground">
-                    {selectedApp.certificateNumber || `ODE/CERT/2026/${selectedApp.id.slice(0, 8)}`}
+                    {selectedApp.certificate?.certificateNumber || selectedApp.certificateNumber || `ODE/CERT/2026/${selectedApp.id.slice(0, 8)}`}
                   </span>
                 </div>
                 <div>
@@ -927,14 +927,28 @@ export default function ApplicationsPage() {
               >
                 Close
               </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => window.print()}
-                className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
-              >
-                <Printer className="h-3.5 w-3.5" /> Print Official Certificate
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const certId = selectedApp.certificate?.certificateNumber || selectedApp.certificateNumber || selectedApp.id;
+                    window.open(getPublicCertificateUrl(certId), "_blank");
+                  }}
+                  className="gap-1.5 border-emerald-500 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                >
+                  <FileBadge className="h-3.5 w-3.5" /> Full Certificate
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                >
+                  <Printer className="h-3.5 w-3.5" /> Print
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>

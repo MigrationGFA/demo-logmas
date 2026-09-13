@@ -4,6 +4,7 @@ import { PublicCertificate } from "@/types/publicCertificate";
 import { generatePublicToken, formatOfficialDate } from "@/lib/certificateTokens";
 import { getOdedaApplications } from "@/lib/odedaApplications";
 import { getOdedaServiceById } from "@/config/odedaServices";
+import { apiCertificates } from "./apiCertificates";
 
 // Seeded official certificates matching the exact client designs and tokens
 const SEEDED_CERTIFICATES: PublicCertificate[] = [
@@ -281,20 +282,24 @@ export const apiPublicCertificate = {
   getPublicCertificate: async (token: string): Promise<PublicCertificate> => {
     const cleanToken = token.trim();
 
-    // 1. Try real backend endpoint first
+    // 1. Try real backend endpoint first (GET /api/v1/certificates/:id)
     try {
-      const response = await api.get<{ data: PublicCertificate } | PublicCertificate>(
-        `/certificates/${cleanToken}`
-      );
+      const response = await apiCertificates.getCertificateById(cleanToken);
 
-      console.log(response,"response")
-      if (response && (response as any).data) {
-        return (response as any).data;
+      if (response && response.id) {
+        // If it conforms to the BackendCertificate contract with nested application
+        if (response.application || response.service) {
+          return apiCertificates.transformBackendToPublicCertificate(response, cleanToken);
+        }
+        // If it was already formatted as PublicCertificate
+        if ((response as any).applicant && (response as any).certificateData) {
+          return response as unknown as PublicCertificate;
+        }
+        // Fallback transformation
+        return apiCertificates.transformBackendToPublicCertificate(response, cleanToken);
       }
-      if (response && (response as any).certificateNumber) {
-        return response as PublicCertificate;
-      }
-    } catch {
+    } catch (err) {
+      console.warn("apiPublicCertificate backend lookup failed, checking local registry:", err);
       // Continue to local resolution
     }
 

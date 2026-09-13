@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ShieldCheck, QrCode, CheckCircle2, XCircle, Loader2, Search } from "lucide-react";
+import { ShieldCheck, QrCode, CheckCircle2, XCircle, Loader2, Search, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,14 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { apiVerification } from "@/services/apiVerification";
 
 export const usePublicVerification = (code: string, enabled: boolean) => {
   return useQuery({
     queryKey: ["public-verify", code],
     queryFn: async () => {
-      const response = await api.get(`/state-of-origin/verify/${encodeURIComponent(code)}`);
-      return response; // expects { success: true, data: {...} }
+      const response = await apiVerification.verifyDocument(code);
+      return response;
     },
     enabled: !!code && enabled,
     retry: false,
@@ -77,9 +77,9 @@ function VerifyContent() {
   };
 
   // Extract result from API response
-  const result = response?.data || response;
-  const isValid = result?.valid === true;
-  const isNotFound = submittedCode && !isLoading && (!result || error);
+  const result = response?.data || (response?.valid ? (response as any) : null);
+  const isValid = response?.valid === true && !!result;
+  const isNotFound = submittedCode && !isLoading && (!isValid || !!error);
 
   // Helper to format currency
   const formatNgn = (amount: number) => {
@@ -224,10 +224,34 @@ function VerifyContent() {
                     <Field label="Ward" value={result.metadata?.wardName || "N/A"} />
                   </>
                 )}
+
+                {result.type === "DOCUMENT" && (
+                  <>
+                    {result.amount > 0 && <Field label="Statutory Fee" value={formatNgn(result.amount)} />}
+                    <Field label="Ward" value={result.metadata?.ward || result.metadata?.wardName || "N/A"} />
+                    <Field label="Service / Category" value={result.metadata?.categoryName || "Statutory Service"} />
+                    <Field label="Location / LGA" value={result.metadata?.businessAddress || "Odeda Local Government, Ogun State"} />
+                  </>
+                )}
               </div>
 
-              <div className="mt-4 pt-3 border-t border-success/20">
-                <Button variant="outline" size="sm" onClick={handleReset}>
+              <div className="mt-4 pt-3 border-t border-success/20 flex flex-wrap items-center gap-2.5">
+                {(result.certificateNumber || result.publicToken || result.idNumber) && (
+                  <Button
+                    asChild
+                    size="sm"
+                    className="gap-1.5 bg-[#0D3B1E] hover:bg-[#14532D] text-white font-semibold text-xs h-8 shadow-sm"
+                  >
+                    <Link
+                      href={`/certificate/${encodeURIComponent(result.certificateNumber || result.idNumber)}`}
+                      target="_blank"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>View Full Certificate</span>
+                    </Link>
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={handleReset} className="text-xs h-8">
                   Verify Another
                 </Button>
               </div>
@@ -249,7 +273,7 @@ function VerifyContent() {
                 Document could not be verified
               </h3>
               <p className="text-sm text-muted-foreground">
-                No record matches &ldquo;{submittedCode}&rdquo;. Check the code and try again.
+                {response?.error || `No official record matches "${submittedCode}". Check the code and try again.`}
               </p>
               <Button variant="outline" size="sm" className="mt-3" onClick={handleReset}>
                 Try Again

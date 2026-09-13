@@ -112,6 +112,15 @@ export interface Application {
   };
 
   // Output Credentials
+  certificate?: {
+    id?: string;
+    certificateNumber?: string;
+    verificationCode?: string;
+    qrToken?: string;
+    issuedAt?: string;
+    issuedBy?: any;
+    pdfUrl?: string | null;
+  };
   certificateNumber?: string | null;
   licenceNumber?: string | null;
   issuedAt?: string | null;

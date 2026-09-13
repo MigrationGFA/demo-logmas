@@ -85,7 +85,7 @@ export default function LeadershipPage() {
             <section className="container mx-auto px-4 py-14">
                 <Card className="overflow-hidden border-border/40 bg-gradient-card shadow-elegant">
                     <div className="grid md:grid-cols-3">
-                        <div className="relative bg-gradient-hero text-primary-foreground min-h-80">
+                        <div className="order-2 md:order-1 relative bg-gradient-hero text-primary-foreground min-h-[360px] sm:min-h-[420px] md:min-h-80">
                             {chairman.image ? (
                                 <Image
                                     src={chairman.image}
@@ -112,7 +112,7 @@ export default function LeadershipPage() {
                                 <div className="text-xs opacity-90">All Progressives Congress (APC) · Odeda</div>
                             </div>
                         </div>
-                        <div className="md:col-span-2 p-8 md:p-10">
+                        <div className="order-1 md:order-2 md:col-span-2 p-6 sm:p-8 md:p-10">
                             <Badge className="bg-gold/15 text-gold border-gold/30">
                                 Chairman&apos;s Welcome Address
                             </Badge>

@@ -115,8 +115,9 @@ function normalizeApplication(raw: any): any {
       (status === "Approved" || status === "Completed" ? raw.updatedAt : null),
     declinedAt:
       raw.declinedAt || (status === "Declined" ? raw.updatedAt : null),
-    certificateNumber: raw.certificateNumber || raw.licenceNumber || null,
-    licenceNumber: raw.licenceNumber || raw.certificateNumber || null,
+    certificate: raw.certificate || (raw.certificateNumber ? { certificateNumber: raw.certificateNumber } : undefined),
+    certificateNumber: raw.certificate?.certificateNumber || raw.certificateNumber || raw.licenceNumber || null,
+    licenceNumber: raw.licenceNumber || raw.certificate?.certificateNumber || raw.certificateNumber || null,
     issuedAt: raw.issuedAt || null,
     issuedBy: raw.issuedBy || null,
     expiryDate: raw.expiryDate || null,

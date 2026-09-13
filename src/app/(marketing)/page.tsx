@@ -765,29 +765,34 @@ function ChairmanSection() {
       </div>
       <Card className="overflow-hidden border-border/40 bg-gradient-card shadow-elegant">
         <div className="grid md:grid-cols-5">
-          <div className="md:col-span-2 relative bg-gradient-hero text-primary-foreground">
+          {/* Executive Chairman Image: order-2 on mobile (shows below message), md:order-1 on desktop (left col) */}
+          <div className="order-2 md:order-1 md:col-span-2 relative min-h-[380px] sm:min-h-[460px] md:min-h-[520px] bg-gradient-hero text-primary-foreground">
             {c.image && (
               <Image
                 src={c.image}
                 alt={`${c.name}, ${c.role}`}
-                className="w-full h-full object-cover object-top md:absolute md:inset-0"
+                className="w-full h-full object-cover object-top absolute inset-0"
                 loading="lazy"
                 fill
               />
             )}
-            {/* <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 text-white">
               <div className="flex items-center gap-2">
                 <Crown className="h-4 w-4 text-gold" />
-                <span className="text-xs uppercase tracking-wider opacity-90">
+                <span className="text-xs uppercase tracking-wider opacity-90 font-medium">
                   Executive Chairman
                 </span>
               </div>
               <div className="mt-1 font-bold text-lg leading-tight">
                 {c.name}
               </div>
-            </div> */}
+              <div className="text-xs text-white/80 mt-0.5">
+                Odeda Local Government Area · Ogun State
+              </div>
+            </div>
           </div>
-          <div className="md:col-span-3 p-8 md:p-10">
+          {/* Welcome Message Text: order-1 on mobile (shows before image), md:order-2 on desktop (right cols) */}
+          <div className="order-1 md:order-2 md:col-span-3 p-6 sm:p-8 md:p-10">
             <Quote className="h-7 w-7 text-gold" />
             <div className="mt-3 space-y-4 text-sm md:text-base leading-relaxed text-foreground/90">
               <p>

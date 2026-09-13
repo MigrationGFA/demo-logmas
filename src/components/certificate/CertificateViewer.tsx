@@ -14,6 +14,7 @@ import {
   MasterCertificateConfig,
 } from "@/config/certificateFieldConfig";
 import {
+  Download,
   Printer,
   ShieldCheck,
   Share2,
@@ -283,14 +284,25 @@ export function CertificateViewer({
               </Link>
             </Button>
 
-            {/* Print / Save PDF Button */}
+            {/* Download Certificate as PDF */}
             <Button
               onClick={handlePrint}
               size="sm"
               className="gap-1.5 bg-[#0D3B1E] hover:bg-[#14532D] text-white font-semibold text-xs h-8 shadow-sm"
             >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download PDF</span>
+            </Button>
+
+            {/* Print Official Button */}
+            <Button
+              onClick={handlePrint}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs h-8 hidden sm:inline-flex"
+            >
               <Printer className="w-3.5 h-3.5" />
-              <span>Print Official</span>
+              <span>Print</span>
             </Button>
           </div>
         </div>
