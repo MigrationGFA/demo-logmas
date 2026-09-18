@@ -229,17 +229,18 @@ export const NOTIFICATIONS = [
 ];
 
 import chairmanPhoto from "@/assets/chairman.jpg";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 export const LEADERSHIP = [
   {
-    name: "Hon. Dr. Waliat Folasade Adeyemo",
-    role: "Executive Chairman",
-    bio: "Leading Odeda Local Government Area with a vision for purposeful, people-centred governance, digital transformation, agricultural empowerment, and infrastructure growth across all 10 wards.",
-    initials: "WA",
+    name: LGA_CONFIG.leadership.chairman.name,
+    role: LGA_CONFIG.leadership.chairman.title,
+    bio: `Leading ${LGA_CONFIG.identity.fullName} with a vision for purposeful, people-centred governance, digital transformation, agricultural empowerment, and infrastructure growth across all ${LGA_CONFIG.wards.length} wards.`,
+    initials: LGA_CONFIG.leadership.chairman.name.split(" ").map(n => n[0]).filter(Boolean).slice(0, 2).join("") || "WA",
     accent: "primary",
     image: chairmanPhoto,
     party: "All Progressives Congress (APC)",
-    email:"chairman@odedalga.com"
+    email: LGA_CONFIG.contact.email,
   },
   {
     name: "Hon. Vice Chairman",
@@ -275,18 +276,7 @@ export const LEADERSHIP = [
   },
 ];
 
-export const WARDS = [
-  "Odeda",
-  "Obantoko",
-  "Ilugun",
-  "Balogun Itesi",
-  "Alagbagba",
-  "Osiele",
-  "Alabata",
-  "Olodo",
-  "Obete",
-  "Opeji",
-];
+export const WARDS = LGA_CONFIG.wards.map((w) => w.name);
 
 export const WARDS_INFO: {
   name: string;

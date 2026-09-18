@@ -47,6 +47,7 @@ import { SiteHeader, SiteFooter, NAVBAR_SERVICES } from "@/components/site-chrom
 import { useServices } from "@/hooks/queries/useServices";
 import { ODEDA_SERVICES } from "@/config/odedaServices";
 import { SITE_CONTACT } from "@/config/siteContact";
+import { LGA_CONFIG } from "@/config/lga.config";
 import {
   STATS,
   SERVICES,
@@ -86,10 +87,9 @@ function HomePage() {
     <>
       <Helmet>
         <title>
-          Welcome to the Official Website of Odeda Local Government Area, Ogun
-          State, Nigeria.
+          {`Welcome to the Official Website of ${LGA_CONFIG.identity.fullName}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}.`}
         </title>
-        <link rel="canonical" href="https://www.odedalga.com/" />
+        <link rel="canonical" href={LGA_CONFIG.contact.portalUrl} />
       </Helmet>
       <div className="min-h-screen flex flex-col">
         <SiteHeader />
@@ -120,18 +120,18 @@ function HeroBanner() {
     {
       img: bannerSecretariat,
       eyebrow: "Official Government Platform",
-      title: "Building a Smarter Odeda Local Government",
+      title: `Building a Smarter ${LGA_CONFIG.identity.name} Local Government`,
       subtitle:
         "Delivering transparent governance, digital public services, and sustainable development for every resident",
       cta: { label: "Explore Our Local Government", to: "/dashboard" as const },
-      alt: "Odeda LGA Secretariat Complex, Ogun State",
+      alt: `${LGA_CONFIG.identity.fullName} Secretariat Complex, ${LGA_CONFIG.identity.state}`,
     },
     {
       img: bannerOjudeOba,
       eyebrow: "Agriculture & Rural Prosperity",
       title: "Growing Agriculture, Growing Prosperity",
       subtitle:
-        "Supporting farmers, agribusinesses, food production, and rural development across Odeda LGA.",
+        `Supporting farmers, agribusinesses, food production, and rural development across ${LGA_CONFIG.identity.name} LGA.`,
       cta: { label: "Investment Opportunities", to: "/tourism" as const },
       alt: "Cultural parade and harvest celebrations",
     },
@@ -151,7 +151,7 @@ function HeroBanner() {
       subtitle:
         "Celebrating our rich Egba Yoruba culture while embracing innovation, education, and economic growth.",
       cta: { label: "Discover Our Communities", to: "/invest" as const },
-      alt: "Bustling Osiele and Odeda markets with traders and produce",
+      alt: `Bustling ${LGA_CONFIG.identity.name} markets with traders and produce`,
     },
     {
       img: bannerFour,
@@ -161,9 +161,9 @@ One Vision.
 One Future.
 `,
       subtitle:
-        "Working together to build an inclusive, transparent, innovative, and prosperous Odeda Local Government Area.",
-      cta: { label: "Meet the Chairman", to: "/invest" as const },
-      alt: "Bustling Odeda market with traders and produce",
+        `Working together to build an inclusive, transparent, innovative, and prosperous ${LGA_CONFIG.identity.fullName}.`,
+      cta: { label: `Meet the ${LGA_CONFIG.leadership.chairman.title}`, to: "/invest" as const },
+      alt: `Bustling ${LGA_CONFIG.identity.name} market with traders and produce`,
     },
   ];
 
@@ -780,14 +780,14 @@ function ChairmanSection() {
               <div className="flex items-center gap-2">
                 <Crown className="h-4 w-4 text-gold" />
                 <span className="text-xs uppercase tracking-wider opacity-90 font-medium">
-                  Executive Chairman
+                  {LGA_CONFIG.leadership.chairman.title}
                 </span>
               </div>
               <div className="mt-1 font-bold text-lg leading-tight">
-                {c.name}
+                {LGA_CONFIG.leadership.chairman.name}
               </div>
               <div className="text-xs text-white/80 mt-0.5">
-                Odeda Local Government Area · Ogun State
+                {LGA_CONFIG.identity.fullName} · {LGA_CONFIG.identity.state}
               </div>
             </div>
           </div>
@@ -796,17 +796,16 @@ function ChairmanSection() {
             <Quote className="h-7 w-7 text-gold" />
             <div className="mt-3 space-y-4 text-sm md:text-base leading-relaxed text-foreground/90">
               <p>
-                Dear citizens, residents, farmers, investors and friends of
-                Odeda Local Government Area,
+                Dear citizens, residents, farmers, investors and friends of{" "}
+                {LGA_CONFIG.identity.fullName},
               </p>
               <p>
                 It is with profound humility and gratitude to Almighty God that
-                I welcome you to the official digital home of Odeda Local
-                Government Area, Ogun State.
+                I welcome you to the official digital home of {LGA_CONFIG.identity.fullName}, {LGA_CONFIG.identity.state}.
               </p>
               <p>
-                Our administration is committed to building an Odeda where every
-                community across our ten wards feels the impact of purposeful,
+                Our administration is committed to building an {LGA_CONFIG.identity.name} where every
+                community across our {LGA_CONFIG.wards.length} wards feels the impact of purposeful,
                 people-centred governance. We remain focused on improving
                 infrastructure, supporting our farmers, traders and youths,
                 strengthening grassroots development and making government more
@@ -828,20 +827,20 @@ function ChairmanSection() {
               </p>
               <p>
                 I invite you to explore this portal, stay informed, access our
-                services, engage with us and join us in building a greater
-                Odeda.
+                services, engage with us and join us in building a greater{" "}
+                {LGA_CONFIG.identity.name}.
               </p>
               <p>
-                Together, with God&apos;s guidance and your support, Odeda Local
-                Government will continue to rise.
+                Together, with God&apos;s guidance and your support, {LGA_CONFIG.identity.fullName}{" "}
+                will continue to rise.
               </p>
             </div>
             <div className="mt-6 pt-5 border-t border-border/40">
               <div className="font-semibold">
-                Hon. Dr. Waliat Folasade Adeyemo
+                {LGA_CONFIG.leadership.chairman.name}
               </div>
               <div className="text-xs text-muted-foreground">
-                Executive Chairman, Odeda Local Government Area · Ogun State
+                {LGA_CONFIG.leadership.chairman.title}, {LGA_CONFIG.identity.fullName} · {LGA_CONFIG.identity.state}
               </div>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -868,7 +867,7 @@ function InvestSection() {
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
             <Badge variant="outline" className="mb-3">
-              Invest in Odeda LGA
+              Invest in {LGA_CONFIG.identity.name} LGA
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
               High-yield opportunities in Solid Minerals, Agro-processing & Real
@@ -1008,13 +1007,13 @@ function WardsMap() {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <Badge variant="outline" className="mb-3">
-            Our 10 Wards
+            Our {LGA_CONFIG.wards.length} Wards
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Explore Odeda Local Government Area
+            Explore {LGA_CONFIG.identity.fullName}
           </h2>
           <p className="mt-3 text-muted-foreground">
-            A council of ten unique wards — each with its own agricultural,
+            A council of {LGA_CONFIG.wards.length} unique wards — each with its own agricultural,
             mineral, educational and cultural assets. Tap a ward to learn more.
           </p>
         </div>
@@ -1142,7 +1141,7 @@ function WardsMap() {
                 </g>
               </svg>
               <div className="absolute bottom-3 left-3 text-[10px] uppercase tracking-wider text-muted-foreground bg-background/70 backdrop-blur rounded-md px-2 py-1 border border-border/40">
-                Odeda LGA · Ogun State
+                {LGA_CONFIG.identity.name} LGA · {LGA_CONFIG.identity.state}
               </div>
             </div>
           </Card>

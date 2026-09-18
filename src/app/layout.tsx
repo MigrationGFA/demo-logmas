@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "./provider";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LOGMAS Odeda",
-  description: "Local Government Management and Administration System for Odeda Local Government Area",
+  title: `${LGA_CONFIG.platform.name} ${LGA_CONFIG.identity.name}`,
+  description: `${LGA_CONFIG.platform.fullName} for ${LGA_CONFIG.identity.fullName}`,
 };
 
 export default function RootLayout({

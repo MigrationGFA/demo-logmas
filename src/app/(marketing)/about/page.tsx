@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHero } from "@/components/page-shell";
 import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { Building2, Users, Target, Award, MapPin, Calendar, Crown, ScrollText } from "lucide-react";
 import Link from "next/link";
 
@@ -43,7 +44,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About the LGA"
         title="Rooted in agriculture & industry, building the future"
-        subtitle="Odeda Local Government Area — proudly headquartered in Odeda, Ogun State — combines rich Egba cultural heritage with agricultural productivity, solid minerals, and modern digital public service."
+        subtitle={`${LGA_CONFIG.identity.fullName} — proudly headquartered in ${LGA_CONFIG.identity.headquarters}, ${LGA_CONFIG.identity.state} — combines rich cultural heritage with agricultural productivity, solid minerals, and modern digital public service.`}
       >
         <div className="flex flex-wrap gap-3">
           <Button asChild className="bg-gradient-hero shadow-elegant">
@@ -60,12 +61,12 @@ export default function AboutPage() {
           {[
             {
               icon: Building2,
-              title: "10 Wards",
+              title: `${LGA_CONFIG.wards.length} Wards`,
               desc: "Politically organized for grassroots impact",
             },
-            { icon: Users, title: "320K+ Citizens", desc: "Vibrant Egba & agrarian community" },
-            { icon: Calendar, title: "Est. 1976", desc: "Premier agricultural & quarry hub" },
-            { icon: MapPin, title: "HQ: Odeda", desc: "Central secretariat & council chamber" },
+            { icon: Users, title: "320K+ Citizens", desc: "Vibrant and industrious community" },
+            { icon: Calendar, title: `Est. ${LGA_CONFIG.identity.establishedYear}`, desc: "Premier agricultural & quarry hub" },
+            { icon: MapPin, title: `HQ: ${LGA_CONFIG.identity.headquarters}`, desc: "Central secretariat & council chamber" },
           ].map((s) => (
             <Card
               key={s.title}
@@ -85,11 +86,11 @@ export default function AboutPage() {
         <div>
           <Badge variant="outline">Our Story</Badge>
           <h2 className="mt-3 text-3xl md:text-4xl font-bold tracking-tight">
-            A history of Egba pride & industrious growth
+            A history of community pride & industrious growth
           </h2>
           <div className="mt-4 space-y-4 text-sm md:text-base text-muted-foreground leading-relaxed">
             <p>
-              Odeda Local Government Area was created in <b>1976</b> with its administrative headquarters in <b>Odeda</b> town along the strategic Abeokuta–Ibadan expressway. The LGA spans <b>10 political wards</b> and is home to a warm, industrious population.
+              {LGA_CONFIG.identity.fullName} was created in <b>{LGA_CONFIG.identity.establishedYear}</b> with its administrative headquarters in <b>{LGA_CONFIG.identity.headquarters}</b>. The LGA spans <b>{LGA_CONFIG.wards.length} political wards</b> and is home to a warm, industrious population.
             </p>
             <p>
               The LGA's economy is anchored by vast agricultural production (cassava, maize, poultry, cocoa), extensive granite quarrying and solid mineral processing, haulage corridors, tertiary education institutions, and a fast-growing digital SME ecosystem.
@@ -107,7 +108,7 @@ export default function AboutPage() {
             <div>
               <div className="font-semibold">Vision</div>
               <p className="opacity-90">
-                To create a better Odeda where every citizen has access to quality public services, economic opportunities and an enabling environment to live, work and prosper.
+                To create a better {LGA_CONFIG.identity.name} where every citizen has access to quality public services, economic opportunities and an enabling environment to live, work and prosper.
               </p>
             </div>
             {/* <div>
@@ -158,7 +159,7 @@ export default function AboutPage() {
 
       <section className="container mx-auto px-4 py-14">
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
-          The 10 political wards of Odeda LGA
+          The {LGA_CONFIG.wards.length} political wards of {LGA_CONFIG.identity.name} LGA
         </h2>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {WARDS.map((w) => (

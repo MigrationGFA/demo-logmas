@@ -10,6 +10,7 @@ import {
   extractCertificateContentRows,
 } from "@/config/certificateFieldConfig";
 import { QRCodeSVG } from "@/components/dashboard/qr-code";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 interface CertificateRendererProps {
   certificate: PublicCertificate;
@@ -39,7 +40,7 @@ export function CertificateRenderer({
     if (typeof window !== "undefined") {
       return `${window.location.origin}/certificate/${certificate.publicToken}`;
     }
-    return `https://logmas.gov.ng/certificate/${certificate.publicToken}`;
+    return `https://${LGA_CONFIG.verification.domain}/certificate/${certificate.publicToken}`;
   }, [certificate]);
 
   const isInvalid = certificate.status === "revoked" || certificate.status === "expired";

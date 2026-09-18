@@ -1,5 +1,6 @@
 import React from "react";
 import { QRCodeSVG } from "@/components/dashboard/qr-code";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 interface CertificateQRCodeProps {
   value: string;
@@ -13,7 +14,7 @@ export function CertificateQRCode({
   value,
   size = 72,
   label = "Scan to verify authenticity",
-  subLabel = "or visit: verify.odeda.ogunstate.gov.ng",
+  subLabel = `or visit: ${LGA_CONFIG.verification.domain}`,
   className = "",
 }: CertificateQRCodeProps) {
   return (

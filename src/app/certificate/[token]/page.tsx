@@ -8,7 +8,8 @@ import { Loader2, AlertCircle, FileQuestion, ArrowLeft, Search } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import { OdedaLgaLogo } from "@/components/certificate/shared/CertificateEmblems";
+import Image from "next/image";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 interface CertificatePublicPageProps {
   params: Promise<{ token: string }>;
@@ -27,7 +28,15 @@ export default function CertificatePublicPage({ params }: CertificatePublicPageP
         <main className="flex-1 flex flex-col items-center justify-center p-6">
           <div className="flex flex-col items-center gap-4 text-center max-w-sm">
             <div className="relative">
-              <OdedaLgaLogo className="w-24 h-24 animate-pulse opacity-80" />
+              <div className="w-24 h-24 relative flex items-center justify-center">
+                <Image
+                  src={LGA_CONFIG.branding.councilEmblemPath || LGA_CONFIG.branding.logoPath}
+                  alt={LGA_CONFIG.identity.fullName}
+                  width={80}
+                  height={80}
+                  className="object-contain animate-pulse opacity-80"
+                />
+              </div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <Loader2 className="w-8 h-8 text-emerald-700 animate-spin" />
               </div>
@@ -37,7 +46,7 @@ export default function CertificatePublicPage({ params }: CertificatePublicPageP
                 Verifying Official Certificate…
               </h2>
               <p className="text-xs text-muted-foreground">
-                Retrieving statutory certificate record from Odeda Local Government registry.
+                Retrieving statutory certificate record from {LGA_CONFIG.identity.fullName} registry.
               </p>
             </div>
           </div>

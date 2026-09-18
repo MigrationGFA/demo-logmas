@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PublicCertificate } from "@/types/publicCertificate";
 import { MasterTemplateType } from "./certificateTemplateMap";
+import { LGA_CONFIG } from "./lga.config";
 
 /**
  * ============================================================================
@@ -392,28 +393,29 @@ export function extractCertificateContentRows(
 
 /**
  * Official leadership signatories for statutory certificates
+ * Sourced from central LGA_CONFIG.
  */
 export const OFFICIAL_CHAIRMAN = {
-  name: "Hon. Dr. Waliat Folasade Adeyemo",
-  title: "Executive Chairman",
-  organization: "Odeda Local Government",
-  fullTitle: "Executive Chairman\nOdeda Local Government",
+  name: LGA_CONFIG.leadership.chairman.name,
+  title: LGA_CONFIG.leadership.chairman.title,
+  organization: LGA_CONFIG.identity.fullName,
+  fullTitle: LGA_CONFIG.leadership.chairman.fullTitle,
 } as const;
 
 /**
  * ============================================================================
  * 1. MASTER PORTRAIT TEMPLATE CONFIGURATION (Certificate of Origin & Permits)
- * Background Artwork: /certificates/templates/origin-template.jpg
+ * Background Artwork sourced from LGA_CONFIG
  * ============================================================================
  */
 export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
-  id: "portrait",
-  name: "Official Portrait Certificate (Origin & Statutory Permits)",
+  id: LGA_CONFIG.certificates.templates.portrait.id,
+  name: LGA_CONFIG.certificates.templates.portrait.name,
   orientation: "portrait",
   aspectRatio: "1 / 1.414", // A4 Portrait Aspect Ratio
   minHeight: "1050px",
-  backgroundImage: "/certificates/templates/origin-template.jpg",
-  defaultTitle: "CERTIFICATE OF ORIGIN",
+  backgroundImage: LGA_CONFIG.certificates.templates.portrait.backgroundImage,
+  defaultTitle: LGA_CONFIG.certificates.templates.portrait.defaultTitle,
 
   templateDefaults: {
     fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
@@ -432,7 +434,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
   },
 
   signatureImage: {
-    src: "/certificates/signatures/chairman-signature.png",
+    src: LGA_CONFIG.leadership.chairman.signatureImagePath,
     x: 64.0,      // % from left
     y: 75.8,      // % from top
     width: 20.0,  // % width
@@ -471,7 +473,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       letterSpacing: "0.08em",
       color: "#0D3B1E", // Deep forest government green
       textTransform: "uppercase",
-      format: () => "ODEDA LOCAL GOVERNMENT",
+      format: () => LGA_CONFIG.identity.fullName.toUpperCase(),
     },
 
     councilSubtitle: {
@@ -486,7 +488,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       letterSpacing: "0.12em",
       color: "#15803D",
       textTransform: "uppercase",
-      format: () => "OGUN STATE, NIGERIA",
+      format: () => `${LGA_CONFIG.identity.state.toUpperCase()}, ${LGA_CONFIG.identity.country.toUpperCase()}`,
     },
 
     councilAddress: {
@@ -500,7 +502,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       fontWeight: 400,
       letterSpacing: "0.02em",
       color: "#475569",
-      format: () => "P.M.B. 01, Ita Oshin, Odeda, Ogun State. • www.odeda.ogunstate.gov.ng",
+      format: () => `${LGA_CONFIG.contact.shortAddress} • ${LGA_CONFIG.contact.portalUrl.replace(/^https?:\/\//, "")}`,
     },
 
     // Top Right Certificate Number
@@ -568,8 +570,8 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       format: (c) =>
         c.certificateData?.certifyingIntro ||
         (c.service?.description
-          ? `This is to certify that the applicant named below has fulfilled all statutory requirements for ${c.service.name || "Statutory Certification"} in Odeda Local Government Area, Ogun State, Nigeria.`
-          : "This is to certify that the particulars detailed below have been duly inspected, verified, and officially recorded under the statutory authority of Odeda Local Government, Ogun State."),
+          ? `This is to certify that the applicant named below has fulfilled all statutory requirements for ${c.service.name || "Statutory Certification"} in ${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}.`
+          : `This is to certify that the particulars detailed below have been duly inspected, verified, and officially recorded under the statutory authority of ${LGA_CONFIG.identity.fullName}, ${LGA_CONFIG.identity.state}.`),
     },
 
     // ------------------------------------------------------------------------
@@ -590,7 +592,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       color: "#334155",
       format: (c) =>
         c.certificateData?.statutoryLawNotice ||
-        "This Certificate is issued in accordance with the provisions of the Local Government (Establishment) Law of Ogun State, 2006 and other applicable laws.",
+        LGA_CONFIG.certificates.statutoryNotice,
     },
 
     // QR Code Subtitle
@@ -605,7 +607,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       color: "#475569",
       lineHeight: "1.2",
       whiteSpace: "pre-line",
-      format: () => "Scan to verify authenticity\nor visit: logmas.gov.ng",
+      format: () => `Scan to verify authenticity\nor visit: ${LGA_CONFIG.verification.domain}`,
     },
 
     // Chairman Signer Name (above Executive Chairman)
@@ -661,13 +663,13 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
  * ============================================================================
  */
 export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
-  id: "landscape",
-  name: "Official Landscape Certificate (Club & CDA Registration)",
+  id: LGA_CONFIG.certificates.templates.landscape.id,
+  name: LGA_CONFIG.certificates.templates.landscape.name,
   orientation: "landscape",
   aspectRatio: "1.414 / 1", // A4 Landscape Aspect Ratio
   minHeight: "750px",
-  backgroundImage: "/certificates/templates/club-registration-template.jpg",
-  defaultTitle: "CERTIFICATE OF CLUB REGISTRATION",
+  backgroundImage: LGA_CONFIG.certificates.templates.landscape.backgroundImage,
+  defaultTitle: LGA_CONFIG.certificates.templates.landscape.defaultTitle,
 
   templateDefaults: {
     fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
@@ -686,7 +688,7 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
   },
 
   signatureImage: {
-    src: "/certificates/signatures/chairman-signature.png",
+    src: LGA_CONFIG.leadership.chairman.signatureImagePath,
     x: 14.5,
     y: 73.5,
     width: 14.5,
@@ -722,7 +724,7 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       fontWeight: 600,
       letterSpacing: "0.03em",
       color: "#0D3B1E",
-      format: (c) => c.certificateNumber || c.certificateData?.registrationNo || "ODLG/CR/2026/CLB/00123",
+      format: (c) => c.certificateNumber || c.certificateData?.registrationNo || `${LGA_CONFIG.certificates.numberPrefix}/CR/2026/CLB/00123`,
     },
 
     // Top Right Date of Issue
@@ -767,7 +769,7 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       letterSpacing: "0.08em",
       color: "#FEF08A",
       textTransform: "uppercase",
-      format: () => "ODEDA LOCAL GOVERNMENT - EMPOWERING OUR YOUTH, BUILDING OUR FUTURE",
+      format: () => `${LGA_CONFIG.identity.fullName.toUpperCase()} - ${LGA_CONFIG.identity.motto.toUpperCase()}`,
     },
   },
 };

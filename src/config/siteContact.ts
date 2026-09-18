@@ -1,51 +1,47 @@
-/**
- * Centralized Contact Configuration for Odeda Local Government (LOGMAS)
- * Update phone numbers, emails, addresses, and office hours here.
- * Changes here are reflected across all public marketing and citizen-facing pages.
- */
+import { LGA_CONFIG } from "./lga.config";
 
+/**
+ * Contact Configuration for Citizen-facing and Marketing Portals.
+ * Sourced directly from the central LGA_CONFIG module.
+ */
 export const SITE_CONTACT = {
   // Primary Public Contact Information
-  phone: "+234 80 333 789 71",
-  phoneRaw: "+2348033378971",
-  phoneTel: "tel:+2348033378971",
+  phone: LGA_CONFIG.contact.phone,
+  phoneRaw: LGA_CONFIG.contact.phoneRaw,
+  phoneTel: LGA_CONFIG.contact.phoneTel,
   
-  // Secondary / Helpline numbers if needed
-  altPhone: "+234 803 373 3155",
-  altPhoneRaw: "+2348033733155",
-  emergencyPhone: "112",
+  // Secondary / Helpline numbers
+  altPhone: LGA_CONFIG.contact.altPhone,
+  altPhoneRaw: LGA_CONFIG.contact.altPhoneRaw,
+  emergencyPhone: LGA_CONFIG.contact.emergencyPhone,
 
   // Email Addresses
-  email: "info@odedalga.com",
-  emailMailto: "mailto:info@odedalga.com",
-  supportEmail: "support@odedalga.com",
-  chairmanEmail: "chairman@odedalga.com",
-  revenueEmail: "revenue@odedalga.com",
+  email: LGA_CONFIG.contact.email,
+  emailMailto: LGA_CONFIG.contact.emailMailto,
+  supportEmail: LGA_CONFIG.contact.supportEmail,
+  chairmanEmail: LGA_CONFIG.contact.chairmanEmail,
+  revenueEmail: LGA_CONFIG.contact.revenueEmail,
 
   // Physical Location & Secretariat
-  councilName: "Odeda Local Government",
-  lgaName: "Odeda LGA",
-  state: "Ogun State",
-  country: "Nigeria",
-  secretariatAddress: "LGA Secretariat, Abeokuta–Ibadan Expressway, Odeda, Ogun State",
-  shortAddress: "LGA Secretariat, Odeda, Ogun State",
+  councilName: LGA_CONFIG.identity.fullName,
+  lgaName: `${LGA_CONFIG.identity.name} LGA`,
+  state: LGA_CONFIG.identity.state,
+  country: LGA_CONFIG.identity.country,
+  secretariatAddress: LGA_CONFIG.contact.secretariatAddress,
+  shortAddress: LGA_CONFIG.contact.shortAddress,
 
   // Operating Hours
-  officeHours: "Monday – Friday: 8:00 AM – 5:00 PM",
-  operatingDays: "Mon – Fri, 8am – 5pm",
-  weekendHours: "Closed (Emergency & online services active 24/7)",
+  officeHours: LGA_CONFIG.contact.officeHours,
+  operatingDays: LGA_CONFIG.contact.operatingDays,
+  weekendHours: LGA_CONFIG.contact.weekendHours,
 
   // Online & Portal
-  portalUrl: "https://www.odedalga.com",
-  helpdeskTitle: "Odeda Council Citizens Helpdesk",
+  portalUrl: LGA_CONFIG.contact.portalUrl,
+  helpdeskTitle: LGA_CONFIG.contact.helpdeskTitle,
 
   // Social Channels
-  socials: {
-    facebook: "https://facebook.com/odedalga",
-    twitter: "https://x.com/odedalga",
-    instagram: "https://instagram.com/odedalga",
-    youtube: "https://youtube.com/@odedalga",
-  },
+  socials: LGA_CONFIG.contact.socials,
 } as const;
 
 export type SiteContact = typeof SITE_CONTACT;
+

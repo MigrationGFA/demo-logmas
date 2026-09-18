@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHero } from "@/components/page-shell";
 import { LEADERSHIP } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { Mail, Phone, Crown, Quote } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -79,7 +80,7 @@ export default function LeadershipPage() {
             <PageHero
                 eyebrow="Government Leadership"
                 title="Servant-leadership for every citizen"
-                subtitle="A modern council united by vision, transparency and an unwavering commitment to Odeda Local Government Area."
+                subtitle={`A modern council united by vision, transparency and an unwavering commitment to ${LGA_CONFIG.identity.fullName}.`}
             />
 
             <section className="container mx-auto px-4 py-14">
@@ -109,7 +110,7 @@ export default function LeadershipPage() {
                                     </span>
                                 </div>
                                 <div className="mt-1 font-bold text-lg">{chairman.name}</div>
-                                <div className="text-xs opacity-90">All Progressives Congress (APC) · Odeda</div>
+                                <div className="text-xs opacity-90">{LGA_CONFIG.identity.fullName} · {LGA_CONFIG.identity.state}</div>
                             </div>
                         </div>
                         <div className="order-1 md:order-2 md:col-span-2 p-6 sm:p-8 md:p-10">
@@ -118,12 +119,12 @@ export default function LeadershipPage() {
                             </Badge>
                             <Quote className="h-8 w-8 text-gold mt-4" />
                             <div className="mt-3 space-y-3 text-sm md:text-base leading-relaxed">
-                                <p>Dear citizens, residents, farmers, investors and friends of Odeda Local Government Area,</p>
+                                <p>Dear citizens, residents, farmers, investors and friends of {LGA_CONFIG.identity.fullName},</p>
                                 <p>
-                                    It is with profound humility and gratitude to Almighty God that I welcome you to the official digital home of Odeda Local Government Area, Ogun State.
+                                    It is with profound humility and gratitude to Almighty God that I welcome you to the official digital home of {LGA_CONFIG.identity.fullName}, {LGA_CONFIG.identity.state}.
                                 </p>
                                 <p>
-                                    Our administration is committed to building an Odeda where every community across our ten wards feels the impact of purposeful, people-centred governance. We remain focused on improving infrastructure, supporting our farmers, traders and youths, strengthening grassroots development and making government more accessible to all.
+                                    Our administration is committed to building an {LGA_CONFIG.identity.name} where every community across our {LGA_CONFIG.wards.length} wards feels the impact of purposeful, people-centred governance. We remain focused on improving infrastructure, supporting our farmers, traders and youths, strengthening grassroots development and making government more accessible to all.
                                 </p>
                                 <p>
                                     This platform is part of our commitment to open, transparent and accessible governance. Here, you can learn about who we are, what we do, our leadership, communities, programmes and projects, while also accessing essential Local Government services such as Certificate of Origin, Business Permit, Haulage Pass, Building-related services, Demand Notices, payments, official receipts, complaints and other services.
@@ -132,17 +133,17 @@ export default function LeadershipPage() {
                                     Through technology and initiatives like this platform, we are bringing government services closer to you—making them easier to access, more transparent and more convenient.
                                 </p>
                                 <p>
-                                    I invite you to explore this portal, stay informed, access our services, engage with us and join us in building a greater Odeda.
+                                    I invite you to explore this portal, stay informed, access our services, engage with us and join us in building a greater {LGA_CONFIG.identity.name}.
                                 </p>
                                 <p>
-                                    Together, with God&apos;s guidance and your support, Odeda Local Government will continue to rise.
+                                    Together, with God&apos;s guidance and your support, {LGA_CONFIG.identity.fullName} will continue to rise.
                                 </p>
                                 <div className="pt-2">
                                     <p className="font-semibold not-italic">
-                                        Hon. Dr. Waliat Folasade Adeyemo
+                                        {LGA_CONFIG.leadership.chairman.name}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        Executive Chairman, Odeda Local Government Area · Ogun State
+                                        {LGA_CONFIG.leadership.chairman.title}, {LGA_CONFIG.identity.fullName} · {LGA_CONFIG.identity.state}
                                     </p>
                                 </div>
                             </div>

@@ -26,6 +26,7 @@ import { FaFacebookF, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 import Link from "next/link";
 import { tokenManager } from "@/services/apiAuth";
 import { SITE_CONTACT } from "@/config/siteContact";
+import { LGA_CONFIG } from "@/config/lga.config";
 import logo from "@/assets/logo.png";
 import { useServices } from "@/hooks/queries/useServices";
 import Image from "next/image";
@@ -253,9 +254,9 @@ export function SiteHeader() {
               <Image src={logo} alt="Odeda LGA Logo" className="h-8 w-8" fill/>
             </div>
             <div className="leading-tight">
-              <div className="text-sm font-bold tracking-tight">Odeda LGA</div>
+              <div className="text-sm font-bold tracking-tight">{LGA_CONFIG.identity.name} LGA</div>
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Ogun State · Official Portal
+                {LGA_CONFIG.identity.state} · Official Portal
               </div>
             </div>
           </Link>
@@ -487,14 +488,14 @@ export function SiteFooter() {
               <ShieldCheck className="h-6 w-6 text-gold-foreground" />
             </div>
             <div>
-              <div className="font-bold">Odeda Local Government Area</div>
+              <div className="font-bold">{LGA_CONFIG.identity.fullName}</div>
               <div className="text-[10px] uppercase tracking-wider opacity-70">
-                Ogun State, Nigeria
+                {LGA_CONFIG.identity.state}, {LGA_CONFIG.identity.country}
               </div>
             </div>
           </div>
           <p className="mt-4 text-sm opacity-70 max-w-md leading-relaxed">
-            The official digital home of Odeda Local Government Area — bringing
+            The official digital home of {LGA_CONFIG.identity.fullName} — bringing
             transparent governance, modern services and economic opportunity to
             every citizen, business and investor.
           </p>
@@ -560,10 +561,9 @@ export function SiteFooter() {
       <div className="border-t border-sidebar-border/40">
         <div className="container mx-auto px-4 py-5 text-xs opacity-60 flex flex-col md:flex-row justify-between gap-2">
           <span>
-            © {new Date().getFullYear()} Odeda Local Government Area, Ogun
-            State. All rights reserved.
+            © {new Date().getFullYear()} {LGA_CONFIG.identity.fullName}, {LGA_CONFIG.identity.state}. All rights reserved.
           </span>
-          <span>Official Website · Odeda Local Government Area</span>
+          <span>Official Website · {LGA_CONFIG.identity.fullName}</span>
         </div>
       </div>
     </footer>
