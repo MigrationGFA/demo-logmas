@@ -387,7 +387,7 @@ function ChairmanOverview({ role }: ChairmanOverviewProps) {
   }
 
   // Format currency in thousands (K)
-  const formattedRevenue = `₦${(metrics.totalRevenue / 1000).toFixed(0)}`;
+  const formattedRevenue = `₦${(metrics.totalRevenue).toFixed(0)}`;
 
   return (
     <>
