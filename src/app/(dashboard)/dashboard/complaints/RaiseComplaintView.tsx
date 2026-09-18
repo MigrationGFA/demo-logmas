@@ -79,7 +79,7 @@ function RaiseComplaintView() {
   const isClosed       = activeComplaint?.status === "closed" || activeComplaint?.status === "resolved";
   const canReply       = isThreadOpen && !isClosed;
 
-  // Shape messages — original complaint + all responses
+  // Shape messages  -  original complaint + all responses
   const messages = activeComplaint ? [
     {
       id:   "original",
@@ -173,7 +173,7 @@ function RaiseComplaintView() {
                 </div>
                 {c.responses?.length > 0 && (
                   <div className="mt-1.5 text-xs text-primary font-medium">
-                    {c.responses.length} response{c.responses.length > 1 ? "s" : ""} →
+                    {c.responses.length} response{c.responses.length > 1 ? "s" : ""} â†’
                   </div>
                 )}
               </div>
@@ -297,3 +297,4 @@ function RaiseComplaintView() {
 }
 
 export default RaiseComplaintView;
+

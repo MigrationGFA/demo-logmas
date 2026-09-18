@@ -651,7 +651,7 @@ export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
       color: "#64748B",
       fontStyle: "italic",
       format: (c) =>
-        `Document ID: ${c.publicToken?.slice(0, 10) || "ODE-SEC-40c"} • This certificate is computer generated and does not require further signature. • 🔒 Secure Document`,
+        `Document ID: ${c.publicToken?.slice(0, 10) || "ODE-SEC-40c"} • This certificate is computer generated and does not require further signature. • ðŸ”’ Secure Document`,
     },
   },
 };
@@ -788,3 +788,4 @@ export const MASTER_CERTIFICATE_CONFIGS: Record<MasterTemplateType, MasterCertif
 export function getMasterTemplateConfig(template: MasterTemplateType): MasterCertificateConfig {
   return MASTER_CERTIFICATE_CONFIGS[template] || PORTRAIT_TEMPLATE_CONFIG;
 }
+

@@ -124,7 +124,7 @@ function VerifyContent() {
           Document Verification
         </h1>
         <p className="mt-2 text-muted-foreground text-sm">
-          Verify the authenticity of Odeda LGA Certificates of Origin, trade permits, and official receipts.
+          Verify the authenticity of the LGA Certificates of Origin, trade permits, and official receipts.
         </p>
       </div>
 
@@ -195,7 +195,7 @@ function VerifyContent() {
               </div>
               <h3 className="font-semibold text-lg mt-1">{result.title}</h3>
               <p className="text-sm text-muted-foreground">
-                Issued by Odeda Local Government Council · {result.status}
+                Issued by the Local Government Council · {result.status}
                 {result.isExpired && (
                   <span className="ml-2 text-destructive font-medium">(Expired)</span>
                 )}
@@ -230,7 +230,7 @@ function VerifyContent() {
                     {result.amount > 0 && <Field label="Statutory Fee" value={formatNgn(result.amount)} />}
                     <Field label="Ward" value={result.metadata?.ward || result.metadata?.wardName || "N/A"} />
                     <Field label="Service / Category" value={result.metadata?.categoryName || "Statutory Service"} />
-                    <Field label="Location / LGA" value={result.metadata?.businessAddress || "Odeda Local Government, Ogun State"} />
+                    <Field label="Location / LGA" value={result.metadata?.businessAddress || "the Local Government, Ogun State"} />
                   </>
                 )}
               </div>

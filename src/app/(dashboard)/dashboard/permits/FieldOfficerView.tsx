@@ -369,12 +369,12 @@ function FieldOfficerView() {
                   <div className="bg-muted/30 p-3 rounded-md text-xs text-muted-foreground">
                     {violationForm.businessId ? (
                       <span>
-                        ✓ Logging violation for registered business:{" "}
+                        âœ“ Logging violation for registered business:{" "}
                         <strong>{violationForm.businessName}</strong>
                       </span>
                     ) : (
                       <span>
-                        ⚠️ Logging violation for unregistered business:{" "}
+                        âš ï¸ Logging violation for unregistered business:{" "}
                         <strong>
                           {violationForm.businessName || "Name not entered"}
                         </strong>

@@ -99,7 +99,7 @@ export default function AccountsPage() {
       account.role === ("business_owner" as Role);
 
     if (!isCitizenOrBusiness) {
-      return <span className="text-muted-foreground text-sm">—</span>;
+      return <span className="text-muted-foreground text-sm"> - </span>;
     }
 
     const isVerified = !!account.emailVerified;
@@ -234,7 +234,7 @@ export default function AccountsPage() {
           <div className="flex items-center gap-3 flex-1">
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by name, email or phone…"
+              placeholder="Search by name, email or phoneâ€¦"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="border-0 bg-transparent focus-visible:ring-0 flex-1"
@@ -325,7 +325,7 @@ export default function AccountsPage() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-sm">
-                            {account.ward || "—"}
+                            {account.ward || " - "}
                           </TableCell>
                           <TableCell>
                             {getStatusBadge(account.status)}
@@ -426,3 +426,4 @@ export default function AccountsPage() {
     </div>
   );
 }
+

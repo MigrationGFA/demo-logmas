@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, FileQuestion, ArrowLeft, Search, ShieldCheck } fr
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 interface CertificatePublicPageProps {
   params: Promise<{ token: string | string[] }>;
@@ -43,7 +44,7 @@ export default function CertificatePublicPage({ params }: CertificatePublicPageP
                 Verifying Official Certificate…
               </h2>
               <p className="text-xs text-muted-foreground">
-                Retrieving statutory certificate record from Odeda Local Government registry.
+                Retrieving statutory certificate record from {LGA_CONFIG.identity.fullName} registry.
               </p>
             </div>
           </div>

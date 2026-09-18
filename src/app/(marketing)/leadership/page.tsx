@@ -12,64 +12,64 @@ import Image from "next/image";
 
 const councillors = [
     {
-        ward: "Ward 1 (Odeda Secretariat)",
+        ward: "Ward 1 (the LGA Secretariat)",
         name: "Hon. Osunnowo Azeez Olajide",
         phone: "07061088375",
-        email: "councillor.ward1@odedalga.com"
+        email: "councillor.ward1@lga.gov.ng"
     },
     {
         ward: "Ward 2 (Osiele Market)",
         name: "Hon. Odufuwa Tosin Victor",
         phone: "08080217611",
-        email: "councillor.ward2@odedalga.com"
+        email: "councillor.ward2@lga.gov.ng"
     },
     {
         ward: "Ward 3 (Obantoko Corridor)",
         name: "Hon. Adeiye Oriyomi Ajoke",
         phone: "08123100146",
-        email: "councillor.ward3@odedalga.com"
+        email: "councillor.ward3@lga.gov.ng"
     },
     {
         ward: "Ward 4 (Olugbo Community)",
         name: "Hon. Parakoyi Azeez Ayomide",
         phone: "08072703321",
-        email: "councillor.ward4@odedalga.com"
+        email: "councillor.ward4@lga.gov.ng"
     },
     {
         ward: "Ward 5 (Alagbagba Mining/Agro)",
         name: "Hon. Osibanjo Adeleke Solomon",
         phone: "08038355995",
-        email: "councillor.ward5@odedalga.com"
+        email: "councillor.ward5@lga.gov.ng"
     },
     {
         ward: "Ward 6 (Ilugun Ward)",
         name: "Hon. Jagunna Olufunmilayo Janet",
         phone: "07064317581",
-        email: "councillor.ward6@odedalga.com"
+        email: "councillor.ward6@lga.gov.ng"
     },
     {
         ward: "Ward 7 (Itesi / Camp)",
         name: "Hon. Adekogbe Ayodele Samson",
         phone: "08100973778",
-        email: "councillor.ward7@odedalga.com"
+        email: "councillor.ward7@lga.gov.ng"
     },
     {
         ward: "Ward 8 (Opeji Community)",
         name: "Hon. Okulaja Emmanuel Abiodun",
         phone: "07033726911",
-        email: "councillor.ward8@odedalga.com"
+        email: "councillor.ward8@lga.gov.ng"
     },
     {
         ward: "Ward 9 (Koto / Balogun)",
         name: "Hon. Ogunmosu Olabode Clement",
         phone: "08038556949",
-        email: "councillor.ward9@odedalga.com"
+        email: "councillor.ward9@lga.gov.ng"
     },
     {
         ward: "Ward 10 (FUNAAB / Obantoko South)",
         name: "Hon. Falujo Adeola Onabode",
         phone: "08033313041",
-        email: "councillor.ward10@odedalga.com"
+        email: "councillor.ward10@lga.gov.ng"
     }
 ];
 
@@ -130,7 +130,7 @@ export default function LeadershipPage() {
                                     This platform is part of our commitment to open, transparent and accessible governance. Here, you can learn about who we are, what we do, our leadership, communities, programmes and projects, while also accessing essential Local Government services such as Certificate of Origin, Business Permit, Haulage Pass, Building-related services, Demand Notices, payments, official receipts, complaints and other services.
                                 </p>
                                 <p>
-                                    Through technology and initiatives like this platform, we are bringing government services closer to you—making them easier to access, more transparent and more convenient.
+                                    Through technology and initiatives like this platform, we are bringing government services closer to you - making them easier to access, more transparent and more convenient.
                                 </p>
                                 <p>
                                     I invite you to explore this portal, stay informed, access our services, engage with us and join us in building a greater {LGA_CONFIG.identity.name}.
@@ -212,3 +212,4 @@ export default function LeadershipPage() {
         </PageShell>
     );
 }
+

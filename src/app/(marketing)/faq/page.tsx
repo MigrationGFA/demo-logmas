@@ -11,11 +11,11 @@ import { PageShell, PageHero } from "@/components/page-shell";
 import { FAQS } from "@/lib/mock-data";
 
 // export const metadata = {
-//     title: "FAQ — Ijebu North East LGA",
+//     title: "FAQ  -  Ijebu North East LGA",
 //     description:
 //         "Answers to common questions about LOGMAS, certificates, levy payments and council services.",
 //     openGraph: {
-//         title: "FAQ — Ijebu North East LGA",
+//         title: "FAQ  -  Ijebu North East LGA",
 //         description: "Frequently asked questions.",
 //     },
 // };
@@ -45,3 +45,4 @@ export default function FAQPage() {
         </PageShell>
     );
 }
+

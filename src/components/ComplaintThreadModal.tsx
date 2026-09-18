@@ -22,7 +22,7 @@ interface Props {
   open:      boolean;
   onClose:   () => void;
   onRefetch: () => void;
-  // Who is viewing — determines if reply box shows
+  // Who is viewing  -  determines if reply box shows
   viewerRole: string;
   viewerId:   string;
 }
@@ -35,7 +35,7 @@ export function ComplaintThreadModal({
 
   if (!complaint) return null;
 
-  // Citizen and business_owner can reply — admins use their own respond flow
+  // Citizen and business_owner can reply  -  admins use their own respond flow
   const canReply = ["citizen", "business_owner", "field_officer"].includes(viewerRole)
     && complaint.status !== "closed"
     && complaint.status !== "resolved";
@@ -126,7 +126,7 @@ export function ComplaintThreadModal({
           )}
         </div>
 
-        {/* Reply box — only for citizens when not closed/resolved */}
+        {/* Reply box  -  only for citizens when not closed/resolved */}
         {canReply && (
           <div className="p-4 border-t flex gap-2">
             <Input

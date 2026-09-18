@@ -67,7 +67,7 @@ const MODULES = [
     {
         icon: CreditCard,
         title: "All Statutory Services",
-        desc: "Browse the full directory of 12+ Odeda Local Government services.",
+        desc: "Browse the full directory of 12+ the Local Government services.",
         to: "/services",
     },
 ];
@@ -76,9 +76,9 @@ export default function DigitalServices() {
     return (
         <PageShell>
             <PageHero
-                eyebrow="LOGMAS — E-Government"
+                eyebrow="LOGMAS  -  E-Government"
                 title="Every government service. One secure portal."
-                subtitle="LOGMAS is the official digital backbone of Odeda Local Government Area — bringing every citizen, business and council workflow online with audit-grade transparency."
+                subtitle="LOGMAS is the official digital backbone of the Local Government Area  -  bringing every citizen, business and council workflow online with audit-grade transparency."
             >
                 <div className="flex flex-wrap gap-3">
                     <Button asChild className="bg-gradient-hero shadow-elegant">
@@ -175,3 +175,4 @@ export default function DigitalServices() {
         </PageShell>
     );
 }
+

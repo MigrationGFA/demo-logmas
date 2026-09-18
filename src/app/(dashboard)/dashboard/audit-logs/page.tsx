@@ -166,7 +166,7 @@ export default function AuditLogsPage() {
           <div className="flex-1 relative">
             <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search by action, actor, role, target…"
+              placeholder="Search by action, actor, role, targetâ€¦"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8"
@@ -290,7 +290,7 @@ export default function AuditLogsPage() {
                   </TableCell>
                   {/* REMOVED: target cell */}
                   <TableCell className="text-xs text-muted-foreground max-w-[180px] truncate">
-                    {log.meta ? JSON.stringify(log.meta).slice(0, 40) : "—"}
+                    {log.meta ? JSON.stringify(log.meta).slice(0, 40) : " - "}
                     {log.meta && JSON.stringify(log.meta).length > 40 && "..."}
                   </TableCell>
                   <TableCell className="text-right">
@@ -321,11 +321,11 @@ export default function AuditLogsPage() {
           </Table>
         </div>
 
-        {/* Pagination — now reads from meta */}
+        {/* Pagination  -  now reads from meta */}
         {meta && meta.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t">
             <span className="text-xs text-muted-foreground">
-              Showing {(page - 1) * meta.limit + 1}–
+              Showing {(page - 1) * meta.limit + 1}-
               {Math.min(page * meta.limit, meta.total)} of {meta.total} events
             </span>
 
@@ -395,17 +395,17 @@ function AuditDetailDialog({
             </div>
             <div>
               <div className="text-xs text-muted-foreground">Entity</div>
-              <div>{log?.entity ?? "—"}</div>
+              <div>{log?.entity ?? " - "}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">Entity ID</div>
               <div className="font-mono text-xs break-all">
-                {log?.entityId ?? "—"}
+                {log?.entityId ?? " - "}
               </div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">IP Address</div>
-              <div className="font-mono text-xs">{log?.ipAddress ?? "—"}</div>
+              <div className="font-mono text-xs">{log?.ipAddress ?? " - "}</div>
             </div>
           </div>
           {log?.meta && (
@@ -421,3 +421,4 @@ function AuditDetailDialog({
     </Dialog>
   );
 }
+

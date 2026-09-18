@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WARDS } from "@/lib/mock-data";
-import { ServiceType } from "@/config/odedaServices";
+import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import {
@@ -138,7 +138,7 @@ const DOCUMENTS: DocumentSpec[] = [
     id: "quarry_loading_pass",
     label: "Quarry Loading Point Pass / Waybill",
     description:
-      "Recent loading manifest from Odeda granite quarries or sand extraction sites.",
+      "Recent loading manifest from the LGA granite quarries or sand extraction sites.",
     required: false,
   },
   {
@@ -179,7 +179,7 @@ export default function HaulageFeesForm({
       phone: initialApplicant?.phone || "",
       email: initialApplicant?.email || "",
       officeAddress: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       primaryCargo: "Granite & Quarry Stone Aggregates",
       loadingPoints: "",
       destinationCorridor: "",
@@ -298,7 +298,7 @@ export default function HaulageFeesForm({
         { label: "Contact Phone", value: formValues.phone },
         { label: "Email Address", value: formValues.email || "N/A" },
         { label: "Operating Office Address", value: formValues.officeAddress },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
         {
           label: "Active Fleet Count",
           value: `${vehicleFields.length} Heavy Commercial Vehicles`,
@@ -365,7 +365,7 @@ export default function HaulageFeesForm({
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
               Enter official credentials for commercial haulage transit
-              licensing in Odeda LGA.
+              licensing in the LGA.
             </p>
           </div>
 
@@ -377,7 +377,7 @@ export default function HaulageFeesForm({
               <Input
                 id="companyName"
                 {...register("companyName")}
-                placeholder="e.g. Odeda Heavy Haulage & Logistics Limited"
+                placeholder="e.g. the LGA Heavy Haulage & Logistics Limited"
                 disabled={isSubmitting}
               />
               {errors.companyName && (
@@ -441,7 +441,7 @@ export default function HaulageFeesForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward Operating Base in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward Operating Base in the LGA *</Label>
               <Controller
                 name="ward"
                 control={control}
@@ -476,7 +476,7 @@ export default function HaulageFeesForm({
               <Input
                 id="officeAddress"
                 {...register("officeAddress")}
-                placeholder="Garage / Terminal Address, Highway Corridor, Odeda LGA"
+                placeholder="Garage / Terminal Address, Highway Corridor, the LGA"
                 disabled={isSubmitting}
               />
               {errors.officeAddress && (
@@ -584,7 +584,7 @@ export default function HaulageFeesForm({
 
             <div className="space-y-1.5 md:col-span-2">
               <Label htmlFor="loadingPoints">
-                Primary Loading Points / Quarry Sites in Odeda *
+                Primary Loading Points / Quarry Sites in the LGA *
               </Label>
               <Input
                 id="loadingPoints"
@@ -829,7 +829,7 @@ export default function HaulageFeesForm({
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the registered fleet vehicles, driver licences, tonnage capacities, and loading point declarations comply strictly with Odeda Local Government Haulage Regulations, Highway Axle-Load Limits, and Traffic Safety Bye-laws."
+          declarationText="I solemnly declare that the registered fleet vehicles, driver licences, tonnage capacities, and loading point declarations comply strictly with the Local Government Haulage Regulations, Highway Axle-Load Limits, and Traffic Safety Bye-laws."
         />
       )}
     </FormWizard>

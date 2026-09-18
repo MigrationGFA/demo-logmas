@@ -20,7 +20,7 @@ const ALL_ROLES: Role[] = [
 /**
  * Per-path role allowlists. Routes missing from this map are treated as
  * accessible to any authenticated user. Derived from NAV[role] in
- * src/components/dashboard/app-sidebar.tsx — keep in sync.
+ * src/components/dashboard/app-sidebar.tsx  -  keep in sync.
  */
 export const ROUTE_ACCESS: Record<string, Role[]> = {
   "/dashboard": ALL_ROLES,
@@ -63,3 +63,4 @@ export function assertRoleAccess(path: string, user: User | null) {
     throw redirect("/dashboard");
   }
 }
+

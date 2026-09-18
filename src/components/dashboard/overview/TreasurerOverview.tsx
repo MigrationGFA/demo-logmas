@@ -37,10 +37,10 @@ import {
 import { Role } from "@/services/apiOverview";
 import { QuickActions } from "@/components/dashboard/DashboardWidgets";
 import {
-  getOdedaApplications,
+  getLgaApplications,
   issueTreasuryInvoice,
-  OdedaApplication,
-} from "@/lib/odedaApplications";
+  LgaApplication,
+} from "@/lib/lgaApplications";
 import { tokenManager } from "@/services/apiAuth";
 import { toast } from "sonner";
 import Link from "next/link";

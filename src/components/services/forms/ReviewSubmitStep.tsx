@@ -44,7 +44,7 @@ export function ReviewSubmitStep({
   uploadedFiles,
   declarationChecked,
   onDeclarationChange,
-  declarationText = "I solemnly declare that the information provided in this statutory application is true, authentic, and accurate. I understand that false statements or forged documentation incur criminal liability and automatic nullification under Odeda LGA bye-laws.",
+  declarationText = "I solemnly declare that the information provided in this statutory application is true, authentic, and accurate. I understand that false statements or forged documentation incur criminal liability and automatic nullification under the LGA bye-laws.",
 }: ReviewSubmitStepProps) {
   return (
     <div className="space-y-6">
@@ -53,7 +53,7 @@ export function ReviewSubmitStep({
           Review Application & Statutory Submission
         </h4>
         <p className="text-xs text-muted-foreground mt-1">
-          Please carefully inspect all applicant information, service parameters, and attached supporting documents before final statutory submission to Odeda LGA Treasury and Administration.
+          Please carefully inspect all applicant information, service parameters, and attached supporting documents before final statutory submission to the LGA Treasury and Administration.
         </p>
       </div>
 
@@ -186,7 +186,7 @@ export function ReviewSubmitStep({
                         {k.replace(/([A-Z])/g, " $1")}:
                       </span>
                       <div className="font-semibold text-foreground">
-                        {v || <span className="text-muted-foreground italic font-normal">—</span>}
+                        {v || <span className="text-muted-foreground italic font-normal"> - </span>}
                       </div>
                     </div>
                   ))}
@@ -271,3 +271,4 @@ export function ReviewSubmitStep({
     </div>
   );
 }
+

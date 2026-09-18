@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WARDS } from "@/lib/mock-data";
-import { ServiceType } from "@/config/odedaServices";
+import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import {
@@ -81,7 +81,7 @@ const STEPS: FormStep[] = [
     title: "Property Ownership & Location",
     shortTitle: "Owner & Location",
     description:
-      "Enter property owner contact details and physical address in Odeda LGA.",
+      "Enter property owner contact details and physical address in the LGA.",
   },
   {
     id: "building_specs",
@@ -175,7 +175,7 @@ export default function TenementRateForm({
       email: initialApplicant?.email || "",
       ownerAddress: initialApplicant?.address || "",
       propertyAddress: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       cadastralPlotNo: "",
       propertyType: "Multi-Flat Block / Storey Building",
       numberOfFloors: "",
@@ -322,7 +322,7 @@ export default function TenementRateForm({
         { label: "Owner Contact Phone", value: formValues.phone },
         { label: "Owner Email Address", value: formValues.email || "N/A" },
         { label: "Physical Property Address", value: formValues.propertyAddress },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
         { label: "Cadastral / Plot Number", value: formValues.cadastralPlotNo || "N/A" },
         { label: "Owner Mailing Address", value: formValues.ownerAddress || "N/A" },
       ],
@@ -392,7 +392,7 @@ export default function TenementRateForm({
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
               Enter official property ownership records and physical address
-              within Odeda LGA rating jurisdiction.
+              within the LGA rating jurisdiction.
             </p>
           </div>
 
@@ -447,7 +447,7 @@ export default function TenementRateForm({
                 <Input
                   id="corporateName"
                   {...register("corporateName")}
-                  placeholder="e.g. Odeda Properties & Investments Ltd"
+                  placeholder="e.g. the LGA Properties & Investments Ltd"
                 />
               </div>
             )}
@@ -479,7 +479,7 @@ export default function TenementRateForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward in the LGA *</Label>
               <Controller
                 control={control}
                 name="ward"
@@ -524,7 +524,7 @@ export default function TenementRateForm({
               <Input
                 id="propertyAddress"
                 {...register("propertyAddress")}
-                placeholder="House number, Street name, Community/Town in Odeda LGA"
+                placeholder="House number, Street name, Community/Town in the LGA"
               />
               {errors.propertyAddress && (
                 <p className="text-xs text-red-500">{errors.propertyAddress.message}</p>
@@ -919,7 +919,7 @@ export default function TenementRateForm({
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the property specifications, number of tenements, and rental values stated herein are truthful and in full compliance with the Tenement Rate and Valuation Edict of Odeda Local Government, Ogun State."
+          declarationText="I solemnly declare that the property specifications, number of tenements, and rental values stated herein are truthful and in full compliance with the Tenement Rate and Valuation Edict of the Local Government, Ogun State."
         />
       )}
     </FormWizard>

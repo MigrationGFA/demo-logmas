@@ -30,19 +30,20 @@ import {
   RefreshCw,
 } from "lucide-react";
 import {
-  getOdedaApplications,
+  getLgaApplications,
   issueTreasuryInvoice,
   updateApplicationStatus,
-  OdedaApplication,
-} from "@/lib/odedaApplications";
+  APPLICATIONS_EVENT_KEY,
+  LgaApplication,
+} from "@/lib/lgaApplications";
 import { tokenManager } from "@/services/apiAuth";
 import { toast } from "sonner";
 
 export default function AssessmentApprovalTab() {
   const user = tokenManager.getUser();
 
-  const [applications, setApplications] = useState<OdedaApplication[]>([]);
-  const [selectedApp, setSelectedApp] = useState<OdedaApplication | null>(null);
+  const [applications, setApplications] = useState<LgaApplication[]>([]);
+  const [selectedApp, setSelectedApp] = useState<LgaApplication | null>(null);
 
   // Dialog states
   const [assessDialogOpen, setAssessDialogOpen] = useState(false);
@@ -57,14 +58,14 @@ export default function AssessmentApprovalTab() {
   const [cancelReason, setCancelReason] = useState("");
 
   const loadApps = () => {
-    setApplications(getOdedaApplications());
+    setApplications(getLgaApplications());
   };
 
   useEffect(() => {
     loadApps();
     const handleStoreChange = () => loadApps();
-    window.addEventListener("odeda:applications-change", handleStoreChange);
-    return () => window.removeEventListener("odeda:applications-change", handleStoreChange);
+    window.addEventListener(APPLICATIONS_EVENT_KEY, handleStoreChange);
+    return () => window.removeEventListener(APPLICATIONS_EVENT_KEY, handleStoreChange);
   }, []);
 
   // Filter applications requiring Treasury assessment or generated invoices
@@ -84,7 +85,7 @@ export default function AssessmentApprovalTab() {
   }, [applications]);
 
   // Open Assessment modal
-  const handleOpenAssess = (app: OdedaApplication) => {
+  const handleOpenAssess = (app: LgaApplication) => {
     setSelectedApp(app);
     setApprovedFee(app.inspectionReport?.recommendedFee || app.amount || 15000);
     setRevenueHead(app.revenueHead || "1001 - Statutory Head");
@@ -117,7 +118,7 @@ export default function AssessmentApprovalTab() {
   };
 
   // Open Adjustment modal
-  const handleOpenAdjust = (app: OdedaApplication) => {
+  const handleOpenAdjust = (app: LgaApplication) => {
     setSelectedApp(app);
     setAdjustmentAmount(app.amount);
     setTreasuryNotes("Treasury tariff concession / adjustment applied upon formal petition review.");
@@ -146,7 +147,7 @@ export default function AssessmentApprovalTab() {
   };
 
   // Open Cancel modal
-  const handleOpenCancel = (app: OdedaApplication) => {
+  const handleOpenCancel = (app: LgaApplication) => {
     setSelectedApp(app);
     setCancelReason("");
     setCancelDialogOpen(true);
@@ -276,7 +277,7 @@ export default function AssessmentApprovalTab() {
       <Card className="p-5 bg-card border-border/60">
         <h3 className="font-bold text-base flex items-center gap-2 mb-4">
           <Receipt className="h-5 w-5 text-primary" />
-          Active Issued Invoices — Adjustments & Cancellation Management
+          Active Issued Invoices  -  Adjustments & Cancellation Management
         </h3>
 
         <div className="rounded-lg border border-border/60 overflow-x-auto">
@@ -351,7 +352,7 @@ export default function AssessmentApprovalTab() {
                 Treasury Tariff Assessment & Invoice Authorisation
               </DialogTitle>
               <DialogDescription>
-                {selectedApp.serviceName} ({selectedApp.applicationNo}) — {selectedApp.applicant}
+                {selectedApp.serviceName} ({selectedApp.applicationNo})  -  {selectedApp.applicant}
               </DialogDescription>
             </DialogHeader>
 
@@ -469,3 +470,4 @@ export default function AssessmentApprovalTab() {
     </div>
   );
 }
+

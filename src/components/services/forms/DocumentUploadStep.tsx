@@ -145,7 +145,7 @@ export function DocumentUploadStep({
           Statutory Supporting Documents
         </h4>
         <p className="text-xs text-muted-foreground mt-1">
-          In accordance with Odeda Local Government statutory bye-laws, please upload clear, legible copies of all required supporting documents for <strong className="text-foreground">{serviceName}</strong>. Allowed formats: JPG, PNG, PDF (Max 5 MB per file).
+          In accordance with the Local Government statutory bye-laws, please upload clear, legible copies of all required supporting documents for <strong className="text-foreground">{serviceName}</strong>. Allowed formats: JPG, PNG, PDF (Max 5 MB per file).
         </p>
       </div>
 
@@ -165,7 +165,7 @@ export function DocumentUploadStep({
           <div>
             <span className="font-bold">All mandatory documents attached!</span>
             <p className="text-muted-foreground">
-              Your documentation is ready for statutory verification by Odeda LGA reviewing officers.
+              Your documentation is ready for statutory verification by the LGA reviewing officers.
             </p>
           </div>
         </div>

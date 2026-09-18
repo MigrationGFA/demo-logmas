@@ -1,7 +1,7 @@
 "use client";
 
 import React, { use, useState } from "react";
-import { getOdedaServiceById, ODEDA_SERVICES, ServiceType, getConfiguredFeeForService } from "@/config/odedaServices";
+import { getLgaServiceById, LGA_SERVICES, ServiceType, getConfiguredFeeForService } from "@/config/lgaServices";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ServiceApplicationGuideSteps } from "@/components/services/ServiceApplicationGuideSteps";
 import { PublicServiceApplyWidget } from "@/components/services/PublicServiceApplyWidget";
@@ -84,7 +84,7 @@ export default function PublicServiceDetailPage({ params }: PublicServicePagePro
             We couldn&apos;t find that service
           </h1>
           <p className="mt-3 text-muted-foreground">
-            The requested service &ldquo;{serviceId}&rdquo; may have moved or been updated in the Odeda Local Government statutory catalogue.
+            The requested service &ldquo;{serviceId}&rdquo; may have moved or been updated in the the Local Government statutory catalogue.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button asChild className="bg-gradient-hero">
@@ -106,7 +106,7 @@ export default function PublicServiceDetailPage({ params }: PublicServicePagePro
   const currentFee = service.feeConfig.amount;
 
   // Filter related services in same category or adjacent
-  const relatedServices = ODEDA_SERVICES.filter(
+  const relatedServices = LGA_SERVICES.filter(
     (s) => s.id !== service.id && (s.category === service.category || Math.random() > 0.5)
   ).slice(0, 3);
 
@@ -350,7 +350,7 @@ export default function PublicServiceDetailPage({ params }: PublicServicePagePro
               <Card className="p-6 bg-gradient-mesh border-border/60">
                 <h3 className="font-semibold text-base">Council Support Desk</h3>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Need assistance with your documentation or status inquiry? Reach out to Odeda Local Government customer care.
+                  Need assistance with your documentation or status inquiry? Reach out to the Local Government customer care.
                 </p>
 
                 <div className="mt-4 space-y-2.5 text-xs text-muted-foreground">
@@ -401,7 +401,7 @@ export default function PublicServiceDetailPage({ params }: PublicServicePagePro
                 </div>
 
                 <Button asChild variant="ghost" size="sm" className="mt-4 w-full text-xs text-primary font-medium">
-                  <Link href="/services">View All 12 Services →</Link>
+                  <Link href="/services">View All 12 Services â†’</Link>
                 </Button>
               </Card>
             </div>
@@ -413,4 +413,5 @@ export default function PublicServiceDetailPage({ params }: PublicServicePagePro
     </div>
   );
 }
+
 

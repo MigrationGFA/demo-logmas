@@ -136,7 +136,7 @@ export interface SimulatePaymentResponse {
   receipt: Receipt;
 }
 
-// Matches paystack.controller.ts's initializePaystackPayment response exactly —
+// Matches paystack.controller.ts's initializePaystackPayment response exactly  - 
 // no more "stub" field, this is the real thing now.
 export interface OnlinePaymentInitResponse {
   paymentUrl: string;

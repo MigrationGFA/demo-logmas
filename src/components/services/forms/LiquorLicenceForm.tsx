@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WARDS } from "@/lib/mock-data";
-import { ServiceType } from "@/config/odedaServices";
+import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import {
@@ -92,7 +92,7 @@ const STEPS: FormStep[] = [
     title: "Licensee & Premises Identity",
     shortTitle: "Premises Profile",
     description:
-      "Enter licensee details, trading establishment name, and physical location in Odeda LGA.",
+      "Enter licensee details, trading establishment name, and physical location in the LGA.",
   },
   {
     id: "fire_zoning",
@@ -187,7 +187,7 @@ export default function LiquorLicenceForm({
       phone: initialApplicant?.phone || "",
       email: initialApplicant?.email || "",
       premisesAddress: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       cacNumber: "",
       seatingCapacity: "",
       operatingHours: "",
@@ -349,7 +349,7 @@ export default function LiquorLicenceForm({
         { label: "Contact Phone Number", value: formValues.phone },
         { label: "Email Address", value: formValues.email || "N/A" },
         { label: "Premises Physical Address", value: formValues.premisesAddress },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
         { label: "CAC Registration", value: formValues.cacNumber || "N/A" },
         { label: "Total Seating Capacity", value: formValues.seatingCapacity },
         { label: "Operating Hours", value: formValues.operatingHours },
@@ -447,7 +447,7 @@ export default function LiquorLicenceForm({
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
               Enter bar operator details, licensed premises location, and
-              trading category in Odeda LGA.
+              trading category in the LGA.
             </p>
           </div>
 
@@ -545,7 +545,7 @@ export default function LiquorLicenceForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward in the LGA *</Label>
               <Controller
                 control={control}
                 name="ward"
@@ -585,7 +585,7 @@ export default function LiquorLicenceForm({
               <Input
                 id="premisesAddress"
                 {...register("premisesAddress")}
-                placeholder="Building No, Street name, Town in Odeda LGA"
+                placeholder="Building No, Street name, Town in the LGA"
               />
               {errors.premisesAddress && (
                 <p className="text-xs text-red-500">{errors.premisesAddress.message}</p>
@@ -997,7 +997,7 @@ export default function LiquorLicenceForm({
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the liquor licence specifications, safety compliance, age-restriction policies, and premises floor plans stated herein are accurate and comply with the Liquor Licensing Laws of Odeda Local Government, Ogun State."
+          declarationText="I solemnly declare that the liquor licence specifications, safety compliance, age-restriction policies, and premises floor plans stated herein are accurate and comply with the Liquor Licensing Laws of the Local Government, Ogun State."
         />
       )}
     </FormWizard>

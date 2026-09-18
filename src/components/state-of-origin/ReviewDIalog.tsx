@@ -50,7 +50,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
   );
   const [rejectionReason, setRejectionReason] = useState("");
   const [showRejectionInput, setShowRejectionInput] = useState(false);
-  const [selectedCouncillorId, setSelectedCouncillorId] = useState(""); // ← NEW
+  const [selectedCouncillorId, setSelectedCouncillorId] = useState(""); // â† NEW
 
   const user = tokenManager.getUser();
   const { forwardToCouncillorAsync, isForwarding } = useAdminStateOfOrigin();
@@ -59,7 +59,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
   const { useGetStaff } = useStaffManagement();
 
   // Fetch councillors for LGA Admin picker
-  const { data: councillorsData } = useGetStaff({ role: "ward_councillor" }); // ← NEW
+  const { data: councillorsData } = useGetStaff({ role: "ward_councillor" }); // â† NEW
   const councillors = councillorsData ?? [];
 
   const isLGAAdmin = user?.role === "lga_admin" || user?.role === "super_admin";
@@ -89,7 +89,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
           id: app.id,
           data: {
             reviewNotes: remarks || " No notes provided",
-            councillorId: selectedCouncillorId, // ← pass if selected
+            councillorId: selectedCouncillorId, // â† pass if selected
           },
         },
         {
@@ -197,7 +197,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
           <Field icon={User} label="Gender" value={app.gender} />
           <Field icon={Phone} label="Phone" value={app.phone} />
           <Field icon={Mail} label="Email" value={app.email || "N/A"} />
-          <Field icon={MapPin} label="LGA" value="Odeda" />
+          <Field icon={MapPin} label="LGA" value="the LGA" />
           <Field icon={MapPin} label="Ward" value={app.ward?.name || "N/A"} />
           <div className="sm:col-span-2">
             <Field icon={MapPin} label="Address" value={app.address} />
@@ -228,7 +228,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
             <div>
               <div className="text-xs text-muted-foreground">Invoice</div>
               <div className="font-mono text-xs">
-                {app.invoice?.id?.slice(0, 8) || "—"}
+                {app.invoice?.id?.slice(0, 8) || " - "}
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
           </Card>
         )}
 
-        {/* ── LGA ADMIN FORWARD SECTION ───────────────────── */}
+        {/* â”€â”€ LGA ADMIN FORWARD SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {showForwardAction &&
           app.invoice.status === "paid" &&
           app.status === "paid" && (
@@ -278,8 +278,8 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
                     <option key={c.id} value={c.id}>
                       {c.firstName} {c.lastName}
                       {c.ward?.name
-                        ? ` — ${c.ward.name} Ward`
-                        : " — No ward assigned"}
+                        ? `  -  ${c.ward.name} Ward`
+                        : "  -  No ward assigned"}
                     </option>
                   ))}
                 </select>
@@ -304,7 +304,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
             </div>
           )}
 
-        {/* ── COUNCILLOR REMARKS SECTION ───────────────────── */}
+        {/* â”€â”€ COUNCILLOR REMARKS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {showDecideActions && (
           <div className="space-y-3">
             <div>
@@ -333,7 +333,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
           </div>
         )}
 
-        {/* ── ACTION BUTTONS ───────────────────────────────── */}
+        {/* â”€â”€ ACTION BUTTONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {(showForwardAction || showDecideActions) && (
           <div className="flex gap-2 justify-end pt-2">
             <Button
@@ -467,3 +467,4 @@ function Field({
     </div>
   );
 }
+

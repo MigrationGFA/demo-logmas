@@ -35,7 +35,7 @@ function PaymentResultPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Paystack sends both of these on redirect — reference is the modern name,
+  // Paystack sends both of these on redirect  -  reference is the modern name,
   // trxref is kept for older integrations. Also check session storage.
   const reference =
     searchParams.get("reference") ??
@@ -157,7 +157,7 @@ function PaymentResultPage() {
                   Gateway Verification
                 </Badge>
                 <h2 className="text-xl font-bold tracking-tight text-foreground">
-                  Verifying Your Statutory Payment…
+                  Verifying Your Statutory Paymentâ€¦
                 </h2>
                 <p className="text-sm text-muted-foreground max-w-sm mx-auto">
                   Connecting to government treasury gateway to confirm
@@ -356,3 +356,4 @@ function PaymentResultPage() {
     </div>
   );
 }
+

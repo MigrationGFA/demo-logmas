@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { WARDS } from "@/lib/mock-data";
-import { ServiceType } from "@/config/odedaServices";
+import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import { ReviewSubmitStep, ReviewSection, ReviewRepeatableSection } from "./ReviewSubmitStep";
@@ -104,7 +104,7 @@ const STEPS: FormStep[] = [
     id: "review",
     title: "Review & Submit",
     shortTitle: "Review",
-    description: "Review quarry operating permits and submit for Odeda LGA Natural Resources assessment.",
+    description: "Review quarry operating permits and submit for the LGA Natural Resources assessment.",
   },
 ];
 
@@ -165,7 +165,7 @@ export default function QuarryPermitForm({ service, onSubmit, isSubmitting, init
       phone: initialApplicant?.phone || "",
       email: initialApplicant?.email || "",
       siteLocation: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       concessionAcreage: "",
       blastingFrequency: "",
       setbackDistance: "",
@@ -307,7 +307,7 @@ export default function QuarryPermitForm({ service, onSubmit, isSubmitting, init
         { label: "Contact Phone Number", value: formValues.phone },
         { label: "Email Address", value: formValues.email || "N/A" },
         { label: "Quarry Site Location", value: formValues.siteLocation },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
         { label: "Total Concession Size", value: formValues.concessionAcreage },
       ],
     },
@@ -394,7 +394,7 @@ export default function QuarryPermitForm({ service, onSubmit, isSubmitting, init
               Mining Operator & Cadastre Lease Profile
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Enter Federal Mining Cadastre Lease credentials, corporate directors, and physical quarry site in Odeda LGA.
+              Enter Federal Mining Cadastre Lease credentials, corporate directors, and physical quarry site in the LGA.
             </p>
           </div>
 
@@ -404,7 +404,7 @@ export default function QuarryPermitForm({ service, onSubmit, isSubmitting, init
               <Input
                 id="companyName"
                 {...register("companyName")}
-                placeholder="e.g. Odeda Granite Quarries & Mining Nigeria Limited"
+                placeholder="e.g. the LGA Granite Quarries & Mining Nigeria Limited"
               />
               {errors.companyName && (
                 <p className="text-xs text-red-500">{errors.companyName.message}</p>
@@ -481,7 +481,7 @@ export default function QuarryPermitForm({ service, onSubmit, isSubmitting, init
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward in the LGA *</Label>
               <Controller
                 control={control}
                 name="ward"
@@ -519,7 +519,7 @@ export default function QuarryPermitForm({ service, onSubmit, isSubmitting, init
               <Input
                 id="siteLocation"
                 {...register("siteLocation")}
-                placeholder="Ridge Name, Village Corridor, Odeda LGA"
+                placeholder="Ridge Name, Village Corridor, the LGA"
               />
               {errors.siteLocation && (
                 <p className="text-xs text-red-500">{errors.siteLocation.message}</p>
@@ -690,7 +690,7 @@ export default function QuarryPermitForm({ service, onSubmit, isSubmitting, init
                     <Label className="text-xs">Rated Output Capacity</Label>
                     <Input
                       {...register(`machinery.${idx}.ratedCapacity`)}
-                      placeholder="e.g. 200 Tons/Hour / 3.0 m³ Bucket"
+                      placeholder="e.g. 200 Tons/Hour / 3.0 mÂ³ Bucket"
                       className="h-8 text-xs"
                     />
                   </div>
@@ -868,7 +868,7 @@ export default function QuarryPermitForm({ service, onSubmit, isSubmitting, init
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the Federal Mining Cadastre Lease particulars, certified blasting engineer credentials, heavy machinery inventory, and environmental safeguards comply strictly with Odeda Local Government Quarry Bye-Laws and the Nigerian Minerals and Mining Act."
+          declarationText="I solemnly declare that the Federal Mining Cadastre Lease particulars, certified blasting engineer credentials, heavy machinery inventory, and environmental safeguards comply strictly with the Local Government Quarry Bye-Laws and the Nigerian Minerals and Mining Act."
         />
       )}
     </FormWizard>

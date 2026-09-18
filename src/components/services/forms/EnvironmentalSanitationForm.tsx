@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { WARDS } from "@/lib/mock-data";
-import { ServiceType, getConfiguredFeeForService } from "@/config/odedaServices";
+import { ServiceType, getConfiguredFeeForService } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import { ReviewSubmitStep, ReviewSection, ReviewRepeatableSection } from "./ReviewSubmitStep";
@@ -97,7 +97,7 @@ const STEPS: FormStep[] = [
     id: "facility_profile",
     title: "Facility & Business Profile",
     shortTitle: "Facility Profile",
-    description: "Enter commercial/industrial facility details and physical location within Odeda LGA.",
+    description: "Enter commercial/industrial facility details and physical location within the LGA.",
   },
   {
     id: "drainage_waste",
@@ -141,7 +141,7 @@ const DOCUMENTS: DocumentSpec[] = [
   {
     id: "waste_contract_agreement",
     label: "Accredited PSP / Waste Evacuation Agreement",
-    description: "Service contract with an authorized Ogun State / Odeda LGA waste management contractor.",
+    description: "Service contract with an authorized Ogun State / the LGA waste management contractor.",
     required: true,
   },
   {
@@ -180,7 +180,7 @@ export default function EnvironmentalSanitationForm({ service, onSubmit, isSubmi
       phone: "",
       email: "",
       physicalAddress: "",
-      ward: WARDS[0] || "Odeda",
+      ward: WARDS[0] || "the LGA",
       cacNumber: "",
       operatingHours: "",
       totalDailyStaff: "",
@@ -307,7 +307,7 @@ export default function EnvironmentalSanitationForm({ service, onSubmit, isSubmi
         { label: "Phone Number", value: formValues.phone },
         { label: "Email Address", value: formValues.email || "N/A" },
         { label: "Physical Facility Address", value: formValues.physicalAddress },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
         { label: "CAC Reg Number", value: formValues.cacNumber || "N/A" },
         { label: "Operating Hours", value: formValues.operatingHours || "N/A" },
         { label: "Daily Staff & Occupants", value: `${formValues.totalDailyStaff || "0"} persons` },
@@ -386,7 +386,7 @@ export default function EnvironmentalSanitationForm({ service, onSubmit, isSubmi
               Commercial / Industrial Facility Profile
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Enter facility location and operational parameters for Odeda LGA Environmental Health Officers inspection.
+              Enter facility location and operational parameters for the LGA Environmental Health Officers inspection.
             </p>
           </div>
 
@@ -487,7 +487,7 @@ export default function EnvironmentalSanitationForm({ service, onSubmit, isSubmi
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward in the LGA *</Label>
               <Controller
                 name="ward"
                 control={control}
@@ -520,7 +520,7 @@ export default function EnvironmentalSanitationForm({ service, onSubmit, isSubmi
               <Input
                 id="physicalAddress"
                 {...register("physicalAddress")}
-                placeholder="Plot/Building No, Street name, Village/Town in Odeda LGA"
+                placeholder="Plot/Building No, Street name, Village/Town in the LGA"
                 disabled={isSubmitting}
               />
               {errors.physicalAddress && (
@@ -977,7 +977,7 @@ export default function EnvironmentalSanitationForm({ service, onSubmit, isSubmi
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the environmental sanitation facilities, drainage systems, pest control schedules, and waste evacuation contracts described herein comply strictly with the Public Health Laws and Environmental Sanitation Bye-Laws of Odeda Local Government, Ogun State."
+          declarationText="I solemnly declare that the environmental sanitation facilities, drainage systems, pest control schedules, and waste evacuation contracts described herein comply strictly with the Public Health Laws and Environmental Sanitation Bye-Laws of the Local Government, Ogun State."
         />
       )}
     </FormWizard>

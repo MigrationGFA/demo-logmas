@@ -53,8 +53,8 @@ export default function RevenueFrameworkPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Odeda LGA Treasury Revenue Framework Portal"
-        subtitle="Configure statutory fee amounts and active statuses for all 12 Odeda LGA services, authorize assessments and demand notices, and track real-time payments."
+        title="the LGA Treasury Revenue Framework Portal"
+        subtitle="Configure statutory fee amounts and active statuses for all 12 the LGA services, authorize assessments and demand notices, and track real-time payments."
       />
 
       <Tabs defaultValue="fee_configuration" className="w-full space-y-4">

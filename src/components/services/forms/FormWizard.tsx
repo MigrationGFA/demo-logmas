@@ -3,7 +3,7 @@ import React from "react";
 import { Check, ChevronRight, ArrowLeft, ArrowRight, Shield, AlertCircle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ServiceType, getConfiguredFeeForService } from "@/config/odedaServices";
+import { ServiceType, getConfiguredFeeForService } from "@/config/lgaServices";
 
 export interface FormStep {
   id: string;

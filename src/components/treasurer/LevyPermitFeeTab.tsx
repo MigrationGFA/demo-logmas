@@ -19,13 +19,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SlidersHorizontal, Plus, Power, Building2, ShieldCheck, RefreshCw } from "lucide-react";
-import { ODEDA_SERVICES, ServiceType } from "@/config/odedaServices";
+import { LGA_SERVICES, ServiceType } from "@/config/lgaServices";
 import { toast } from "sonner";
+import { LGA_CONFIG } from "@/config/lga.config";
+
+const LEVY_PERMIT_FEES_STORAGE_KEY = `${LGA_CONFIG.identity.id}_levy_permit_fees`;
 
 export default function LevyPermitFeeTab() {
   const levyServices = useMemo(
     () =>
-      ODEDA_SERVICES.filter(
+      LGA_SERVICES.filter(
         (s) => s.category === "Rates & Levies" || s.category === "Licences & Permits" || s.category === "Urban Development"
       ),
     []
@@ -47,7 +50,7 @@ export default function LevyPermitFeeTab() {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("odeda_levy_permit_fees");
+      const stored = localStorage.getItem(LEVY_PERMIT_FEES_STORAGE_KEY);
       if (stored) {
         setFeeSchedules(JSON.parse(stored));
       } else {
@@ -66,7 +69,7 @@ export default function LevyPermitFeeTab() {
           updatedAt: new Date().toISOString().slice(0, 10),
         }));
         setFeeSchedules(initial);
-        localStorage.setItem("odeda_levy_permit_fees", JSON.stringify(initial));
+        localStorage.setItem(LEVY_PERMIT_FEES_STORAGE_KEY, JSON.stringify(initial));
       }
     } catch {
       // fallback
@@ -76,7 +79,7 @@ export default function LevyPermitFeeTab() {
   const saveFeeSchedules = (updated: any[]) => {
     setFeeSchedules(updated);
     try {
-      localStorage.setItem("odeda_levy_permit_fees", JSON.stringify(updated));
+      localStorage.setItem(LEVY_PERMIT_FEES_STORAGE_KEY, JSON.stringify(updated));
     } catch (e) {
       console.error("Failed saving levy fee schedules", e);
     }

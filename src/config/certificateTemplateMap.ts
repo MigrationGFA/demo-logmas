@@ -1,7 +1,7 @@
 /**
  * LOGMAS SERVICE TO CERTIFICATE TEMPLATE MAPPING
  * 
- * Maps all 12 official Odeda Local Government services to one of the
+ * Maps all 12 official the Local Government services to one of the
  * two official master certificate layouts:
  * 
  * 1. "landscape" → The official Club Registration & Organizations master template
@@ -154,7 +154,7 @@ export const ALL_12_SERVICES_ALLOCATION: ServiceTemplateEntry[] = [
 ];
 
 const LOCAL_STORAGE_KEY_OVERRIDES = `${LGA_CONFIG.identity.id}_custom_template_allocations`;
-const LEGACY_STORAGE_KEY_OVERRIDES = "odeda_custom_template_allocations";
+const LEGACY_STORAGE_KEY_OVERRIDES = "legacy_custom_template_allocations";
 
 /**
  * Retrieve saved overrides from localStorage

@@ -178,7 +178,7 @@ export default function PermitDetailPage({
           <div className="flex items-start justify-between mb-6">
             <div>
               <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                Odeda Local Government Area
+                the Local Government Area
               </div>
               <div className="text-xl font-bold">Trade Permit Certificate</div>
             </div>
@@ -223,7 +223,7 @@ export default function PermitDetailPage({
             />
             <Detail
               label="Phone"
-              value={permit.business?.owner?.phone ?? "—"}
+              value={permit.business?.owner?.phone ?? " - "}
             />
             {permit.business?.address && (
               <Detail
@@ -237,7 +237,7 @@ export default function PermitDetailPage({
               value={
                 permit.validFrom
                   ? new Date(permit.validFrom).toLocaleDateString()
-                  : "—"
+                  : " - "
               }
             />
             <Detail
@@ -245,12 +245,12 @@ export default function PermitDetailPage({
               value={
                 permit.validTo
                   ? new Date(permit.validTo).toLocaleDateString()
-                  : "—"
+                  : " - "
               }
             />
             <Detail
               label="Verification Code"
-              value={permit.verificationCode || "—"}
+              value={permit.verificationCode || " - "}
               mono
             />
             <Detail
@@ -267,7 +267,7 @@ export default function PermitDetailPage({
 
           <div className="flex items-center justify-between">
             <div className="text-xs text-muted-foreground max-w-md">
-              This certificate is the official trade permit of Odeda
+              This certificate is the official trade permit of the LGA
               LGA. Verify authenticity by scanning the QR code or visiting the
               verification portal with the code above.
             </div>
@@ -580,3 +580,4 @@ function Detail({
     </div>
   );
 }
+

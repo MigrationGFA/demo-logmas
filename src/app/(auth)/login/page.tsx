@@ -148,12 +148,12 @@ function LoginPage() {
         <Link href="/" className="relative flex flex-col items-center gap-2.5 w-fit">
           <Image src={logo} alt="LOGMAS" className="h-12 w-12" />
           <div className="text-[10px] uppercase font-bold tracking-wider text-muted-background">
-            Odeda LGA
+            the LGA
           </div>
         </Link>
         <div className="relative space-y-6">
           <h1 className="text-4xl font-bold tracking-tight leading-tight">
-            Building a Smarter Odeda Local Government
+            Building a Smarter the Local Government
           </h1>
           <p className="opacity-90">
             Delivering transparent governance, digital public services, and
@@ -177,7 +177,7 @@ function LoginPage() {
           </div>
         </div>
         <div className="relative text-xs opacity-70">
-          © {new Date().getFullYear()} Odeda Local Government Area
+          © {new Date().getFullYear()} the Local Government Area
         </div>
       </div>
 

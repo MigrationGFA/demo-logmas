@@ -813,7 +813,7 @@ export default function NewPermitPage() {
               <SelectContent>
                 {PERMIT_TYPES.map((p) => (
                   <SelectItem key={p.type} value={p.categoryId}>
-                    {p.type} — ₦{p.fee.toLocaleString()}/year
+                    {p.type}  -  ₦{p.fee.toLocaleString()}/year
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -893,3 +893,4 @@ function Field({
     </div>
   );
 }
+

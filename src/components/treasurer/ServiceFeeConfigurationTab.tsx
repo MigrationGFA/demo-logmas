@@ -330,7 +330,7 @@ export default function ServiceFeeConfigurationTab() {
             {stats.totalServices} Services
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Universal Odeda LGA service registry
+            Universal the LGA service registry
           </p>
         </Card>
 
@@ -390,7 +390,7 @@ export default function ServiceFeeConfigurationTab() {
                 Fee Configuration & Management
               </CardTitle>
               <CardDescription>
-                Select a service to update fees, or create a new statutory service for Odeda LGA.
+                Select a service to update fees, or create a new statutory service for the LGA.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -609,8 +609,8 @@ export default function ServiceFeeConfigurationTab() {
 
                 <p className="text-[11px] text-muted-foreground pt-1">
                   {feeStatus === "ACTIVE"
-                    ? "✓ Active fee is applied automatically to new applications."
-                    : "⚠ Inactive fees suspend new statutory applications."}
+                    ? "âœ“ Active fee is applied automatically to new applications."
+                    : "âš  Inactive fees suspend new statutory applications."}
                 </p>
               </div>
             </div>
@@ -671,7 +671,7 @@ export default function ServiceFeeConfigurationTab() {
                 Configured Services & Statutory Fees
               </CardTitle>
               <CardDescription>
-                Overview of all statutory Odeda Local Government Area services
+                Overview of all statutory the Local Government Area services
                 and their configured revenue fees.
               </CardDescription>
             </div>
@@ -855,7 +855,7 @@ export default function ServiceFeeConfigurationTab() {
                         <TableCell className="text-xs text-muted-foreground font-medium">
                           {lastUpdated
                             ? new Date(lastUpdated).toLocaleDateString()
-                            : "—"}
+                            : " - "}
                         </TableCell>
 
                         <TableCell className="text-right">
@@ -943,3 +943,4 @@ export default function ServiceFeeConfigurationTab() {
     </div>
   );
 }
+

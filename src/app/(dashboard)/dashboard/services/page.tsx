@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   ServiceType,
-} from "@/config/odedaServices";
+} from "@/config/lgaServices";
 import Link from "next/link";
 import {
   FileBadge,
@@ -86,7 +86,7 @@ export default function ServicesPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Odeda LGA Government Services Catalogue"
+          title="the LGA Government Services Catalogue"
           subtitle="Select an official local government service to apply, obtain statutory assessments, or pay levies online."
         />
         <ErrorState
@@ -112,7 +112,7 @@ export default function ServicesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <PageHeader
-          title="Odeda LGA Government Services Catalogue"
+          title="the LGA Government Services Catalogue"
           subtitle="Select an official local government service to apply, obtain statutory assessments, or pay levies online."
         />
 

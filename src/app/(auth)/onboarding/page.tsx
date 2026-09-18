@@ -41,16 +41,16 @@ import { formatAndValidateNigerianPhoneNumber } from "@/lib/helper";
 
 // Ward options - adjust based on your LGA
 const WARDS = [
-  "Odeda Ward 1",
-  "Odeda Ward 2",
-  "Odeda Ward 3",
-  "Odeda Ward 4",
-  "Odeda Ward 5",
-  "Odeda Ward 6",
-  "Odeda Ward 7",
-  "Odeda Ward 8",
-  "Odeda Ward 9",
-  "Odeda Ward 10",
+  "the LGA Ward 1",
+  "the LGA Ward 2",
+  "the LGA Ward 3",
+  "the LGA Ward 4",
+  "the LGA Ward 5",
+  "the LGA Ward 6",
+  "the LGA Ward 7",
+  "the LGA Ward 8",
+  "the LGA Ward 9",
+  "the LGA Ward 10",
 ];
 
 const GENDER_OPTIONS = ["Male", "Female", "Other"];

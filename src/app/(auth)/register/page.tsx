@@ -312,7 +312,7 @@ export default function RegisterPage() {
         >
           <Image src={logo} alt="LOGMAS" className="h-12 w-12" />
           <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-            Odeda LGA
+            the LGA
           </div>
         </Link>
 
@@ -359,7 +359,7 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Animated height wrapper — no layout jump between steps */}
+            {/* Animated height wrapper  -  no layout jump between steps */}
             <div ref={containerRef} className="relative overflow-hidden">
               {/* Step 1: Personal Information */}
               <div ref={step1Ref} className="space-y-4">
@@ -568,3 +568,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

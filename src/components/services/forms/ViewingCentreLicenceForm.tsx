@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WARDS } from "@/lib/mock-data";
-import { ServiceType } from "@/config/odedaServices";
+import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import {
@@ -92,7 +92,7 @@ const STEPS: FormStep[] = [
     title: "Viewing Centre & Operator Profile",
     shortTitle: "Centre Profile",
     description:
-      "Enter viewing hall enterprise name, operator identity, and physical location in Odeda LGA.",
+      "Enter viewing hall enterprise name, operator identity, and physical location in the LGA.",
   },
   {
     id: "hall_safety",
@@ -189,7 +189,7 @@ export default function ViewingCentreLicenceForm({
       phone: initialApplicant?.phone || "",
       email: initialApplicant?.email || "",
       physicalAddress: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       cacNumber: "",
       seatingCapacity: "",
       standardFee: "",
@@ -347,7 +347,7 @@ export default function ViewingCentreLicenceForm({
         { label: "Contact Phone Number", value: formValues.phone },
         { label: "Email Address", value: formValues.email || "N/A" },
         { label: "Physical Location", value: formValues.physicalAddress },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
         { label: "CAC Reg Number", value: formValues.cacNumber || "N/A" },
         { label: "Standard Admission Fee", value: formValues.standardFee || "N/A" },
       ],
@@ -438,7 +438,7 @@ export default function ViewingCentreLicenceForm({
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
               Enter sports viewing hall details and operator contact credentials
-              in Odeda LGA.
+              in the LGA.
             </p>
           </div>
 
@@ -498,7 +498,7 @@ export default function ViewingCentreLicenceForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward in the LGA *</Label>
               <Controller
                 control={control}
                 name="ward"
@@ -550,7 +550,7 @@ export default function ViewingCentreLicenceForm({
               <Input
                 id="physicalAddress"
                 {...register("physicalAddress")}
-                placeholder="Building No, Street name, Community in Odeda LGA"
+                placeholder="Building No, Street name, Community in the LGA"
               />
               {errors.physicalAddress && (
                 <p className="text-xs text-red-500">{errors.physicalAddress.message}</p>
@@ -968,7 +968,7 @@ export default function ViewingCentreLicenceForm({
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the viewing hall seating layout, electrical wiring safety, commercial broadcast subscriptions, and crowd control measures comply strictly with the Public Entertainment & Viewing Centre Regulations of Odeda Local Government, Ogun State."
+          declarationText="I solemnly declare that the viewing hall seating layout, electrical wiring safety, commercial broadcast subscriptions, and crowd control measures comply strictly with the Public Entertainment & Viewing Centre Regulations of the Local Government, Ogun State."
         />
       )}
     </FormWizard>

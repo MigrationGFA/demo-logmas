@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import {  getConfiguredFeeForService } from "@/config/odedaServices";
+import {  getConfiguredFeeForService } from "@/config/lgaServices";
 import { useServices } from "@/hooks/queries/useServices";
 import { ServiceApplicationGuideSteps } from "@/components/services/ServiceApplicationGuideSteps";
 import { PublicServiceApplyWidget } from "@/components/services/PublicServiceApplyWidget";
@@ -129,7 +129,7 @@ function ServicesPageContent() {
               Official LGA Services & Portal
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-              Statutory Services & Licences for Odeda LGA
+              Statutory Services & Licences for the LGA
             </h1>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto text-base">
               Apply for Certificate of Origin, business permits, haulage passes, property rates, and trade licences online with end-to-end digital verification.

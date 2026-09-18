@@ -271,7 +271,7 @@ export default function InvoiceDetail({
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
                               {invoice.virtualBankName ||
-                                "Zenith Bank / Odeda Treasury"}{" "}
+                                "Zenith Bank / the LGA Treasury"}{" "}
                               •
                               {invoice.application?.formData?.fullName ||
                                 "Applicant"}
@@ -629,3 +629,4 @@ function CashConfirmDialog({
     </Dialog>
   );
 }
+

@@ -169,7 +169,7 @@ export default function VerifyPaymentPage() {
                 <CheckCircle2 className="h-6 w-6" />
               </div>
               <div>
-                <Badge className="bg-success text-success-foreground">Authentic — Paid</Badge>
+                <Badge className="bg-success text-success-foreground">Authentic  -  Paid</Badge>
                 <h3 className="font-semibold mt-1">Payment confirmed</h3>
                 <p className="text-xs text-muted-foreground">
                   Verified by {result.issuedBy} • {result.issuingAuthority}

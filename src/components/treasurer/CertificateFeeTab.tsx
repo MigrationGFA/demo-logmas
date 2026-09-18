@@ -19,12 +19,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SlidersHorizontal, Plus, Power, FileBadge, CheckCircle2, RefreshCw } from "lucide-react";
-import { ODEDA_SERVICES, ServiceType } from "@/config/odedaServices";
+import { LGA_SERVICES, ServiceType } from "@/config/lgaServices";
 import { toast } from "sonner";
+import { LGA_CONFIG } from "@/config/lga.config";
+
+const CERTIFICATE_FEES_STORAGE_KEY = `${LGA_CONFIG.identity.id}_certificate_fees`;
 
 export default function CertificateFeeTab() {
   const certificateServices = useMemo(
-    () => ODEDA_SERVICES.filter((s) => s.category === "Certificates" || s.id.includes("registration")),
+    () => LGA_SERVICES.filter((s) => s.category === "Certificates" || s.id.includes("registration")),
     []
   );
 
@@ -45,7 +48,7 @@ export default function CertificateFeeTab() {
   useEffect(() => {
     // Initialize or load from localStorage
     try {
-      const stored = localStorage.getItem("odeda_certificate_fees");
+      const stored = localStorage.getItem(CERTIFICATE_FEES_STORAGE_KEY);
       if (stored) {
         setFeeSchedules(JSON.parse(stored));
       } else {
@@ -64,7 +67,7 @@ export default function CertificateFeeTab() {
           updatedAt: new Date().toISOString().slice(0, 10),
         }));
         setFeeSchedules(initial);
-        localStorage.setItem("odeda_certificate_fees", JSON.stringify(initial));
+        localStorage.setItem(CERTIFICATE_FEES_STORAGE_KEY, JSON.stringify(initial));
       }
     } catch {
       // fallback
@@ -74,7 +77,7 @@ export default function CertificateFeeTab() {
   const saveFeeSchedules = (updated: any[]) => {
     setFeeSchedules(updated);
     try {
-      localStorage.setItem("odeda_certificate_fees", JSON.stringify(updated));
+      localStorage.setItem(CERTIFICATE_FEES_STORAGE_KEY, JSON.stringify(updated));
     } catch (e) {
       console.error("Failed saving fee schedules", e);
     }
@@ -155,7 +158,7 @@ export default function CertificateFeeTab() {
         <div>
           <h3 className="text-base font-bold flex items-center gap-2">
             <FileBadge className="h-5 w-5 text-primary" />
-            Odeda Certificate Fee Schedules
+            the LGA Certificate Fee Schedules
           </h3>
           <p className="text-xs text-muted-foreground">
             Configure statutory fees, calculation rules, penalty rates, and billing cycles for all Certificate Services.

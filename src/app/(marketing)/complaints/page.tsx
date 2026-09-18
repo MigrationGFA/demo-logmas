@@ -19,10 +19,10 @@ import { PageShell, PageHero } from "@/components/page-shell";
 import { MessageSquare, LogIn } from "lucide-react";
 
 // export const metadata = {
-//     title: "Complaints & Support — Ijebu North East LGA",
+//     title: "Complaints & Support  -  Ijebu North East LGA",
 //     description: "Raise a concern with the council and we'll route it to the right department and follow up.",
 //     openGraph: {
-//         title: "Complaints & Support — Ijebu North East LGA",
+//         title: "Complaints & Support  -  Ijebu North East LGA",
 //         description: "Submit a complaint to the council.",
 //     },
 // };
@@ -114,3 +114,4 @@ export default function ComplaintsPage() {
         </PageShell>
     );
 }
+

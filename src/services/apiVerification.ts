@@ -4,6 +4,7 @@ import { apiCertificates } from "./apiCertificates";
 import { apiPublicCertificate } from "./apiPublicCertificate";
 import { BackendCertificate } from "@/types/certificate";
 import { PublicCertificate } from "@/types/publicCertificate";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 export interface VerificationResultData {
   valid: boolean;
@@ -92,7 +93,7 @@ function transformBackendCertToVerify(cert: BackendCertificate, inputQuery: stri
   return {
     valid: true,
     type,
-    title: service.name || "Statutory Odeda Local Government Document",
+    title: service.name || `Statutory ${LGA_CONFIG.identity.fullName} Document`,
     status,
     isExpired,
     idNumber: cert.certificateNumber || cert.verificationCode || cert.id,
@@ -102,14 +103,14 @@ function transformBackendCertToVerify(cert: BackendCertificate, inputQuery: stri
     amount: cert.invoice?.amount || app.feeAmount || 0,
     metadata: {
       gender: formData.gender || formData.sex || "N/A",
-      ward: formData.ward || formData.wardName || "Odeda Ward",
+      ward: formData.ward || formData.wardName || `${LGA_CONFIG.identity.name} Ward`,
       purpose: formData.purpose || formData.reasonForApplication || "Official State Verification",
       ownerName: formData.ownerName || formData.proprietor || holder,
-      businessAddress: formData.businessAddress || formData.address || "Odeda LGA, Ogun State",
+      businessAddress: formData.businessAddress || formData.address || `${LGA_CONFIG.identity.name} LGA, ${LGA_CONFIG.identity.state}`,
       categoryName: service.name || "Statutory LGA Service",
-      wardName: formData.ward || formData.wardName || "Odeda Ward",
-      stateOfOrigin: formData.stateOfOrigin || "Ogun State",
-      lga: "Odeda Local Government",
+      wardName: formData.ward || formData.wardName || `${LGA_CONFIG.identity.name} Ward`,
+      stateOfOrigin: formData.stateOfOrigin || LGA_CONFIG.identity.state,
+      lga: LGA_CONFIG.identity.fullName,
       nin: applicant.nin || formData.nin || "Verified",
       cacNumber: formData.cacNumber || "N/A",
     },
@@ -150,7 +151,7 @@ function transformPublicCertToVerify(cert: PublicCertificate, inputQuery: string
   return {
     valid: true,
     type,
-    title: service.name || "Statutory Odeda Local Government Document",
+    title: service.name || `Statutory ${LGA_CONFIG.identity.fullName} Document`,
     status,
     isExpired,
     idNumber: cert.certificateNumber || cert.verification?.verificationCode || cert.publicToken,
@@ -160,14 +161,14 @@ function transformPublicCertToVerify(cert: PublicCertificate, inputQuery: string
     amount: cert.invoice?.amount || cert.application?.feeAmount || 0,
     metadata: {
       gender: applicant.gender || certData.gender || "N/A",
-      ward: applicant.ward || certData.ward || "Odeda Ward",
+      ward: applicant.ward || certData.ward || `${LGA_CONFIG.identity.name} Ward`,
       purpose: certData.purpose || "Official State Verification",
       ownerName: certData.ownerName || certData.presidentName || holder,
-      businessAddress: applicant.address || certData.clubAddress || certData.businessAddress || "Odeda LGA, Ogun State",
+      businessAddress: applicant.address || certData.clubAddress || certData.businessAddress || `${LGA_CONFIG.identity.name} LGA, ${LGA_CONFIG.identity.state}`,
       categoryName: service.name || "Statutory LGA Service",
-      wardName: applicant.ward || certData.ward || "Odeda Ward",
-      stateOfOrigin: certData.stateOfOrigin || "Ogun State",
-      lga: "Odeda Local Government",
+      wardName: applicant.ward || certData.ward || `${LGA_CONFIG.identity.name} Ward`,
+      stateOfOrigin: certData.stateOfOrigin || LGA_CONFIG.identity.state,
+      lga: LGA_CONFIG.identity.fullName,
       nin: applicant.nin || "Verified",
     },
     certificateNumber: cert.certificateNumber,

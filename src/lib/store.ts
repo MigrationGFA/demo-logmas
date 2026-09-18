@@ -281,10 +281,10 @@ function seed(): Store {
   const invoices: Invoice[] = [
     mkInv({ customerId: "c1", customerName: "Bola Enterprises", phone: "+2348012345678", levyType: "Market Levy", purpose: "Market stall (May)", quantity: 25, unitPrice: 500, amount: 12500, status: "paid", paidAt: today(), paymentMethod: "transfer" }),
     mkInv({ customerId: "c2", customerName: "Ade Logistics", phone: "+2348022345678", levyType: "Haulage Levy", purpose: "Truck trips", quantity: 9, unitPrice: 5000, amount: 45000, status: "unpaid" }),
-    mkInv({ customerId: "c3", customerName: "Funke Stores", phone: "+2348032345678", levyType: "Lockup Store Levy", purpose: "Shop 4 — Ojowo", quantity: 1, unitPrice: 8000, amount: 8000, status: "overdue", dueDate: "2026-04-29" }),
+    mkInv({ customerId: "c3", customerName: "Funke Stores", phone: "+2348032345678", levyType: "Lockup Store Levy", purpose: "Shop 4  -  Ojowo", quantity: 1, unitPrice: 8000, amount: 8000, status: "overdue", dueDate: "2026-04-29" }),
     mkInv({ customerId: "c4", customerName: "Sunshine Mart", phone: "+2348042345678", levyType: "Market Levy", purpose: "Stall block C", quantity: 13, unitPrice: 500, amount: 6500, status: "paid", paidAt: today(), paymentMethod: "pos" }),
     mkInv({ customerId: "c5", customerName: "Fast Movers Ltd", phone: "+2348052345678", levyType: "Haulage Levy", purpose: "Park dues", quantity: 12, unitPrice: 5000, amount: 60000, status: "unpaid" }),
-    mkInv({ customerId: "c6", customerName: "Ojowo Traders Coop", phone: "+2348062345678", levyType: "Market Levy", purpose: "Daily stall — coop", quantity: 9, unitPrice: 500, amount: 4500, status: "paid", paidAt: today(), paymentMethod: "cash" }),
+    mkInv({ customerId: "c6", customerName: "Ojowo Traders Coop", phone: "+2348062345678", levyType: "Market Levy", purpose: "Daily stall  -  coop", quantity: 9, unitPrice: 500, amount: 4500, status: "paid", paidAt: today(), paymentMethod: "cash" }),
   ];
 
   const receipts: Receipt[] = invoices.filter((i) => i.status === "paid").map((i) => ({
@@ -321,10 +321,10 @@ function seed(): Store {
   ];
 
   const permitConfigs: PermitConfig[] = [
-    { id: "pc1", name: "Annual Trade Permit — Retail", code: "ATP_RETAIL", baseAmount: 12000, category: "trade_permit", isActive: true, createdAt: today() },
-    { id: "pc2", name: "Event Permit — Plaza", code: "EVT_PLAZA", baseAmount: 25000, category: "event_permit", isActive: true, createdAt: today() },
-    { id: "pc3", name: "Shop Permit — Lockup", code: "SHOP_LOCKUP", baseAmount: 15000, category: "shop_permit", isActive: true, createdAt: today() },
-    { id: "pc4", name: "Signage Permit — Standard", code: "SIGN_STD", baseAmount: 8000, category: "signage_permit", isActive: false, createdAt: today() },
+    { id: "pc1", name: "Annual Trade Permit  -  Retail", code: "ATP_RETAIL", baseAmount: 12000, category: "trade_permit", isActive: true, createdAt: today() },
+    { id: "pc2", name: "Event Permit  -  Plaza", code: "EVT_PLAZA", baseAmount: 25000, category: "event_permit", isActive: true, createdAt: today() },
+    { id: "pc3", name: "Shop Permit  -  Lockup", code: "SHOP_LOCKUP", baseAmount: 15000, category: "shop_permit", isActive: true, createdAt: today() },
+    { id: "pc4", name: "Signage Permit  -  Standard", code: "SIGN_STD", baseAmount: 8000, category: "signage_permit", isActive: false, createdAt: today() },
   ];
 
   return { customers, levies, invoices, receipts, officers, notifications, audits: [], permits, permitConfigs };
@@ -469,7 +469,7 @@ export function createInvoice(input: CreateInvoiceInput): Invoice {
   };
   setStore((s) => ({ ...s, invoices: [inv, ...s.invoices] }));
   addAudit({ actor: input.actor, actorRole: input.actorRole, action: "INVOICE_CREATED", target: reference, meta: { amount: inv.amount, levy: inv.levyType } });
-  addNotification({ title: "Invoice generated", body: `${reference} for ${inv.customerName} — ₦${inv.amount.toLocaleString()}`, type: "success" });
+  addNotification({ title: "Invoice generated", body: `${reference} for ${inv.customerName}  -  ₦${inv.amount.toLocaleString()}`, type: "success" });
   return inv;
 }
 
@@ -596,7 +596,7 @@ export function createPermit(input: CreatePermitInput): TradePermit {
     address: input.address,
     businessName: input.businessName,
     levyType: "Trade Permit Fees",
-    purpose: `${input.permitType} — ${input.businessName}`,
+    purpose: `${input.permitType}  -  ${input.businessName}`,
     description: `Trade permit application ${permitNumber}`,
     quantity: 1,
     unitPrice: cfg.fee,
@@ -658,3 +658,4 @@ export function togglePermitConfigActive(id: string) {
     permitConfigs: s.permitConfigs.map((c) => c.id === id ? { ...c, isActive: !c.isActive } : c),
   }));
 }
+

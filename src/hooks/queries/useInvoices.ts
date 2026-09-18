@@ -107,7 +107,7 @@ export function useInvoicePayment(invoiceId: string) {
     },
   });
 
-  // Initialize online payment — real Paystack now, always redirects on success.
+  // Initialize online payment  -  real Paystack now, always redirects on success.
   const initializeOnlinePaymentMutation = useMutation({
     mutationFn: () => invoicesService.initializeOnlinePayment(invoiceId),
     onSuccess: (response) => {
@@ -139,7 +139,7 @@ export function useInvoicePayment(invoiceId: string) {
     },
   });
 
-  // Verify payment directly against Paystack — call on mount if a reference is
+  // Verify payment directly against Paystack  -  call on mount if a reference is
   // pending (e.g. after redirect back), or manually via a "Refresh status" button.
   const verifyPaymentMutation = useMutation({
     mutationFn: (reference: string) => invoicesService.verifyPayment(reference),
@@ -193,3 +193,4 @@ export function useInvoicePayment(invoiceId: string) {
     isSimulatingPayment: simulatePaymentMutation.isPending,
   };
 }
+

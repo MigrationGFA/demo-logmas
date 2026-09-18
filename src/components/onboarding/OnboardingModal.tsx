@@ -235,7 +235,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
           <div className="flex items-center gap-2 mb-1 text-primary">
             <ShieldCheck className="h-5 w-5" />
             <span className="text-xs uppercase tracking-wider font-semibold">
-              Odeda LGA Citizen Registry
+              the LGA Citizen Registry
             </span>
           </div>
           <DialogTitle className="text-xl sm:text-2xl font-bold">
@@ -367,7 +367,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
           {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/40">
             <div>
               <Label htmlFor="ward" className="text-xs font-semibold">
-                Odeda Ward <span className="text-destructive">*</span>
+                the LGA Ward <span className="text-destructive">*</span>
               </Label>
               <Controller
                 name="ward"
@@ -378,7 +378,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
                       <SelectValue placeholder="Select your political ward" />
                     </SelectTrigger>
                     <SelectContent>
-                      {ODEDA_WARDS.map((w) => (
+                      {LGA_WARD_NAMES.map((w) => (
                         <SelectItem key={w} value={w}>
                           {w}
                         </SelectItem>
@@ -400,7 +400,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
                 name="town"
                 control={control}
                 render={({ field }) => (
-                  <Input {...field} id="town" placeholder="e.g. Osiele, Odeda, Ilugun" className="mt-1.5" />
+                  <Input {...field} id="town" placeholder="e.g. Osiele, the LGA, Ilugun" className="mt-1.5" />
                 )}
               />
               {errors.town && (
@@ -555,7 +555,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
                     <Input
                       {...field}
                       id="businessName"
-                      placeholder="e.g. Odeda Agro Allied Enterprises"
+                      placeholder="e.g. the LGA Agro Allied Enterprises"
                       className="mt-1.5"
                     />
                   )}

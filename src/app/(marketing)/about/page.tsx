@@ -14,7 +14,7 @@ const TIMELINE = [
   {
     year: "1976",
     title: "LGA Creation",
-    desc: "Odeda LGA created as a distinct administrative hub, headquartered in Odeda town.",
+    desc: "the LGA created as a distinct administrative hub, headquartered in the LGA town.",
   },
   {
     year: "1992",
@@ -44,7 +44,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About the LGA"
         title="Rooted in agriculture & industry, building the future"
-        subtitle={`${LGA_CONFIG.identity.fullName} — proudly headquartered in ${LGA_CONFIG.identity.headquarters}, ${LGA_CONFIG.identity.state} — combines rich cultural heritage with agricultural productivity, solid minerals, and modern digital public service.`}
+        subtitle={`${LGA_CONFIG.identity.fullName}  -  proudly headquartered in ${LGA_CONFIG.identity.headquarters}, ${LGA_CONFIG.identity.state}  -  combines rich cultural heritage with agricultural productivity, solid minerals, and modern digital public service.`}
       >
         <div className="flex flex-wrap gap-3">
           <Button asChild className="bg-gradient-hero shadow-elegant">
@@ -114,7 +114,7 @@ export default function AboutPage() {
             {/* <div>
               <div className="font-semibold">Mission</div>
               <p className="opacity-90">
-                Deliver every public service with dignity, speed and accountability — empowering citizens, farmers, businesses and investors to thrive across Odeda LGA.
+                Deliver every public service with dignity, speed and accountability  -  empowering citizens, farmers, businesses and investors to thrive across the LGA.
               </p>
             </div> */}
             <div className="grid grid-cols-2 gap-3 pt-2">
@@ -176,3 +176,4 @@ export default function AboutPage() {
     </PageShell>
   );
 }
+

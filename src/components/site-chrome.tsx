@@ -251,7 +251,7 @@ export function SiteHeader() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="relative flex items-center justify-center rounded-xl bg-white shadow-elegant group-hover:scale-105 transition-bounce w-10 h-10 overflow-hidden">
-              <Image src={logo} alt="Odeda LGA Logo" className="h-8 w-8" fill/>
+              <Image src={logo} alt="the LGA Logo" className="h-8 w-8" fill/>
             </div>
             <div className="leading-tight">
               <div className="text-sm font-bold tracking-tight">{LGA_CONFIG.identity.name} LGA</div>
@@ -495,7 +495,7 @@ export function SiteFooter() {
             </div>
           </div>
           <p className="mt-4 text-sm opacity-70 max-w-md leading-relaxed">
-            The official digital home of {LGA_CONFIG.identity.fullName} — bringing
+            The official digital home of {LGA_CONFIG.identity.fullName}  -  bringing
             transparent governance, modern services and economic opportunity to
             every citizen, business and investor.
           </p>
@@ -561,7 +561,7 @@ export function SiteFooter() {
       <div className="border-t border-sidebar-border/40">
         <div className="container mx-auto px-4 py-5 text-xs opacity-60 flex flex-col md:flex-row justify-between gap-2">
           <span>
-            © {new Date().getFullYear()} {LGA_CONFIG.identity.fullName}, {LGA_CONFIG.identity.state}. All rights reserved.
+            Â© {new Date().getFullYear()} {LGA_CONFIG.identity.fullName}, {LGA_CONFIG.identity.state}. All rights reserved.
           </span>
           <span>Official Website · {LGA_CONFIG.identity.fullName}</span>
         </div>
@@ -592,3 +592,4 @@ function FooterCol({
     </div>
   );
 }
+

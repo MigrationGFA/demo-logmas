@@ -84,7 +84,7 @@ export const OFFICIAL_RECEIPT_CONFIG: MasterReceiptConfig = {
 
   fields: {
     // ==========================================
-    // 1. LEFT COLUMN — 5 FORM BOXES
+    // 1. LEFT COLUMN  -  5 FORM BOXES
     // ==========================================
     receiptNumber: {
       key: "receiptNumber",
@@ -215,7 +215,7 @@ export const OFFICIAL_RECEIPT_CONFIG: MasterReceiptConfig = {
     },
 
     // ==========================================
-    // 3. RIGHT COLUMN — AUTHENTICITY BOX
+    // 3. RIGHT COLUMN  -  AUTHENTICITY BOX
     // ==========================================
     verificationStatusHeader: {
       key: "verificationStatusHeader",
@@ -233,3 +233,4 @@ export const OFFICIAL_RECEIPT_CONFIG: MasterReceiptConfig = {
     },
   },
 };
+

@@ -62,7 +62,7 @@ export default function ComplaintsPage() {
     return <AdminComplaintsView readOnly={isReadOnly} />;
   }
 
-  // Citizens / Business users / Field Officers / Treasurer / Contractor — raise complaint
+  // Citizens / Business users / Field Officers / Treasurer / Contractor  -  raise complaint
   return <RaiseComplaintView />;
 }
 
@@ -112,3 +112,4 @@ export function StatTile({
     </Card>
   );
 }
+

@@ -103,7 +103,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     redirectTarget = "/login";
   } else if (isReady && user) {
     if (needsEmailVerification && !isPublicRoute) {
-      // Unverified users can't be left holding a valid session — clear it
+      // Unverified users can't be left holding a valid session  -  clear it
       // or they'll just get bounced straight back here from /login.
       redirectTarget = `/login?reason=unverified&email=${encodeURIComponent(user.email)}`;
       shouldClearSession = true;

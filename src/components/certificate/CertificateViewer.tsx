@@ -13,6 +13,7 @@ import {
   getMasterTemplateConfig,
   MasterCertificateConfig,
 } from "@/config/certificateFieldConfig";
+import { LGA_CONFIG } from "@/config/lga.config";
 import {
   Download,
   Printer,
@@ -175,7 +176,7 @@ export function CertificateViewer({
                 </span>
               </div>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                {certificate.service.name} • Odeda Local Government, Ogun State
+                {certificate.service.name} • {LGA_CONFIG.identity.fullName}, {LGA_CONFIG.identity.state}
               </p>
             </div>
           </div>
@@ -325,3 +326,4 @@ export function CertificateViewer({
     </div>
   );
 }
+

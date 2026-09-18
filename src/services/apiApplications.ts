@@ -7,25 +7,25 @@ import {
   ApplicantSearchResult,
 } from "@/types/application";
 import {
-  getOdedaApplications,
-  getOdedaApplicationById,
-  saveOdedaApplications,
-  createOdedaApplication as createLocalApp,
+  getLgaApplications,
+  getLgaApplicationById,
+  saveLgaApplications,
+  createLgaApplication as createLocalApp,
   updateApplicationStatus as updateLocalStatus,
   approveAndGenerateCertificate as localApproveCert,
-} from "@/lib/odedaApplications";
+} from "@/lib/lgaApplications";
 import { tokenManager } from "@/services/apiAuth";
 import { getStoreSnapshot } from "@/lib/store";
 import {
-  getOdedaServiceById,
+  getLgaServiceById,
   getConfiguredFeeForService,
-} from "@/config/odedaServices";
+} from "@/config/lgaServices";
 import { LGA_CONFIG } from "@/config/lga.config";
 
 // Helper to normalize an application from backend or local storage
 function normalizeApplication(raw: any): any {
   if (!raw) return raw;
-  const service = getOdedaServiceById(raw.serviceId || "");
+  const service = getLgaServiceById(raw.serviceId || "");
   const serviceName =
     raw.serviceName || service?.name || `${LGA_CONFIG.identity.formalTitle} Statutory Service`;
   const category = raw.category || service?.category || "Services";
@@ -498,7 +498,7 @@ export const apiApplications = {
     });
 
     // 3. Query existing application records for past applicants
-    const existingApps = getOdedaApplications();
+    const existingApps = getLgaApplications();
     existingApps.forEach((app) => {
       const match =
         app.applicant.toLowerCase().includes(q) ||

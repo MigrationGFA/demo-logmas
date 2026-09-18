@@ -271,10 +271,10 @@ export const LGA_CONFIG: LgaConfiguration = {
     supportEmail: "support@odedalga.com",
     chairmanEmail: "chairman@odedalga.com",
     revenueEmail: "revenue@odedalga.com",
-    secretariatAddress: "LGA Secretariat, Abeokuta–Ibadan Expressway, Odeda, Ogun State",
+    secretariatAddress: "LGA Secretariat, Abeokuta-Ibadan Expressway, Odeda, Ogun State",
     shortAddress: "LGA Secretariat, Odeda, Ogun State",
-    officeHours: "Monday – Friday: 8:00 AM – 5:00 PM",
-    operatingDays: "Mon – Fri, 8am – 5pm",
+    officeHours: "Monday - Friday: 8:00 AM - 5:00 PM",
+    operatingDays: "Mon - Fri, 8am - 5pm",
     weekendHours: "Closed (Emergency & online services active 24/7)",
     portalUrl: "https://www.odedalga.com",
     helpdeskTitle: "Odeda Council Citizens Helpdesk",
@@ -293,7 +293,7 @@ export const LGA_CONFIG: LgaConfiguration = {
     verificationMessage: "Authentic certificate issued by Odeda Local Government Secretariat.",
     publicVerificationNotice: "Verify the authenticity of Odeda LGA Certificates of Origin, trade permits, and official receipts.",
     securedBadgeText: "Verified & Active in Council Registry",
-    disclaimer: "This certificate is computer generated and does not require further signature. • 🔒 Secure Document",
+    disclaimer: "This certificate is computer generated and does not require further signature. • ðŸ”’ Secure Document",
   },
 
   certificates: {
@@ -417,3 +417,4 @@ export function getLgaCertificateUrl(certificateNumberOrToken: string): string {
  * List of ward names for dropdowns and select components
  */
 export const LGA_WARD_NAMES = LGA_CONFIG.wards.map((w) => w.name);
+

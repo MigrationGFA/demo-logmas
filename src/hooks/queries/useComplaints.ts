@@ -206,7 +206,7 @@ export function useAdminComplaints() {
   });
 
   // Replace assignMutation AND updateStatusMutation in useAdminComplaints with this single one.
-  // Invalidates both admin() and stats() — union of what the two old mutations invalidated,
+  // Invalidates both admin() and stats()  -  union of what the two old mutations invalidated,
   // since this one call can now change either or both.
 
   const updateComplaintMutation = useMutation({
@@ -280,3 +280,4 @@ export function useComplaintsByRole(role?: string) {
       return citizenHooks;
   }
 }
+

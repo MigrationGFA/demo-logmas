@@ -22,7 +22,7 @@ export default function ApplyPage() {
                 <Sparkles className="h-3 w-3 mr-1" /> Official Citizen Application Portal
               </Badge>
               <Badge variant="secondary" className="text-[10px]">
-                <ShieldCheck className="h-3 w-3 mr-1 text-emerald-600" /> Odeda LGA
+                <ShieldCheck className="h-3 w-3 mr-1 text-emerald-600" /> the LGA
               </Badge>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">

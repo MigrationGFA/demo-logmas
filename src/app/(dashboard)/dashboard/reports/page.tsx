@@ -30,9 +30,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useServices } from "@/hooks/queries/useServices";
 
-// ── Preset definitions ──────────────────────────────────────────
+// â”€â”€ Preset definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Each preset computes its own from/to as YYYY-MM-DD strings, sent as a custom
-// range to the existing backend — no backend changes needed, since explicit
+// range to the existing backend  -  no backend changes needed, since explicit
 // from/to already overrides everything else server-side.
 type PresetKey = "yesterday" | "this_month" | "last_month" | "last_6_months" | "all" | "custom";
 
@@ -119,10 +119,10 @@ export default function ReportsPage() {
     }
     const exportData = invoices.map((inv) => ({
       Reference: inv.reference,
-      "Application No": inv.applicationNumber || "—",
+      "Application No": inv.applicationNumber || " - ",
       Customer: inv.customerName,
-      Service: inv.service?.name || "—",
-      "Revenue Head": inv.service?.revenueHead || "—",
+      Service: inv.service?.name || " - ",
+      "Revenue Head": inv.service?.revenueHead || " - ",
       Status: inv.paymentStatus,
       Amount: inv.amount,
       "Created At": new Date(inv.createdAt).toLocaleDateString(),
@@ -138,11 +138,11 @@ export default function ReportsPage() {
     const exportData = receipts.map((rec) => ({
       "Receipt Number": rec.receiptNumber,
       "Invoice Number": rec.invoiceNumber,
-      "Application No": rec.applicationNumber || "—",
+      "Application No": rec.applicationNumber || " - ",
       Customer: rec.customerName,
-      Service: rec.service?.name || "—",
+      Service: rec.service?.name || " - ",
       "Payment Method": rec.paymentMethod,
-      Officer: rec.officerName || "—",
+      Officer: rec.officerName || " - ",
       Amount: rec.amount,
       "Issued At": new Date(rec.issuedAt).toLocaleDateString(),
     }));
@@ -190,7 +190,7 @@ export default function ReportsPage() {
         }
       />
 
-      {/* Period Filter — Paystack-style pill segmented control */}
+      {/* Period Filter  -  Paystack-style pill segmented control */}
       <Card className="p-4 mb-6 bg-gradient-card border-border/40">
         <div className="flex items-center gap-2 mb-3">
           <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -217,13 +217,13 @@ export default function ReportsPage() {
           {data?.period && activePreset !== "custom" && (
             <span className="text-xs text-muted-foreground ml-1">
               {data.period.from && data.period.to
-                ? `${new Date(data.period.from).toLocaleDateString()} – ${new Date(data.period.to).toLocaleDateString()}`
+                ? `${new Date(data.period.from).toLocaleDateString()} - ${new Date(data.period.to).toLocaleDateString()}`
                 : "All time"}
             </span>
           )}
         </div>
 
-        {/* Custom range — only revealed when "Custom" is selected */}
+        {/* Custom range  -  only revealed when "Custom" is selected */}
         {activePreset === "custom" && (
           <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-border/40">
             <div className="flex items-center gap-2">
@@ -249,7 +249,7 @@ export default function ReportsPage() {
             </Button>
             {data?.period?.from && (
               <span className="text-xs text-muted-foreground ml-auto">
-                {new Date(data.period.from).toLocaleDateString()} –{" "}
+                {new Date(data.period.from).toLocaleDateString()} -{" "}
                 {new Date(data.period.to).toLocaleDateString()}
               </span>
             )}
@@ -416,9 +416,9 @@ export default function ReportsPage() {
                 {invoices.map((i) => (
                   <TableRow key={i.id}>
                     <TableCell className="font-mono text-xs">{i.reference}</TableCell>
-                    <TableCell className="font-mono text-xs">{i.applicationNumber || "—"}</TableCell>
+                    <TableCell className="font-mono text-xs">{i.applicationNumber || " - "}</TableCell>
                     <TableCell>{i.customerName}</TableCell>
-                    <TableCell className="text-xs">{i.service?.name || "—"}</TableCell>
+                    <TableCell className="text-xs">{i.service?.name || " - "}</TableCell>
                     <TableCell>
                       <Badge 
                         variant="outline" 
@@ -471,13 +471,13 @@ export default function ReportsPage() {
                     <TableCell className="font-mono text-xs">{r.receiptNumber}</TableCell>
                     <TableCell className="font-mono text-xs">{r.invoiceNumber}</TableCell>
                     <TableCell>{r.customerName}</TableCell>
-                    <TableCell className="text-xs">{r.service?.name || "—"}</TableCell>
+                    <TableCell className="text-xs">{r.service?.name || " - "}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-[10px]">
                         {r.paymentMethod}
                       </Badge>
                     </TableCell>
-                    <TableCell>{r.officerName || "—"}</TableCell>
+                    <TableCell>{r.officerName || " - "}</TableCell>
                     <TableCell className="text-right font-mono">
                       ₦{r.amount.toLocaleString()}
                     </TableCell>

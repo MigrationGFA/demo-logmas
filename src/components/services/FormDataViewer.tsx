@@ -53,7 +53,7 @@ function formatLabel(key: string): string {
 
 function formatValue(value: any): React.ReactNode {
   if (value === null || value === undefined || value === "") {
-    return <span className="text-muted-foreground italic text-[11px] font-normal">—</span>;
+    return <span className="text-muted-foreground italic text-[11px] font-normal"> - </span>;
   }
 
   if (typeof value === "boolean") {
@@ -206,3 +206,4 @@ export function FormDataViewer({ formData, className = "" }: FormDataViewerProps
     </div>
   );
 }
+

@@ -28,7 +28,7 @@ export function useServices() {
   const servicesList = useMemo(() => {
     if (!Array.isArray(data)) return [];
     
-    const ODEDA_SERVICES_ICONS = [
+    const LGA_SERVICES_ICONS = [
       { id: "certificate_of_origin", name: "Certificate of Origin", icon: "FileBadge" },
       { id: "club_registration", name: "Certificate of Club Registration", icon: "Users" },
       { id: "cda_registration", name: "Certificate of Community Development Association Registration", icon: "Building2" },
@@ -45,7 +45,7 @@ export function useServices() {
     
     return data.map((service: any) => ({
       ...service,
-      icon: ODEDA_SERVICES_ICONS.find(s => s.id === service.id)?.icon || null
+      icon: LGA_SERVICES_ICONS.find(s => s.id === service.id)?.icon || null
     }));
   }, [data]);
 

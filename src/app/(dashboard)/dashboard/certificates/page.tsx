@@ -123,7 +123,7 @@ export default function CertificatesDashboardPage() {
     if (role === "field_officer") {
       return "Showing official certificates issued for applications processed under your jurisdiction.";
     }
-    return "Central Statutory Certificate Registry — All issued LGA credentials.";
+    return "Central Statutory Certificate Registry  -  All issued LGA credentials.";
   }, [user?.role]);
 
   return (
@@ -287,7 +287,7 @@ export default function CertificatesDashboardPage() {
           <div className="flex flex-col items-center gap-3">
             <RefreshCw className="w-8 h-8 text-emerald-700 animate-spin" />
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Loading issued certificates from Odeda Local Government registry…
+              Loading issued certificates from the Local Government registryâ€¦
             </p>
           </div>
         </Card>
@@ -399,7 +399,7 @@ export default function CertificatesDashboardPage() {
 
                     {(applicantPhone || applicantEmail) && (
                       <p className="text-[11px] text-muted-foreground">
-                        Contact: {applicantPhone || "—"} • {applicantEmail || "—"}
+                        Contact: {applicantPhone || " - "} • {applicantEmail || " - "}
                         {cert.issuedBy?.name ? ` • Signatory: ${cert.issuedBy.name} (${cert.issuedBy.role})` : ""}
                       </p>
                     )}
@@ -462,7 +462,7 @@ export default function CertificatesDashboardPage() {
                 <Badge className="bg-emerald-700 text-white text-[10px]">Active Record</Badge>
               </div>
               <DialogDescription className="text-xs text-muted-foreground">
-                Official statutory certificate ledger entry from Odeda Local Government Authority.
+                Official statutory certificate ledger entry from the Local Government Authority.
               </DialogDescription>
             </DialogHeader>
 
@@ -566,7 +566,7 @@ export default function CertificatesDashboardPage() {
                     <span>
                       {selectedCert.application?.formData?.address ||
                         selectedCert.application?.formData?.secretariatAddress ||
-                        "Odeda Local Government Area, Ogun State"}
+                        "the Local Government Area, Ogun State"}
                     </span>
                   </div>
                 </div>
@@ -672,3 +672,4 @@ export default function CertificatesDashboardPage() {
     </div>
   );
 }
+

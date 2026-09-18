@@ -30,7 +30,7 @@ import { useRevenueCategories } from "@/hooks/queries/useRevenueCategories";
 import { Business, GenerateInvoiceData } from "@/services/apiFieldOfficer";
 import { useRouter } from "next/navigation";
 
-// ── Types ────────────────────────────────────────────────────
+// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface LevyConfig {
   id: string;
@@ -41,7 +41,7 @@ interface LevyConfig {
   isActive: boolean;
 }
 
-// ── Schema ───────────────────────────────────────────────────
+// â”€â”€ Schema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const invoiceSchema = z.object({
   // Business
@@ -192,7 +192,7 @@ export default function NewInvoicePage() {
         // Existing business
         payload.businessId = data.businessId;
       } else {
-        // New business — pass registration fields
+        // New business  -  pass registration fields
         payload.businessName = data.businessName;
         payload.ownerName = data.ownerName;
         payload.phone = data.phone ;
@@ -223,7 +223,7 @@ export default function NewInvoicePage() {
       />
       <form onSubmit={handleSubmit(onSubmit)} className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* ── Customer / Business ─────────────────────────── */}
+          {/* â”€â”€ Customer / Business â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <Card className="p-6 bg-gradient-card border-border/40 space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Customer Details</h3>
@@ -277,7 +277,7 @@ export default function NewInvoicePage() {
             </div>
           </Card>
 
-          {/* ── Levy Details ────────────────────────────────── */}
+          {/* â”€â”€ Levy Details â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <Card className="p-6 bg-gradient-card border-border/40 space-y-5">
             <h3 className="font-semibold">Levy Details</h3>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -315,7 +315,7 @@ export default function NewInvoicePage() {
                     <SelectValue
                       placeholder={
                         availableLevyConfigs.length === 0
-                          ? "No config — enter amount below"
+                          ? "No config  -  enter amount below"
                           : "Select pricing tier"
                       }
                     />
@@ -323,7 +323,7 @@ export default function NewInvoicePage() {
                   <SelectContent>
                     {availableLevyConfigs.map((l) => (
                       <SelectItem key={l.id} value={l.id}>
-                        {l.name} — ₦{Number(l.amount).toLocaleString()} / {l.billingCycle}
+                        {l.name}  -  ₦{Number(l.amount).toLocaleString()} / {l.billingCycle}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -336,7 +336,7 @@ export default function NewInvoicePage() {
                 )}
               </div>
 
-              {/* Override amount — only shown if no levy config */}
+              {/* Override amount  -  only shown if no levy config */}
               {needsOverride && (
                 <div>
                   <Label>Amount (₦) *</Label>
@@ -377,19 +377,19 @@ export default function NewInvoicePage() {
           </Card>
         </div>
 
-        {/* ── Sidebar ───────────────────────────────────────── */}
+        {/* â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="space-y-4">
           <Card className="p-6 bg-gradient-hero text-primary-foreground border-0">
             <div className="text-xs uppercase tracking-wider opacity-80">Invoice Total</div>
             <div className="text-4xl font-bold mt-2">₦{total.toLocaleString()}</div>
             <div className="mt-4 space-y-1.5 text-sm opacity-90">
               <div className="flex justify-between">
-                <span>{selectedCategory?.name ?? "—"}</span>
+                <span>{selectedCategory?.name ?? " - "}</span>
                 <span>₦{unitPrice.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span>Quantity</span>
-                <span>× {quantity}</span>
+                 <span>x {quantity}</span>
+                <span>x {quantity}</span>
               </div>
               {selectedLevyConfig && (
                 <div className="flex justify-between">
@@ -451,3 +451,4 @@ export default function NewInvoicePage() {
     </div>
   );
 }
+

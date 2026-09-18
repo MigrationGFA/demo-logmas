@@ -244,7 +244,7 @@ export function CreateServiceModal({
                 Create Statutory Service & Fee Schedule
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground">
-                Register a new revenue service, configure statutory fees, and define required documents for Odeda LGA citizens.
+                Register a new revenue service, configure statutory fees, and define required documents for the LGA citizens.
               </DialogDescription>
             </div>
           </div>

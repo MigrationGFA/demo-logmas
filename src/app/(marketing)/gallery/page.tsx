@@ -13,7 +13,7 @@ export default function GalleryPage() {
             <PageHero
                 eyebrow="Media Gallery"
                 title="Moments that define our community"
-                subtitle="A growing archive of agricultural shows, mining hubs, community projects and the everyday beauty of Odeda Local Government Area."
+                subtitle="A growing archive of agricultural shows, mining hubs, community projects and the everyday beauty of the Local Government Area."
             />
             <section className="container mx-auto px-4 py-14">
                 <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

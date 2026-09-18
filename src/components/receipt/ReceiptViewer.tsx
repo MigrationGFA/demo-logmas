@@ -138,7 +138,7 @@ export function ReceiptViewer({
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                Official E-Treasury Statutory Settle • Odeda Local Government Council
+                Official E-Treasury Statutory Settle • the Local Government Council
               </p>
             </div>
           </div>
@@ -327,3 +327,4 @@ export function ReceiptViewer({
     </div>
   );
 }
+

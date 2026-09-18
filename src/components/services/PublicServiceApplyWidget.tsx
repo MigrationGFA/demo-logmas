@@ -6,7 +6,7 @@ import { useServices } from "@/hooks/queries/useServices";
 import {
   ServiceType,
   getConfiguredFeeForService,
-} from "@/config/odedaServices";
+} from "@/config/lgaServices";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -349,7 +349,7 @@ function PublicServiceApplyWidgetInner({
                         );
                         return (
                           <option key={s.id} value={s.id}>
-                            {s.name} ({s.category || "Statutory"}) —{" "}
+                            {s.name} ({s.category || "Statutory"})  - {" "}
                             {fee > 0 ? `₦${fee.toLocaleString()}` : "Variable"}
                           </option>
                         );
@@ -762,3 +762,4 @@ export function PublicServiceApplyWidget(props: PublicServiceApplyWidgetProps) {
     </Suspense>
   );
 }
+

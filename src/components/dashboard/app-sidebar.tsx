@@ -287,7 +287,7 @@ export function AppSidebar() {
             <div className="leading-tight">
               <div className="font-bold text-sidebar-foreground text-sm">LOGMAS</div>
               <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/70">
-                Odeda LGA
+                the LGA
               </div>
             </div>
           )}

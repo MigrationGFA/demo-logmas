@@ -225,7 +225,7 @@ function BusinessOwnerView() {
                     <span className="font-medium text-foreground">Issued:</span>{" "}
                     {p.issueDate
                       ? new Date(p.issueDate).toLocaleDateString()
-                      : "—"}
+                      : " - "}
                   </div>
                   <div>
                     <span className="font-medium text-foreground">
@@ -233,7 +233,7 @@ function BusinessOwnerView() {
                     </span>{" "}
                     {p.expiryDate
                       ? new Date(p.expiryDate).toLocaleDateString()
-                      : "—"}
+                      : " - "}
                   </div>
                   <div>
                     <span className="font-medium text-foreground">Fee:</span>{" "}

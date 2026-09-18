@@ -45,7 +45,7 @@ function CouncillorComplaintsView({ readOnly }: { readOnly: boolean }) {
   const [selectedComplaintId, setSelectedId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
 
-  // Fetch full thread when a complaint is selected — same pattern as the citizen view
+  // Fetch full thread when a complaint is selected  -  same pattern as the citizen view
   const {
     data: activeComplaint,
     isLoading: loadingThread,
@@ -71,7 +71,7 @@ function CouncillorComplaintsView({ readOnly }: { readOnly: boolean }) {
   const isClosed = activeComplaint?.status === "closed" || activeComplaint?.status === "resolved";
   const canReply = isThreadOpen && !isClosed && !readOnly;
 
-  // Shape messages — original complaint + all responses.
+  // Shape messages  -  original complaint + all responses.
   // Framing is flipped from the citizen view: the CITIZEN (raisedById) is "them" here,
   // and anyone else who responded (this councillor, an admin) is "you".
   const messages = activeComplaint
@@ -150,7 +150,7 @@ function CouncillorComplaintsView({ readOnly }: { readOnly: boolean }) {
         </div>
       </Card>
 
-      {/* Thread Modal — same pattern as the citizen's RaiseComplaintView */}
+      {/* Thread Modal  -  same pattern as the citizen's RaiseComplaintView */}
       <Dialog
         open={isThreadOpen}
         onOpenChange={(o) => {

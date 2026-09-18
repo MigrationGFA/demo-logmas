@@ -10,5 +10,5 @@ import {
   getServiceById,
 } from "./services.config";
 
-export const ODEDA_SERVICES = DEFAULT_SERVICES;
-export const getOdedaServiceById = getServiceById;
+export const LGA_SERVICES = DEFAULT_SERVICES;
+export const getLgaServiceById = getServiceById;

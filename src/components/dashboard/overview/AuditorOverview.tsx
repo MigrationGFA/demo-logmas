@@ -152,7 +152,7 @@ function AuditorOverview({ role }: AuditorOverviewProps) {
                     <div className="text-sm font-medium truncate uppercase">
                       {audit.action}{" "}
                       <span className="text-muted-foreground font-normal">
-                        → {audit.target}
+                        â†’ {audit.target}
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -204,7 +204,7 @@ function AuditorOverview({ role }: AuditorOverviewProps) {
         <Card className="p-6 bg-gradient-card border-border/40">
           <h3 className="font-semibold mb-1">Collection Channel Breakdown</h3>
           <p className="text-xs text-muted-foreground mb-4">
-            Cash vs digital payments — used to detect leakage risk.
+            Cash vs digital payments  -  used to detect leakage risk.
           </p>
           <div className="space-y-3">
             {[
@@ -315,7 +315,7 @@ function AuditorOverview({ role }: AuditorOverviewProps) {
           <div>
             <h3 className="font-semibold">High-Value Transactions</h3>
             <p className="text-xs text-muted-foreground">
-              Top 5 receipts by amount — verify supporting documentation.
+              Top 5 receipts by amount  -  verify supporting documentation.
             </p>
           </div>
           <Button asChild size="sm" variant="ghost">
@@ -380,3 +380,4 @@ function AuditorOverview({ role }: AuditorOverviewProps) {
 }
 
 export default AuditorOverview;
+

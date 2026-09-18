@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import { BackendCertificate } from "@/types/certificate";
 import { PublicCertificate } from "@/types/publicCertificate";
 import { formatOfficialDate, generatePublicToken } from "@/lib/certificateTokens";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 /**
  * Service for the official Backend Certificate Endpoints:
@@ -80,10 +81,10 @@ export const apiCertificates = {
     cert: BackendCertificate,
     tokenOverride?: string
   ): PublicCertificate => {
-    const rawApp = cert.application || {};
-    const formData = rawApp.formData || {};
-    const applicantRaw = rawApp.applicant || {};
-    const serviceRaw = cert.service || {};
+    const rawApp: any = cert.application || {};
+    const formData: Record<string, any> = rawApp.formData || {};
+    const applicantRaw: Record<string, any> = rawApp.applicant || {};
+    const serviceRaw: Record<string, any> = cert.service || {};
 
     const isClub =
       serviceRaw.code?.toLowerCase().includes("club") ||
@@ -105,13 +106,13 @@ export const apiCertificates = {
       formData.secretariatAddress ||
       formData.residentialAddress ||
       formData.businessAddress ||
-      "Odeda Local Government Area, Ogun State, Nigeria";
+      `${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`;
 
     const applicantWard =
       formData.ward ||
       formData.wardName ||
       formData.lgaWard ||
-      "Ward 1 (Odeda Central)";
+      LGA_CONFIG.wards[0]?.name || "Ward 1";
 
     const formattedIssuedDate = formatOfficialDate(cert.issuedAt);
     const validUntilDate = cert.expiresAt
@@ -139,7 +140,7 @@ export const apiCertificates = {
         formData.lgaOfOrigin ||
         formData.lga ||
         formData.originLga ||
-        "Odeda Local Government Area",
+        LGA_CONFIG.identity.formalTitle,
       descriptionOfGoods:
         formData.descriptionOfGoods ||
         formData.purposeDescription ||
@@ -168,7 +169,7 @@ export const apiCertificates = {
       motto: formData.motto || "Unity, Peace and Progress",
       validity: validUntilDate,
       statutoryLawNotice:
-        "Registered in accordance with the Local Government Statutory Guidelines and bye-laws of Odeda Local Government.",
+        `Registered in accordance with the Local Government Statutory Guidelines and bye-laws of ${LGA_CONFIG.identity.fullName}.`,
     };
 
     return {
@@ -204,7 +205,7 @@ export const apiCertificates = {
       validUntil: cert.expiresAt || validUntilDate,
       expiryDate: cert.expiresAt,
       status: "valid",
-      statusMessage: "Official Document — Verified & Active in Odeda LGA Registry",
+      statusMessage: `Official Document - Verified & Active in ${LGA_CONFIG.identity.name} LGA Registry`,
       issuer: {
         id: cert.issuedBy?.id,
         name: cert.issuedBy?.name || "Hon. Akinyemi A. Odunayo",
@@ -214,8 +215,8 @@ export const apiCertificates = {
             : cert.issuedBy?.name
               ? `${cert.issuedBy.name} (${cert.issuedBy.role || "LGA Admin"})`
               : "Executive Chairman",
-        organization: "Odeda Local Government",
-        subtitle: "Ogun State, Nigeria",
+              organization: LGA_CONFIG.identity.fullName,
+              subtitle: `${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
         councillorName: formData.councillorName || "Hon. Osunnowo Azeez",
         holgaName: "Dr. K. A. Adebisi (HOLGA)",
         role: cert.issuedBy?.role || "lga_admin",
@@ -229,7 +230,7 @@ export const apiCertificates = {
         verificationCode: cert.verificationCode,
         verificationUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/verify?code=${encodeURIComponent(cert.certificateNumber || cert.verificationCode)}`,
         verificationMessage:
-          "Authentic certificate issued by Odeda Local Government Secretariat.",
+          `Authentic certificate issued by ${LGA_CONFIG.identity.fullName} Secretariat.`,
       },
       backendCertificate: cert,
       invoice: cert.invoice || null,
@@ -239,3 +240,4 @@ export const apiCertificates = {
     };
   },
 };
+

@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WARDS } from "@/lib/mock-data";
-import { ServiceType } from "@/config/odedaServices";
+import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import {
@@ -90,7 +90,7 @@ const STEPS: FormStep[] = [
     title: "Kiosk Operator & Enterprise Identity",
     shortTitle: "Operator Identity",
     description:
-      "Enter kiosk operator personal details, trade category, and residential address in Odeda LGA.",
+      "Enter kiosk operator personal details, trade category, and residential address in the LGA.",
   },
   {
     id: "structure_setback",
@@ -185,7 +185,7 @@ export default function KioskLicenceForm({
       phone: initialApplicant?.phone || "",
       email: initialApplicant?.email || "",
       residentialAddress: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       nin: initialApplicant?.nin || "",
       proposedLocation: "",
       structureType: "Fabricated Metal Container (8ft x 10ft)",
@@ -327,7 +327,7 @@ export default function KioskLicenceForm({
           label: "Residential Address",
           value: formValues.residentialAddress,
         },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
       ],
     },
     {
@@ -417,7 +417,7 @@ export default function KioskLicenceForm({
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
               Enter operator personal credentials and trading enterprise
-              identity for statutory kiosk licensing in Odeda LGA.
+              identity for statutory kiosk licensing in the LGA.
             </p>
           </div>
 
@@ -538,7 +538,7 @@ export default function KioskLicenceForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward in the LGA *</Label>
               <Controller
                 name="ward"
                 control={control}
@@ -573,7 +573,7 @@ export default function KioskLicenceForm({
               <Input
                 id="residentialAddress"
                 {...register("residentialAddress")}
-                placeholder="Residential home address in Odeda LGA"
+                placeholder="Residential home address in the LGA"
                 disabled={isSubmitting}
               />
               {errors.residentialAddress && (
@@ -605,7 +605,7 @@ export default function KioskLicenceForm({
               <Input
                 id="proposedLocation"
                 {...register("proposedLocation")}
-                placeholder="e.g. Opposite Community Primary School Gate, Odeda Road"
+                placeholder="e.g. Opposite Community Primary School Gate, the LGA Road"
                 disabled={isSubmitting}
               />
               {errors.proposedLocation && (
@@ -1000,7 +1000,7 @@ export default function KioskLicenceForm({
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the kiosk dimensions, location frontage, trade merchandise, and safety equipment conform strictly with the Kiosk Licensing and Market Bye-Laws of Odeda Local Government, Ogun State."
+          declarationText="I solemnly declare that the kiosk dimensions, location frontage, trade merchandise, and safety equipment conform strictly with the Kiosk Licensing and Market Bye-Laws of the Local Government, Ogun State."
         />
       )}
     </FormWizard>

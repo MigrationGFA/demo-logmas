@@ -35,9 +35,9 @@ import {
 } from "@/hooks/queries/useApplications";
 import { useServices } from "@/hooks/queries/useServices";
 import {
-  getOdedaServiceById,
+  getLgaServiceById,
   ServiceType,
-} from "@/config/odedaServices";
+} from "@/config/lgaServices";
 import { Application } from "@/types/application";
 import { ApplicantSnapshot } from "@/components/services/ApplicantSelectionStep";
 
@@ -93,7 +93,7 @@ export function PostPaymentCompletionForm({
   // Resolved service object: backend service or local config lookup
   const service: ServiceType | null =
     (fetchedService as ServiceType) ||
-    getOdedaServiceById(serviceSlug) ||
+    getLgaServiceById(serviceSlug) ||
     (application?.service as any) ||
     null;
 
@@ -158,7 +158,7 @@ export function PostPaymentCompletionForm({
             Retrieving Statutory Application Context...
           </h3>
           <p className="text-xs text-muted-foreground">
-            Connecting payment verification with Odeda LGA application registry.
+            Connecting payment verification with the LGA application registry.
           </p>
         </div>
       </div>
@@ -230,7 +230,7 @@ export function PostPaymentCompletionForm({
               Application Details & Documents Submitted!
             </CardTitle>
             <CardDescription className="text-sm max-w-lg mx-auto">
-              Your official application for <strong>{sName}</strong> has been completed with paid statutory fees and submitted to the Odeda LGA Executive Treasury & Processing Desk.
+              Your official application for <strong>{sName}</strong> has been completed with paid statutory fees and submitted to the the LGA Executive Treasury & Processing Desk.
             </CardDescription>
           </CardHeader>
 
@@ -432,7 +432,7 @@ export function PostPaymentCompletionForm({
             Complete Application: {effectiveService.name}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 max-w-2xl">
-            Your statutory payment has been verified. Complete the applicant details and upload supporting documents to transmit to the Odeda Local Government registry.
+            Your statutory payment has been verified. Complete the applicant details and upload supporting documents to transmit to the the Local Government registry.
           </p>
         </div>
 
@@ -500,3 +500,4 @@ export function PostPaymentCompletionForm({
     </div>
   );
 }
+

@@ -24,8 +24,8 @@ export default function InvestPage() {
         <PageShell>
             <PageHero
                 eyebrow="Investment Opportunities"
-                title="Strategically positioned along the Abeokuta–Ibadan axis"
-                subtitle="Odeda LGA is connected to the wider Lagos–Ogun–Benin economic corridor and well placed to become a hub for agriculture, commerce, logistics, investment and regional economic development."
+                title="Strategically positioned along the Abeokuta-Ibadan axis"
+                subtitle="the LGA is connected to the wider Lagos-Ogun-Benin economic corridor and well placed to become a hub for agriculture, commerce, logistics, investment and regional economic development."
             >
                 <div className="flex flex-wrap gap-3">
                     <Button asChild className="bg-gradient-hero shadow-elegant">
@@ -87,11 +87,11 @@ export default function InvestPage() {
                 <div className="container mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
                     <div>
                         <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-                            Why investors choose Odeda LGA
+                            Why investors choose the LGA
                         </h2>
                         <ul className="mt-5 space-y-2.5 text-sm">
                             {[
-                                "Strategic Lagos–Ogun–Benin corridor location",
+                                "Strategic Lagos-Ogun-Benin corridor location",
                                 "Modern, digital revenue & permits via LOGMAS",
                                 "Single-window business registration",
                                 "Fertile arable land & agro-value chains",
@@ -113,7 +113,7 @@ export default function InvestPage() {
                         <h3 className="text-xl font-bold">Investor Promise</h3>
                         <p className="mt-2 opacity-90 text-sm leading-relaxed">
                             Fast-tracked approvals, dedicated relationship managers, and end-to-end digital
-                            compliance — backed by the personal commitment of the Office of the Chairman.
+                            compliance  -  backed by the personal commitment of the Office of the Chairman.
                         </p>
                         <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
                             <div className="p-3 rounded-lg bg-white/10">
@@ -131,3 +131,4 @@ export default function InvestPage() {
         </PageShell>
     );
 }
+

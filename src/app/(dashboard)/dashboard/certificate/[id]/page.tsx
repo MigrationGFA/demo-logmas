@@ -52,7 +52,7 @@
 //   if (isLoading) {
 //     return (
 //       <div className="flex items-center justify-center min-h-[60vh] text-muted-foreground">
-//         <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading certificate…
+//         <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading certificateâ€¦
 //       </div>
 //     );
 //   }
@@ -101,7 +101,7 @@
 
 //   return (
 //     <div className="cert-page">
-//       {/* Top toolbar — hidden on print */}
+//       {/* Top toolbar  -  hidden on print */}
 //       <div className="no-print flex items-center justify-between mb-5">
 //         <Button asChild variant="ghost" size="sm">
 //           <Link href="/dashboard/applications">
@@ -113,7 +113,7 @@
 //         </Button>
 //       </div>
 
-//       {/* Certificate document — .print-area triggers global print rules */}
+//       {/* Certificate document  -  .print-area triggers global print rules */}
 //       <div 
 //         className="print-area cert-document mx-auto bg-white text-slate-900 shadow-2xl"
 //         style={{ maxWidth: "1100px", aspectRatio: "1.414 / 1" }}
@@ -124,7 +124,7 @@
 //           <div className="absolute inset-5 border border-amber-600/40 rounded-sm" />
 
 //           <div className="relative h-full w-full px-12 py-10 flex flex-col">
-//             {/* Header — crest + titles */}
+//             {/* Header  -  crest + titles */}
 //             <div className="flex flex-col items-center text-center">
 //               <div className="h-20 w-20 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-md ring-4 ring-amber-200">
 //                 <ShieldCheck className="h-10 w-10 text-white" />
@@ -133,10 +133,10 @@
 //                 FEDERAL REPUBLIC OF NIGERIA
 //               </div>
 //               <h1 className="mt-1 text-3xl font-serif font-bold text-slate-900">
-//                 Odeda Local Government
+//                 the Local Government
 //               </h1>
 //               <div className="text-sm text-slate-600 italic">
-//                 Office of the Local Government Chairman — Ogun State
+//                 Office of the Local Government Chairman  -  Ogun State
 //               </div>
 //               <div className="mt-5 inline-block px-6 py-1.5 border-y-2 border-amber-700">
 //                 <h2 className="text-2xl font-serif font-bold tracking-[0.25em] text-amber-800">
@@ -155,7 +155,7 @@
 //                 born on <span className="font-semibold">{dateOfBirth}</span> ({cert.gender}), 
 //                 is a bona fide indigene of{" "}
 //                 <span className="font-semibold">{cert.ward} Ward</span>, in{" "}
-//                 <span className="font-semibold">Odeda Local Government Area</span> of{" "}
+//                 <span className="font-semibold">the Local Government Area</span> of{" "}
 //                 <span className="font-semibold">{cert.state || "Ogun State"}</span>, and is duly recognised as such 
 //                 under the records of this Local Government Council.
 //               </p>
@@ -165,7 +165,7 @@
 //               </p>
 //             </div>
 
-//             {/* Footer — signature + QR */}
+//             {/* Footer  -  signature + QR */}
 //             <div className="mt-auto grid grid-cols-3 gap-6 items-end pt-6">
 //               <div className="text-center">
 //                 <div className="border-t-2 border-slate-700 pt-2 text-sm font-serif">
@@ -175,7 +175,7 @@
 //               </div>
 
 //               <div className="text-center text-[10px] text-slate-500 font-serif italic">
-//                 This certificate is electronically issued and remains the property of {cert.issuedBy || "Odeda LGA Council"}.
+//                 This certificate is electronically issued and remains the property of {cert.issuedBy || "the LGA Council"}.
 //               </div>
 
 //               <div className="flex flex-col items-end">

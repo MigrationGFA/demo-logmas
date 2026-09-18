@@ -279,9 +279,9 @@ export default function ApplicationsPage() {
             title={isAdmin ? "Statutory Service Applications" : isFieldOfficer ? "Field Officer Applications Registry" : "My Applications"}
             subtitle={
               isAdmin
-                ? "Review, verify documents, and issue official certificates and licences for Odeda LGA."
+                ? "Review, verify documents, and issue official certificates and licences for the LGA."
                 : isFieldOfficer
-                ? "Submit and track citizen and business service applications across Odeda LGA wards."
+                ? "Submit and track citizen and business service applications across the LGA wards."
                 : "Track the status of your statutory certificates, permits, and licence applications."
             }
           />
@@ -386,7 +386,7 @@ export default function ApplicationsPage() {
                 <SelectValue placeholder="All Wards" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Odeda Wards</SelectItem>
+                <SelectItem value="all">All the LGA Wards</SelectItem>
                 {WARDS.map((w) => (
                   <SelectItem key={w} value={w}>
                     {w} Ward
@@ -675,7 +675,7 @@ export default function ApplicationsPage() {
               {selectedApp.declineReason && (
                 <div className="bg-red-500/10 border-2 border-red-500/30 rounded-xl p-4 space-y-1 text-xs text-red-900 dark:text-red-200">
                   <span className="font-bold flex items-center gap-1.5 text-red-700 dark:text-red-300">
-                    <XCircle className="h-4 w-4" /> Application Declined by Odeda LGA Authority
+                    <XCircle className="h-4 w-4" /> Application Declined by the LGA Authority
                   </span>
                   <p className="mt-1 leading-relaxed">{selectedApp.declineReason}</p>
                 </div>
@@ -822,7 +822,7 @@ export default function ApplicationsPage() {
                   required
                   value={declineReason}
                   onChange={(e) => setDeclineReason(e.target.value)}
-                  placeholder="Specify missing documentation, failed site inspection, invalid lineage claims, or non-compliance with Odeda LGA bye-laws..."
+                  placeholder="Specify missing documentation, failed site inspection, invalid lineage claims, or non-compliance with the LGA bye-laws..."
                 />
               </div>
 
@@ -857,7 +857,7 @@ export default function ApplicationsPage() {
           <DialogContent className="max-w-3xl p-6">
             <DialogHeader className="border-b pb-3 text-center">
               <DialogTitle className="text-lg font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
-                Odeda Local Government, Ogun State
+                the Local Government, Ogun State
               </DialogTitle>
               <DialogDescription className="text-xs font-semibold">
                 Official Statutory Certificate / Operational Licence
@@ -906,7 +906,7 @@ export default function ApplicationsPage() {
               <div className="flex items-center justify-between pt-6 border-t text-xs text-muted-foreground max-w-md mx-auto">
                 <div className="text-left">
                   <span className="block font-bold text-foreground">Executive Chairman</span>
-                  <span>Odeda Local Government</span>
+                  <span>the Local Government</span>
                 </div>
                 <div className="w-16 h-16 border rounded-lg bg-card flex items-center justify-center font-mono text-[9px] font-bold text-muted-foreground">
                   QR VERIFIED
@@ -956,3 +956,4 @@ export default function ApplicationsPage() {
     </div>
   );
 }
+

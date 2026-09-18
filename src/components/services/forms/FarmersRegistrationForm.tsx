@@ -16,7 +16,7 @@ import {
 import { WARDS } from "@/lib/mock-data";
 import {
   ServiceType,
-} from "@/config/odedaServices";
+} from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import {
@@ -185,7 +185,7 @@ export default function FarmersRegistrationForm({
       phone: initialApplicant?.phone || "",
       email: initialApplicant?.email || "",
       residentialAddress: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       nin: initialApplicant?.nin || "",
       cacNumber: "",
       yearsFarming: "",
@@ -328,7 +328,7 @@ export default function FarmersRegistrationForm({
         { label: "Email Address", value: formValues.email || "N/A" },
         { label: "NIN / RC Number", value: formValues.nin || formValues.cacNumber || "N/A" },
         { label: "Residential Address", value: formValues.residentialAddress },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
         {
           label: "Years in Active Farming",
           value: `${formValues.yearsFarming || "0"} years`,
@@ -531,7 +531,7 @@ export default function FarmersRegistrationForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward in the LGA *</Label>
               <Controller
                 name="ward"
                 control={control}
@@ -566,7 +566,7 @@ export default function FarmersRegistrationForm({
               <Input
                 id="residentialAddress"
                 {...register("residentialAddress")}
-                placeholder="Home address or primary business address in Odeda LGA"
+                placeholder="Home address or primary business address in the LGA"
                 disabled={isSubmitting}
               />
               {errors.residentialAddress && (
@@ -598,7 +598,7 @@ export default function FarmersRegistrationForm({
               <Input
                 id="cooperativeName"
                 {...register("cooperativeName")}
-                placeholder="e.g. All Farmers Association of Nigeria (AFAN) Odeda"
+                placeholder="e.g. All Farmers Association of Nigeria (AFAN) the LGA"
                 disabled={isSubmitting}
               />
             </div>
@@ -618,7 +618,7 @@ export default function FarmersRegistrationForm({
               <Input
                 id="extensionZone"
                 {...register("extensionZone")}
-                placeholder="e.g. Zone B - Ilugun / Odeda Agricultural Belt"
+                placeholder="e.g. Zone B - Ilugun / the LGA Agricultural Belt"
                 disabled={isSubmitting}
               />
             </div>
@@ -699,7 +699,7 @@ export default function FarmersRegistrationForm({
                 </h5>
                 <p className="text-[11px] text-muted-foreground">
                   Record all separate parcels/plots of farmland operated in
-                  Odeda LGA.
+                  the LGA.
                 </p>
               </div>
               <Button
@@ -1073,7 +1073,7 @@ export default function FarmersRegistrationForm({
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the farmland parcels, acreage, crops, livestock, and machinery recorded herein are accurate and verifiable upon physical inspection by Odeda Local Government Agricultural Extension Officers."
+          declarationText="I solemnly declare that the farmland parcels, acreage, crops, livestock, and machinery recorded herein are accurate and verifiable upon physical inspection by the Local Government Agricultural Extension Officers."
         />
       )}
     </FormWizard>

@@ -50,7 +50,7 @@ function ManageDialog({
   const { data: councillorsData } = useGetStaff({ role: "ward_councillor" });
   const councillors = councillorsData ?? [];
 
-  // Full thread only needs fetching once the dialog is actually open —
+  // Full thread only needs fetching once the dialog is actually open  - 
   // the table row's `complaint` prop is enough for the summary header.
   const {
     data: activeComplaint,
@@ -178,7 +178,7 @@ function ManageDialog({
           )}
         </div>
 
-        {/* Assign + status controls — locked once closed */}
+        {/* Assign + status controls  -  locked once closed */}
         {!readOnly && (
           <div className="p-4 border-t space-y-3 shrink-0">
             {/* {!complaint.assignedTo && (
@@ -190,11 +190,11 @@ function ManageDialog({
                   onChange={(e) => setSelected(e.target.value)}
                   disabled={isClosed}
                 >
-                  <option value="">— Select councillor —</option>
+                  <option value=""> -  Select councillor  - </option>
                   {councillors.map((c: any) => (
                     <option key={c.id} value={c.id}>
                       {c.firstName} {c.lastName}
-                      {c.ward?.name ? ` — ${c.ward.name} Ward` : " — No ward"}
+                      {c.ward?.name ? `  -  ${c.ward.name} Ward` : "  -  No ward"}
                     </option>
                   ))}
                 </select>
@@ -239,7 +239,7 @@ function ManageDialog({
           </div>
         )}
 
-        {/* Inline reply — same lock as everything else once closed */}
+        {/* Inline reply  -  same lock as everything else once closed */}
         {!readOnly && !isClosed && (
           <div className="p-4 border-t flex gap-2 shrink-0">
             <Input
@@ -287,3 +287,4 @@ function ManageDialog({
 }
 
 export default ManageDialog;
+

@@ -34,10 +34,10 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     id: "proj-1",
-    title: "Odeda - Olodo Agrarian Corridor Road Grading & Culvert Construction",
+    title: "the LGA - Olodo Agrarian Corridor Road Grading & Culvert Construction",
     category: "Roads & Transport",
-    ward: "Ward 1 (Odeda)",
-    location: "Odeda Town - Olodo Farm Junction",
+    ward: "Ward 1 (the LGA)",
+    location: "the LGA Town - Olodo Farm Junction",
     status: "Completed",
     completionDate: "Q2 2026",
     description: "Full grading, drainage expansion, and reinforced concrete culvert installation to facilitate agricultural produce transport from rural farmlands to regional markets.",
@@ -126,7 +126,7 @@ export default function ProjectsPage() {
               Infrastructure & Development
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-              Capital Projects in Odeda Local Government
+              Capital Projects in the Local Government
             </h1>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto text-base">
               Tracking completed and ongoing public infrastructure projects, road rehabilitations, healthcare interventions, and agrarian empowerments across our 10 wards.

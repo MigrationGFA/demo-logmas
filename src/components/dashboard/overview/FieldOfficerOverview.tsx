@@ -37,19 +37,20 @@ import {
 } from "lucide-react";
 import { QuickActions } from "@/components/dashboard/DashboardWidgets";
 import {
-  getOdedaApplications,
+  getLgaApplications,
   recordFieldInspection,
-  OdedaApplication,
-} from "@/lib/odedaApplications";
+  LgaApplication,
+} from "@/lib/lgaApplications";
 import { tokenManager } from "@/services/apiAuth";
 import { toast } from "sonner";
 import Link from "next/link";
+import { APPLICATIONS_EVENT_KEY } from "@/lib/lgaApplications";
 
 export default function FieldOfficerOverview() {
   const user = tokenManager.getUser();
 
-  const [applications, setApplications] = useState<OdedaApplication[]>([]);
-  const [selectedApp, setSelectedApp] = useState<OdedaApplication | null>(null);
+  const [applications, setApplications] = useState<LgaApplication[]>([]);
+  const [selectedApp, setSelectedApp] = useState<LgaApplication | null>(null);
   const [inspectionModalOpen, setInspectionModalOpen] = useState(false);
 
   // Form states for inspection
@@ -59,17 +60,17 @@ export default function FieldOfficerOverview() {
 
   // Load live applications
   const loadApps = () => {
-    setApplications(getOdedaApplications());
+    setApplications(getLgaApplications());
   };
 
   useEffect(() => {
     loadApps();
     const handleStoreChange = () => loadApps();
-    window.addEventListener("odeda:applications-change", handleStoreChange);
-    return () => window.removeEventListener("odeda:applications-change", handleStoreChange);
+    window.addEventListener(APPLICATIONS_EVENT_KEY, handleStoreChange);
+    return () => window.removeEventListener(APPLICATIONS_EVENT_KEY, handleStoreChange);
   }, []);
 
-  // Compute live metrics from Odeda applications
+  // Compute live metrics from the LGA applications
   const metrics = useMemo(() => {
     const pendingInspection = applications.filter(
       (a) => a.status === "Inspection Required" || a.status === "Submitted"
@@ -96,7 +97,7 @@ export default function FieldOfficerOverview() {
   }, [applications]);
 
   // Open inspection modal
-  const handleStartInspection = (app: OdedaApplication) => {
+  const handleStartInspection = (app: LgaApplication) => {
     setSelectedApp(app);
     setInspectionFindings(app.inspectionReport?.findings || "Property, site equipment, and premises inspected in good order.");
     setRecommendedCategory(app.inspectionReport?.recommendedCategory || app.category || "Standard Commercial");
@@ -154,13 +155,13 @@ export default function FieldOfficerOverview() {
         />
       </div>
 
-      {/* Main Odeda General Services Pending Inspection Queue */}
+      {/* Main the LGA General Services Pending Inspection Queue */}
       <Card className="p-5 mb-6 bg-gradient-card border-border/40">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
             <h3 className="font-bold text-base flex items-center gap-2">
               <ClipboardList className="h-5 w-5 text-primary" />
-              Odeda Services — Pending Field Inspection Queue
+              the LGA Services  -  Pending Field Inspection Queue
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               Service requests (Tenement Rate, Quarry Permit, Liquor Licence, Kiosk Licence) requiring physical verification.
@@ -255,7 +256,7 @@ export default function FieldOfficerOverview() {
             Field Verification & Revenue Operations Guidelines
           </h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            As an Odeda Local Government Field Officer, inspect applicant premises for statutory accuracy. Measure physical shop footprints, quarry site equipment capacity, liquor outlet seating, and verify NIN documents. Once your field inspection report is submitted, the application automatically transitions to Treasury for tariff assessment and demand notice issuance.
+            As an the Local Government Field Officer, inspect applicant premises for statutory accuracy. Measure physical shop footprints, quarry site equipment capacity, liquor outlet seating, and verify NIN documents. Once your field inspection report is submitted, the application automatically transitions to Treasury for tariff assessment and demand notice issuance.
           </p>
           <div className="pt-2 flex flex-wrap gap-2">
             <Button asChild variant="outline" size="sm" className="text-xs">
@@ -294,7 +295,7 @@ export default function FieldOfficerOverview() {
                 Conduct Field Inspection
               </DialogTitle>
               <DialogDescription>
-                {selectedApp.serviceName} ({selectedApp.applicationNo}) — {selectedApp.applicant}
+                {selectedApp.serviceName} ({selectedApp.applicationNo})  -  {selectedApp.applicant}
               </DialogDescription>
             </DialogHeader>
 
@@ -348,3 +349,4 @@ export default function FieldOfficerOverview() {
     </>
   );
 }
+

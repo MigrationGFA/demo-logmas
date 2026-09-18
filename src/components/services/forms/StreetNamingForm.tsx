@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { WARDS } from "@/lib/mock-data";
-import { ServiceType } from "@/config/odedaServices";
+import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
 import {
@@ -120,7 +120,7 @@ const STEPS: FormStep[] = [
     title: "Review & Submit",
     shortTitle: "Review",
     description:
-      "Review street naming proposal and submit for Odeda LGA Statutory Gazette approval.",
+      "Review street naming proposal and submit for the LGA Statutory Gazette approval.",
   },
 ];
 
@@ -184,7 +184,7 @@ export default function StreetNamingForm({
       phone: initialApplicant?.phone || "",
       email: initialApplicant?.email || "",
       address: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       proposedStreetName: "",
       alternativeStreetName: "",
       streetLength: "",
@@ -343,7 +343,7 @@ export default function StreetNamingForm({
         { label: "Contact Phone Number", value: formValues.phone },
         { label: "Email Address", value: formValues.email || "N/A" },
         { label: "Physical Address", value: formValues.address },
-        { label: "Ward in Odeda LGA", value: formValues.ward },
+        { label: "Ward in the LGA", value: formValues.ward },
       ],
     },
     {
@@ -440,7 +440,7 @@ export default function StreetNamingForm({
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
               Enter sponsoring CDA, family council, or estate developer details
-              for statutory street naming in Odeda LGA.
+              for statutory street naming in the LGA.
             </p>
           </div>
 
@@ -538,7 +538,7 @@ export default function StreetNamingForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ward">Ward in Odeda LGA *</Label>
+              <Label htmlFor="ward">Ward in the LGA *</Label>
               <Controller
                 control={control}
                 name="ward"
@@ -570,7 +570,7 @@ export default function StreetNamingForm({
               <Input
                 id="address"
                 {...register("address")}
-                placeholder="Secretariat or residential address in Odeda LGA"
+                placeholder="Secretariat or residential address in the LGA"
               />
               {errors.address && (
                 <p className="text-xs text-red-500">{errors.address.message}</p>
@@ -938,7 +938,7 @@ export default function StreetNamingForm({
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that the street layout plan, property numbering schedule, community endorsements, and historical justification submitted herein represent the authentic consensus of the community and comply with Odeda Local Government Street Naming Bye-laws."
+          declarationText="I solemnly declare that the street layout plan, property numbering schedule, community endorsements, and historical justification submitted herein represent the authentic consensus of the community and comply with the Local Government Street Naming Bye-laws."
         />
       )}
     </FormWizard>

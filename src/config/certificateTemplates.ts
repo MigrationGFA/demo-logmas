@@ -6,7 +6,7 @@
  * 1. Coordinates & Field Layouts: `src/config/certificateFieldConfig.ts`
  *    (uses `MasterCertificateConfig`, `PORTRAIT_TEMPLATE_CONFIG`, `LANDSCAPE_TEMPLATE_CONFIG`)
  * 2. Service-to-Template Mapping & Persistence: `src/config/certificateTemplateMap.ts`
- *    (uses `SERVICE_TEMPLATE_MAP`, `resolveTemplateForService`, `setServiceTemplateOverride` with 'odeda_custom_template_allocations')
+ *    (uses `SERVICE_TEMPLATE_MAP`, `resolveTemplateForService`, `setServiceTemplateOverride` with 'legacy_custom_template_allocations')
  * 
  * This file is retained for reference and backward compatibility. It is disconnected from the active
  * `CertificateRenderer` and `CertificateViewer`. Do NOT import from this file in new code.
@@ -68,7 +68,7 @@ export interface CertificateTemplateConfig {
  */
 export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = {
   // =========================================================================
-  // TEMPLATE A: LANDSCAPE — CLUB REGISTRATION & YOUTH / CDA SERVICES
+  // TEMPLATE A: LANDSCAPE  -  CLUB REGISTRATION & YOUTH / CDA SERVICES
   // Background Image: /certificates/templates/club-registration-template.jpg
   // =========================================================================
   club_landscape: {
@@ -100,7 +100,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontWeight: "bold",
         fontSize: "0.95cqw",
         color: "#0D3B1E",
-        format: (c) => c.certificateNumber || c.certificateData?.registrationNo || "ODLG/CR/2026/CLB/00123",
+        format: (c) => c.certificateNumber || c.certificateData?.registrationNo || "LGA/CR/2026/CLB/00123",
       },
 
       // Top Right Date of Issue line
@@ -172,7 +172,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontWeight: "bold",
         fontSize: "0.95cqw",
         color: "#1E293B",
-        format: (c) => c.certificateData?.registrationNo || c.certificateNumber || "ODLG/CR/2026/CLB/00123",
+        format: (c) => c.certificateData?.registrationNo || c.certificateNumber || "LGA/CR/2026/CLB/00123",
       },
 
       // Left Column Row 3: Category Value Line
@@ -264,7 +264,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
   },
 
   // =========================================================================
-  // TEMPLATE B: PORTRAIT — CERTIFICATE OF ORIGIN & STATUTORY PERMITS
+  // TEMPLATE B: PORTRAIT  -  CERTIFICATE OF ORIGIN & STATUTORY PERMITS
   // Background Image: /certificates/templates/origin-template.jpg
   // =========================================================================
   origin_portrait: {
@@ -373,7 +373,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         format: () => LGA_CONFIG.certificates.legalWording.originPreamble,
       },
 
-      // ================= DATA TABLE ROWS (y ≈ 43.5% to 67.5%) =================
+      // ================= DATA TABLE ROWS (y â‰ˆ 43.5% to 67.5%) =================
       // Row 1: Name of Applicant
       nameOfApplicantLabel: {
         key: "nameOfApplicantLabel",
@@ -749,11 +749,11 @@ export const DEFAULT_SERVICE_TEMPLATE_MAPPINGS: Record<string, string> = {
 };
 
 const STORAGE_KEY_TEMPLATE_OVERRIDES = `${LGA_CONFIG.identity.id}_service_template_overrides`;
-const LEGACY_STORAGE_KEY_TEMPLATE_OVERRIDES = "odeda_service_template_overrides";
+const LEGACY_STORAGE_KEY_TEMPLATE_OVERRIDES = "legacy_service_template_overrides";
 
 /**
  * Retrieves all saved custom overrides from localStorage
- * @deprecated Superseded by `getSavedTemplateOverrides` in `src/config/certificateTemplateMap.ts` which uses key 'odeda_custom_template_allocations'.
+ * @deprecated Superseded by `getSavedTemplateOverrides` in `src/config/certificateTemplateMap.ts` which uses key 'legacy_custom_template_allocations'.
  */
 export function getSavedTemplateOverrides(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -776,7 +776,7 @@ export function setServiceTemplateOverride(serviceId: string, templateId: string
     current[serviceId] = templateId;
     localStorage.setItem(STORAGE_KEY_TEMPLATE_OVERRIDES, JSON.stringify(current));
     window.dispatchEvent(new CustomEvent(`${LGA_CONFIG.identity.id}:template-override-change`, { detail: { serviceId, templateId } }));
-    window.dispatchEvent(new CustomEvent("odeda:template-override-change", { detail: { serviceId, templateId } }));
+    window.dispatchEvent(new CustomEvent("lga:template-override-change", { detail: { serviceId, templateId } }));
   } catch (e) {
     console.error("Error saving template override", e);
   }
@@ -816,3 +816,4 @@ export function getCertificateTemplateConfig(
   // Default to Portrait Origin
   return CERTIFICATE_TEMPLATES.origin_portrait;
 }
+

@@ -37,7 +37,7 @@ export default function DevNotificationsPage() {
       <div>
         <h1 className="text-xl font-bold">Notification Diagnostics</h1>
         <p className="text-sm text-muted-foreground">
-          Hits Termii/SMTP directly on the deployed backend — bypasses the DB-backed notify()
+          Hits Termii/SMTP directly on the deployed backend  -  bypasses the DB-backed notify()
           flow so errors show up raw, unmasked.
         </p>
       </div>
@@ -73,7 +73,7 @@ export default function DevNotificationsPage() {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Uses TEST_RECIPIENT_PHONE / TEST_RECIPIENT_EMAIL from the backend's env — no input
+          Uses TEST_RECIPIENT_PHONE / TEST_RECIPIENT_EMAIL from the backend's env  -  no input
           needed unless you want to override those.
         </p>
       </Card>
@@ -81,7 +81,7 @@ export default function DevNotificationsPage() {
       {result && (
         <Card className={`p-5 ${result.isError ? "border-destructive/50 bg-destructive/5" : ""}`}>
           <h3 className="font-semibold text-sm mb-2">
-            {result.label} — {result.isError ? "Error" : "Response"}
+            {result.label}  -  {result.isError ? "Error" : "Response"}
           </h3>
           <pre className="text-xs overflow-auto bg-muted/40 p-3 rounded-md whitespace-pre-wrap break-all">
             {JSON.stringify(result.data, null, 2)}

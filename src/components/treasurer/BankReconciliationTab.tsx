@@ -29,23 +29,23 @@ import {
   AlertTriangle,
   ArrowUpRight,
 } from "lucide-react";
-import { getOdedaApplications, OdedaApplication } from "@/lib/odedaApplications";
+import { getLgaApplications, LgaApplication, APPLICATIONS_EVENT_KEY } from "@/lib/lgaApplications";
 import { toast } from "sonner";
 
 export default function BankReconciliationTab() {
-  const [applications, setApplications] = useState<OdedaApplication[]>([]);
+  const [applications, setApplications] = useState<LgaApplication[]>([]);
   const [filterPeriod, setFilterPeriod] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const loadApps = () => {
-    setApplications(getOdedaApplications());
+    setApplications(getLgaApplications());
   };
 
   useEffect(() => {
     loadApps();
     const handleStoreChange = () => loadApps();
-    window.addEventListener("odeda:applications-change", handleStoreChange);
-    return () => window.removeEventListener("odeda:applications-change", handleStoreChange);
+    window.addEventListener(APPLICATIONS_EVENT_KEY, handleStoreChange);
+    return () => window.removeEventListener(APPLICATIONS_EVENT_KEY, handleStoreChange);
   }, []);
 
   // Filter paid vs unpaid applications
@@ -69,7 +69,7 @@ export default function BankReconciliationTab() {
   const revenueByWard = useMemo(() => {
     const map: Record<string, number> = {};
     paidTransactions.forEach((a) => {
-      const ward = a.ward || "Odeda Ward 1";
+      const ward = a.ward || "the LGA Ward 1";
       map[ward] = (map[ward] || 0) + a.amount;
     });
     return Object.entries(map).map(([ward, amount]) => ({ ward, amount }));
@@ -106,7 +106,7 @@ export default function BankReconciliationTab() {
         <Card className="p-4 bg-blue-500/10 border-blue-500/20">
           <div className="text-xs text-muted-foreground font-medium">Settlement Bank Accounts</div>
           <div className="text-sm font-bold mt-1 text-foreground">
-            Zenith Bank (Odeda LGA Treasury)
+            Zenith Bank (the LGA Treasury)
           </div>
           <div className="text-[10px] text-muted-foreground font-mono mt-0.5">Acct: 1012398401</div>
         </Card>
@@ -128,7 +128,7 @@ export default function BankReconciliationTab() {
               Real-Time Settlement & Dedicated Account Logs
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Live settlement feed for all Odeda LGA service payments verified by bank reference & receipt QR code.
+              Live settlement feed for all the LGA service payments verified by bank reference & receipt QR code.
             </p>
           </div>
           <div className="flex items-center gap-2">

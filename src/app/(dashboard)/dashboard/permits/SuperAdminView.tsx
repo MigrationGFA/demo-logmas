@@ -190,7 +190,7 @@ function SuperAdminView() {
           <div className="flex items-center gap-2 flex-1 min-w-[220px]">
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by business name or permit number…"
+              placeholder="Search by business name or permit numberâ€¦"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-md"
@@ -237,10 +237,10 @@ function SuperAdminView() {
                       {p.ownerName}
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm">{p.ward || "—"}</TableCell>
+                  <TableCell className="text-sm">{p.ward || " - "}</TableCell>
                   <TableCell>{NGN(p.fee)}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {p.validTo ? new Date(p.validTo).toLocaleDateString() : "—"}
+                    {p.validTo ? new Date(p.validTo).toLocaleDateString() : " - "}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={statusClass(p.status)}>
@@ -327,3 +327,4 @@ function SuperAdminView() {
 }
 
 export default SuperAdminView;
+

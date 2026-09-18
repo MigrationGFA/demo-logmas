@@ -61,7 +61,7 @@ function AssignCouncillorDialog({ ward, councillors, onAssign, isAssigning }: { 
                 <div className="px-2 py-1.5 text-xs text-muted-foreground">No unassigned councillors</div>
               )}
               {councillors.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName} — {c.email}</SelectItem>
+                <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}  -  {c.email}</SelectItem>
               ))}
             </SelectContent>
           </Select>

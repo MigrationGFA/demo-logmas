@@ -8,11 +8,11 @@ import { FileText, Download } from "lucide-react";
 import { toast } from "sonner";
 
 // export const metadata = {
-//     title: "Downloads — Ijebu North East LGA",
+//     title: "Downloads  -  Ijebu North East LGA",
 //     description:
 //         "Official documents, citizen charters, budgets, tariffs and guides from Ijebu North East Local Government.",
 //     openGraph: {
-//         title: "Downloads — Ijebu North East LGA",
+//         title: "Downloads  -  Ijebu North East LGA",
 //         description: "Official council documents.",
 //     },
 // };
@@ -23,7 +23,7 @@ export default function DownloadsPage() {
             <PageHero
                 eyebrow="Resources"
                 title="Official downloads"
-                subtitle="Citizen charters, budgets, investment guides, tariffs and operational manuals — all in one place."
+                subtitle="Citizen charters, budgets, investment guides, tariffs and operational manuals  -  all in one place."
             />
             <section className="container mx-auto px-4 py-14">
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -55,3 +55,4 @@ export default function DownloadsPage() {
         </PageShell>
     );
 }
+

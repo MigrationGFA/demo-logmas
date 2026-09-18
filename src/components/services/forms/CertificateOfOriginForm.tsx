@@ -14,7 +14,7 @@ import { WARDS } from "@/lib/mock-data";
 import {
   ServiceType,
   getConfiguredFeeForService,
-} from "@/config/odedaServices";
+} from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import {
   DocumentUploadStep,
@@ -73,7 +73,7 @@ const STEPS: FormStep[] = [
     title: "Applicant & Identity Information",
     shortTitle: "Applicant Info",
     description:
-      "Provide personal contact details and Odeda LGA ward residency details.",
+      "Provide personal contact details and the LGA ward residency details.",
   },
   {
     id: "lineage_info",
@@ -117,7 +117,7 @@ const DOCUMENTS: DocumentSpec[] = [
     id: "proof_of_residency",
     label: "Proof of Residency",
     description:
-      "Utility bill, tenancy agreement, or official letter confirming residency in Odeda LGA.",
+      "Utility bill, tenancy agreement, or official letter confirming residency in the LGA.",
     required: true,
   },
 ];
@@ -151,7 +151,7 @@ export default function CertificateOfOriginForm({
       phone: initialApplicant?.phone || "",
       email: initialApplicant?.email || "",
       address: initialApplicant?.address || "",
-      ward: initialApplicant?.ward || WARDS[0] || "Odeda",
+      ward: initialApplicant?.ward || WARDS[0] || "the LGA",
       nin: initialApplicant?.nin || "",
       cacNumber: initialApplicant?.cacNumber || "",
       dob: "",
@@ -285,14 +285,14 @@ export default function CertificateOfOriginForm({
       });
 
       await onSubmit({
-        // applicant here is metadata only — used to resolve the applicantId
+        // applicant here is metadata only  -  used to resolve the applicantId
         // relation on Application. It is NOT persisted as its own JSON blob.
         applicant: {
           applicantId: initialApplicant?.applicantId || null,
           isRegistered: !!initialApplicant?.applicantId,
         },
-        // Everything the schema doesn't give its own column for — including
-        // applicant identity fields — belongs in formData, since Application
+        // Everything the schema doesn't give its own column for  -  including
+        // applicant identity fields  -  belongs in formData, since Application
         // only has applicantId (relation) + formData (Json).
         formData: {
           fullName: data.fullName,
@@ -350,7 +350,7 @@ export default function CertificateOfOriginForm({
         { label: "Phone Number", value: formValues.phone || "N/A" },
         { label: "Email Address", value: formValues.email || "N/A" },
         {
-          label: "Ward of Origin in Odeda",
+          label: "Ward of Origin in the LGA",
           value: `${formValues.ward || "N/A"} Ward`,
         },
         { label: "Residential Address", value: formValues.address || "N/A" },
@@ -366,7 +366,7 @@ export default function CertificateOfOriginForm({
         },
         {
           label: "Father's Ancestral Village",
-          value: formValues.fatherVillage || "Odeda LGA",
+          value: formValues.fatherVillage || "the LGA",
         },
         {
           label: "Mother's Maiden Name",
@@ -378,7 +378,7 @@ export default function CertificateOfOriginForm({
         },
         {
           label: "Mother's Ancestral Village",
-          value: formValues.motherVillage || "Odeda LGA",
+          value: formValues.motherVillage || "the LGA",
         },
         {
           label: "Quarter Chief / Baale Title",
@@ -501,8 +501,8 @@ export default function CertificateOfOriginForm({
                         <SelectValue placeholder="Select Ward" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Ward 1 (Odeda)">
-                          Ward 1 (Odeda)
+                        <SelectItem value="Ward 1 (the LGA)">
+                          Ward 1 (the LGA)
                         </SelectItem>
                         <SelectItem value="Ward 2 (Obantoko)">
                           Ward 2 (Obantoko)
@@ -676,7 +676,7 @@ export default function CertificateOfOriginForm({
               Ancestral Lineage & Compounds
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Odeda LGA verification officers cross-examine parental compound
+              the LGA verification officers cross-examine parental compound
               names with Traditional Council records.
             </p>
           </div>
@@ -716,7 +716,7 @@ export default function CertificateOfOriginForm({
                     {...register("fatherCompound", {
                       required: "Father's compound is required",
                     })}
-                    placeholder="e.g. Agbo Compound, Odeda"
+                    placeholder="e.g. Agbo Compound, the LGA"
                     disabled={isSubmitting}
                   />
                   {errors.fatherCompound && (
@@ -892,9 +892,10 @@ export default function CertificateOfOriginForm({
           uploadedFiles={uploadedFiles}
           declarationChecked={declaration}
           onDeclarationChange={setDeclaration}
-          declarationText="I solemnly declare that I am a bonafide indigene of Odeda Local Government, Ogun State, and that all personal, parental, and compound lineage details provided in this statutory application are authentic and true. I understand that fraudulent claims carry legal consequences under the laws of Ogun State."
+          declarationText="I solemnly declare that I am a bonafide indigene of the Local Government, Ogun State, and that all personal, parental, and compound lineage details provided in this statutory application are authentic and true. I understand that fraudulent claims carry legal consequences under the laws of Ogun State."
         />
       )}
     </FormWizard>
   );
 }
+

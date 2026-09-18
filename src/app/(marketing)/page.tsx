@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/carousel";
 import { SiteHeader, SiteFooter, NAVBAR_SERVICES } from "@/components/site-chrome";
 import { useServices } from "@/hooks/queries/useServices";
-import { ODEDA_SERVICES } from "@/config/odedaServices";
+import { LGA_SERVICES } from "@/config/lgaServices";
 import { SITE_CONTACT } from "@/config/siteContact";
 import { LGA_CONFIG } from "@/config/lga.config";
 import {
@@ -215,10 +215,10 @@ One Future.
                       {s.eyebrow}
                     </Badge>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
-                      {/* {s.title.includes("Odeda") ? (
+                      {/* {s.title.includes("the LGA") ? (
                         <>
                           Modern public services for{" "}
-                          <span className="text-gradient-primary">Odeda LGA</span>
+                          <span className="text-gradient-primary">the LGA</span>
                         </>
                       ) : (
                         s.title
@@ -388,7 +388,7 @@ function ServicesSection() {
               <Sparkles className="h-3 w-3 mr-1.5" /> Statutory Council Services
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-              Everything your council does — online
+              Everything your council does  -  online
             </h2>
             <p className="mt-2.5 text-muted-foreground text-sm sm:text-base leading-relaxed">
               Explore all active local government statutory services. Apply,
@@ -568,7 +568,7 @@ function FeaturedServices() {
           </h3>
           <p className="mt-2 opacity-90 max-w-md">
             Apply, pay, get reviewed by your LGA Admin and Ward Councillor, then
-            download a QR-verified certificate — all online.
+            download a QR-verified certificate  -  all online.
           </p>
           <Button
             asChild
@@ -822,7 +822,7 @@ function ChairmanSection() {
               </p>
               <p>
                 Through technology and initiatives like this platform, we are
-                bringing government services closer to you—making them easier to
+                bringing government services closer to you - making them easier to
                 access, more transparent and more convenient.
               </p>
               <p>
@@ -921,7 +921,7 @@ function CultureSection() {
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
             From Arakanga Forest Reserve to traditional chieftaincy heritage,
-            historic landmarks and unforgettable Egba cuisine — Odeda LGA
+            historic landmarks and unforgettable Egba cuisine  -  the LGA
             invites you to experience Yoruba culture at its richest.
           </p>
           <div className="mt-6 flex gap-3">
@@ -1013,7 +1013,7 @@ function WardsMap() {
             Explore {LGA_CONFIG.identity.fullName}
           </h2>
           <p className="mt-3 text-muted-foreground">
-            A council of {LGA_CONFIG.wards.length} unique wards — each with its own agricultural,
+            A council of {LGA_CONFIG.wards.length} unique wards  -  each with its own agricultural,
             mineral, educational and cultural assets. Tap a ward to learn more.
           </p>
         </div>
@@ -1207,3 +1207,4 @@ function WardsMap() {
 }
 
 export default HomePage;
+

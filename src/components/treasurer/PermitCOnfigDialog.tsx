@@ -118,7 +118,7 @@ export default function PermitConfigDialog({
       // 2. Generate Prefix Initials (e.g., "Annual Trade Permit" -> "ATP")
       const prefix = activeCategory
         ? activeCategory.label
-            .split(/[\s—\-_]+/) // Split by spaces or dashes
+            .split(/[\s - \-_]+/) // Split by spaces or dashes
             .map((word: string) => word[0])
             .join("")
             .toUpperCase()
@@ -130,7 +130,7 @@ export default function PermitConfigDialog({
         .toUpperCase()
         .trim()
         .replace(/[^A-Z0-9\s-_]/g, "") // Clear symbols
-        .replace(/[\s—\-_]+/g, "_"); // Standardize spaces to underscores
+        .replace(/[\s - \-_]+/g, "_"); // Standardize spaces to underscores
 
       // 4. Assemble: "ATP_RETAIL_STORE"
       setValue("code", `${prefix}_${suffix}`, { shouldValidate: true });
@@ -199,7 +199,7 @@ export default function PermitConfigDialog({
             <Label>Configuration Name</Label>
             <Input
               {...register("name")}
-              placeholder="e.g. Annual Trade Permit — Retail"
+              placeholder="e.g. Annual Trade Permit  -  Retail"
               className={`mt-1.5 ${errors.name ? "border-red-500" : ""}`}
             />
             {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
@@ -270,3 +270,4 @@ export default function PermitConfigDialog({
     </Dialog>
   );
 }
+

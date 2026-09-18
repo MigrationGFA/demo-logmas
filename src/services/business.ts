@@ -13,7 +13,7 @@ import {
 } from "@/lib/store";
 
 // Re-export the canonical (frontend-authored) shapes. The Node/Prisma backend
-// MUST match these — see backend-reference/schema.prisma.
+// MUST match these  -  see backend-reference/schema.prisma.
 export type Customer = StoreCustomer;
 export type LevyPrice = StoreLevyPrice;
 export type PermitConfig = StorePermitConfig;
@@ -56,7 +56,7 @@ export const businessService = {
 
   updateCustomer: async (id: string, data: Partial<Customer>): Promise<Customer> => {
     if (MOCK_MODE) {
-      // Minimal in-memory patch — refetch will pick it up via snapshot.
+      // Minimal in-memory patch  -  refetch will pick it up via snapshot.
       throw new Error("Mock mode does not implement updateCustomer yet");
     }
     return api.put<Customer>(`/customers/${id}`, data);
@@ -121,3 +121,4 @@ export const businessService = {
     return api.delete<void>(`/permit-configs/${id}`);
   },
 };
+

@@ -15,7 +15,7 @@ interface PermitCertificatePageProps {
 /**
  * Design notes:
  * For best results, load two fonts in your root layout / globals.css:
- *   - "Spectral" (display serif) — https://fonts.google.com/specimen/Spectral
+ *   - "Spectral" (display serif)  -  https://fonts.google.com/specimen/Spectral
  *   - "IBM Plex Sans" + "IBM Plex Mono" (body / data)
  * The component falls back to system serif/sans if they aren't present, so it
  * still renders correctly without the import.
@@ -130,7 +130,7 @@ export default function PermitCertificatePage({ params }: PermitCertificatePageP
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading permit certificate…
+        <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading permit certificateâ€¦
       </div>
     );
   }
@@ -173,7 +173,7 @@ const issuedDate = cert.updatedAt
 
   return (
     <div className="cert-page">
-      {/* Toolbar — hidden on print */}
+      {/* Toolbar  -  hidden on print */}
       <div className="no-print flex items-center justify-between mb-5">
         <Button asChild variant="ghost" size="sm">
           <Link href="/dashboard/permits">
@@ -217,9 +217,9 @@ const issuedDate = cert.updatedAt
                 className="mt-1 text-[32px] leading-tight font-bold text-[#1E2A54]"
                 style={{ fontFamily: "'Cinzel', 'Trajan Pro', serif" }}
               >
-                Odeda Local Government
+                the Local Government
               </h1>
-              <div className="text-sm text-[#6B6558] italic" style={{ fontFamily: "'EB Garamond', serif" }}>Office of the Local Government Chairman — Ogun State</div>
+              <div className="text-sm text-[#6B6558] italic" style={{ fontFamily: "'EB Garamond', serif" }}>Office of the Local Government Chairman  -  Ogun State</div>
 
               <div className="mt-4 flex items-center gap-3">
                 <span className="h-px w-10 bg-[#AE8A2E]" />
@@ -256,8 +256,8 @@ const issuedDate = cert.updatedAt
                 style={{ fontFamily: "'EB Garamond', serif" }}
               >
                 <p>
-                  is a registered business operating in <span className="font-semibold">{cert.business.ward?.name || "Odeda"}</span>{" "}
-                  Ward, within the <span className="font-semibold">Odeda Local Government Area</span> of{" "}
+                  is a registered business operating in <span className="font-semibold">{cert.business.ward?.name || "the LGA"}</span>{" "}
+                  Ward, within the <span className="font-semibold">the Local Government Area</span> of{" "}
                   <span className="font-semibold">Ogun State</span>, and is duly licensed to engage in{" "}
                   <span className="font-semibold">{categoryDisplay}</span> activities in accordance with the Local
                   Government Bye-Laws and Trade Regulations.
@@ -284,13 +284,13 @@ const issuedDate = cert.updatedAt
                   <div className="font-semibold text-[13px]" style={{ fontFamily: "'Libertinus Serif', serif" }}>
                     Hon. Local Government Chairman
                   </div>
-                  <div className="text-[11px] text-[#6B6558] italic" style={{ fontFamily: "'EB Garamond', serif" }}>Odeda LGA</div>
+                  <div className="text-[11px] text-[#6B6558] italic" style={{ fontFamily: "'EB Garamond', serif" }}>the LGA</div>
                 </div>
               </div>
 
               <div className="text-center text-[10.5px] text-[#6B6558]" style={{ fontFamily: "'Arimo', sans-serif" }}>
                 <span className="italic">
-                  This certificate is electronically issued and remains the property of Odeda LGA Council.
+                  This certificate is electronically issued and remains the property of the LGA Council.
                 </span>
                 <span className="flex items-center justify-center gap-1 mt-1 text-[#8C3E23] font-semibold not-italic">
                   <CheckCircle2 className="h-3 w-3" />
