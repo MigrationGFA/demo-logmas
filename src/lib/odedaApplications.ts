@@ -2,6 +2,7 @@
 "use client";
 
 import { genInvoiceRef, genReceiptNumber, genQRToken, genVerificationCode, addNotification, addAudit } from "./store";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 export type ApplicationStatus =
   | "Draft"
@@ -100,8 +101,13 @@ export interface OdedaApplication {
   timeline: ApplicationTimelineEvent[];
 }
 
-const STORAGE_KEY = "odeda_applications";
-const EVT_KEY = "odeda:applications-change";
+export const APPLICATIONS_STORAGE_KEY = `${LGA_CONFIG.identity.id}_applications`;
+export const LEGACY_APPLICATIONS_STORAGE_KEY = "odeda_applications";
+export const APPLICATIONS_EVENT_KEY = `${LGA_CONFIG.identity.id}:applications-change`;
+export const LEGACY_APPLICATIONS_EVENT_KEY = "odeda:applications-change";
+
+const STORAGE_KEY = APPLICATIONS_STORAGE_KEY;
+const EVT_KEY = APPLICATIONS_EVENT_KEY;
 
 const INITIAL_SEED_APPLICATIONS: OdedaApplication[] = [
   {
@@ -113,7 +119,7 @@ const INITIAL_SEED_APPLICATIONS: OdedaApplication[] = [
     applicant: "Adebayo Citizen",
     phone: "08077778888",
     email: "evans@joemarineng.com",
-    address: "12 Camp Road, Obantoko, Odeda LGA",
+    address: `12 Camp Road, Obantoko, ${LGA_CONFIG.identity.formalTitle}`,
     ward: "Ward 7 (Itesi / Camp)",
     nin: "99990000111",
     revenueHead: "1001 - Certificate Fees",
@@ -126,7 +132,7 @@ const INITIAL_SEED_APPLICATIONS: OdedaApplication[] = [
     paymentMethod: "card",
     certificateNumber: "ODE/COO/2026/000001",
     issuedAt: "2026-08-02T11:00:00Z",
-    issuedBy: "Dr. Waliat Folasade Adeyemo (Chairman)",
+    issuedBy: `${LGA_CONFIG.leadership.chairman.name} (${LGA_CONFIG.leadership.chairman.title})`,
     qrToken: "QR-ODE-COO-000001",
     verificationCode: "VER-COO-001",
     createdAt: "2026-08-01T09:00:00Z",
@@ -163,7 +169,7 @@ const INITIAL_SEED_APPLICATIONS: OdedaApplication[] = [
     applicant: "Camp Retail Hub (Bola Adesanya)",
     phone: "08088889999",
     email: "camp@example.com",
-    address: "Plot 14 Commercial Row, Camp Junction, Odeda",
+    address: `Plot 14 Commercial Row, Camp Junction, ${LGA_CONFIG.identity.name}`,
     ward: "Ward 7 (Itesi / Camp)",
     revenueHead: "2001 - Tenement & Property Rates",
     amount: 25000,
@@ -211,9 +217,9 @@ const INITIAL_SEED_APPLICATIONS: OdedaApplication[] = [
     serviceId: "farmers_registration",
     serviceName: "Certificate of Farmers Registration",
     category: "Community & Agriculture",
-    applicant: "Odeda Farmers Cooperative (Kazeem)",
+    applicant: `${LGA_CONFIG.identity.name} Farmers Cooperative (Kazeem)`,
     phone: "08012345678",
-    email: "farmers@odeda.org",
+    email: `farmers@${LGA_CONFIG.contact.email.split("@")[1] || "lga.gov.ng"}`,
     address: "Alagbagba Farm Settlement, Ward 4",
     ward: "Ward 4 (Alagbagba)",
     revenueHead: "1004 - Agricultural Services",
@@ -418,7 +424,7 @@ const INITIAL_SEED_APPLICATIONS: OdedaApplication[] = [
 export function getOdedaApplications(): OdedaApplication[] {
   if (typeof window === "undefined") return INITIAL_SEED_APPLICATIONS;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY) || window.localStorage.getItem(LEGACY_APPLICATIONS_STORAGE_KEY);
     if (!raw) {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_SEED_APPLICATIONS));
       return INITIAL_SEED_APPLICATIONS;
@@ -435,6 +441,7 @@ export function saveOdedaApplications(apps: OdedaApplication[]): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
     window.dispatchEvent(new CustomEvent(EVT_KEY));
+    window.dispatchEvent(new CustomEvent(LEGACY_APPLICATIONS_EVENT_KEY));
   } catch (err) {
     console.error("Failed to save applications", err);
   }
@@ -713,3 +720,10 @@ export function reapplyFromRejected(
     isDraft: false,
   });
 }
+
+// Aliases for multi-LGA generalization
+export type LgaApplication = OdedaApplication;
+export const getLgaApplications = getOdedaApplications;
+export const saveLgaApplications = saveOdedaApplications;
+export const getLgaApplicationById = getOdedaApplicationById;
+export const createLgaApplication = createOdedaApplication;

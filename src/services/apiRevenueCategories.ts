@@ -1,4 +1,5 @@
 import { api } from "../lib/api";
+import { LGA_CONFIG } from "@/config/lga.config";
 enum BillingCycle {
   one_time,
   daily,
@@ -74,7 +75,7 @@ const MOCK_CATEGORIES: RevenueCategory[] = [
     name: "Market Tolls & Levies",
     type: "LEVY",
     slug: "market-tolls",
-    description: "Daily market tolls and shop levies across Odeda markets",
+    description: `Daily market tolls and shop levies across ${LGA_CONFIG.identity.name} markets`,
     isActive: true,
     createdAt: "2026-01-01T00:00:00Z",
     updatedAt: "2026-01-01T00:00:00Z",

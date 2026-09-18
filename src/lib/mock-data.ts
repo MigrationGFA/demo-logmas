@@ -1,6 +1,9 @@
+import { LGA_CONFIG } from "@/config/lga.config";
+import chairmanPhoto from "@/assets/chairman.jpg";
+
 export const STATS = [
   { label: "Land Area", value: "1,560 km²", trend: "Agricultural Hub" },
-  { label: "Established", value: "1976", trend: "Ogun State" },
+  { label: "Established", value: "1976", trend: LGA_CONFIG.identity.state },
   { label: "Primary Economic Sector", value: "Quarry & Farming", trend: "#1 Granite & Cassava" },
 ];
 
@@ -8,7 +11,7 @@ export const SERVICES = [
   {
     icon: "FileBadge",
     title: "Certificate of Origin",
-    desc: "Apply, pay and download your Odeda LGA indigene certificate online with QR verification.",
+    desc: `Apply, pay and download your ${LGA_CONFIG.identity.name} LGA indigene certificate online with QR verification.`,
     color: "primary",
   },
   {
@@ -38,7 +41,7 @@ export const SERVICES = [
   {
     icon: "MessageSquare",
     title: "Complaints & Feedback",
-    desc: "Raise concerns directly with Odeda Local Government council officers.",
+    desc: `Raise concerns directly with ${LGA_CONFIG.identity.fullName} council officers.`,
     color: "primary",
   },
 ];
@@ -72,7 +75,7 @@ export const TESTIMONIALS = [
   },
   {
     name: "Engr. Timothy Olalere",
-    role: "Quarry Operator, Odeda Ward",
+    role: `Quarry Operator, ${LGA_CONFIG.wards[0]?.name || "Ward 1"}`,
     quote:
       "LOGMAS makes haulage and quarry permit payments transparent for our fleet drivers.",
   },
@@ -82,20 +85,14 @@ export const NEWS = [
   {
     date: "12 May 2026",
     tag: "Announcement",
-    title: "Odeda LOGMAS Service Expansion Portal Goes Live Across All 10 Wards",
+    title: `${LGA_CONFIG.identity.name} LOGMAS Service Expansion Portal Goes Live Across All ${LGA_CONFIG.wards.length} Wards`,
   },
-  // {
-  //   date: "08 May 2026",
-  //   tag: "Event",
-  //   title: "Stakeholder Engagement on Quarry & Tenement Rates — Odeda Council Hall",
-  // },
-  // { date: "01 May 2026", tag: "Update", title: "New Digital QR Verification System Activated for Certificates" },
 ];
 
 export const INVOICES = [
   {
     id: "ODE-2451",
-    customer: "Odeda Agro Allied Ltd",
+    customer: `${LGA_CONFIG.identity.name} Agro Allied Ltd`,
     type: "Farmers Registration",
     amount: 5000,
     status: "paid",
@@ -228,9 +225,6 @@ export const NOTIFICATIONS = [
   },
 ];
 
-import chairmanPhoto from "@/assets/chairman.jpg";
-import { LGA_CONFIG } from "@/config/lga.config";
-
 export const LEADERSHIP = [
   {
     name: LGA_CONFIG.leadership.chairman.name,
@@ -245,10 +239,10 @@ export const LEADERSHIP = [
   {
     name: "Hon. Vice Chairman",
     role: "Vice Chairman",
-    bio: "Overseeing social development, health, and women empowerment initiatives in Odeda LGA.",
+    bio: `Overseeing social development, health, and women empowerment initiatives in ${LGA_CONFIG.identity.formalTitle}.`,
     initials: "VC",
     accent: "gold",
-    email:"vicechairman@odedalga.com"
+    email: `vicechairman@${LGA_CONFIG.contact.email.split("@")[1] || "lga.gov.ng"}`
   },
   {
     name: "Secretary to Local Government",
@@ -256,15 +250,15 @@ export const LEADERSHIP = [
     bio: "Coordinates council administration and inter-departmental policy implementation.",
     initials: "SLG",
     accent: "info",
-    email:"secretary@odedalga.com"
+    email: `secretary@${LGA_CONFIG.contact.email.split("@")[1] || "lga.gov.ng"}`
   },
   {
-    name: "Head of Local Government Administration",
+    name: LGA_CONFIG.leadership.headOfLocalGovAdmin?.name || "Head of Local Government Administration",
     role: "HOLGA",
-    bio: "Directs civil service operations and public administration in Odeda LGA.",
+    bio: `Directs civil service operations and public administration in ${LGA_CONFIG.identity.formalTitle}.`,
     initials: "HL",
     accent: "success",
-    email:"holga@odedalga.com"
+    email: `holga@${LGA_CONFIG.contact.email.split("@")[1] || "lga.gov.ng"}`
   },
   {
     name: "Council Treasurer",
@@ -272,7 +266,7 @@ export const LEADERSHIP = [
     bio: "Manages public finance, revenue heads, and fiscal compliance.",
     initials: "CT",
     accent: "warning",
-    email:"treasurer@odedalga.com"
+    email: `treasurer@${LGA_CONFIG.contact.email.split("@")[1] || "lga.gov.ng"}`
   },
 ];
 
@@ -369,7 +363,7 @@ export const WARDS_INFO: {
 ];
 
 export const CAREERS = [
-  { id: "1", title: "Revenue Collection Officer", department: "Finance & Treasury", location: "Odeda Secretariat", type: "Full-Time" },
+  { id: "1", title: "Revenue Collection Officer", department: "Finance & Treasury", location: `${LGA_CONFIG.identity.name} Secretariat`, type: "Full-Time" },
   { id: "2", title: "Environmental Health Inspector", department: "Health & Sanitation", location: "Obantoko Ward", type: "Full-Time" },
   { id: "3", title: "Agricultural Extension Officer", department: "Agriculture", location: "Osiele / Alagbagba", type: "Full-Time" },
 ];
@@ -383,33 +377,33 @@ export const DEPARTMENTS = [
 ];
 
 export const DOWNLOADS = [
-  { id: "1", title: "Odeda LGA Revenue Bye-Law 2026", category: "Legal & Gazette", size: "2.4 MB", file: "bye-law-2026.pdf" },
+  { id: "1", title: `${LGA_CONFIG.identity.formalTitle} Revenue Bye-Law 2026`, category: "Legal & Gazette", size: "2.4 MB", file: "bye-law-2026.pdf" },
   { id: "2", title: "Tenement Rate Assessment Guidelines", category: "Rates & Taxes", size: "1.1 MB", file: "tenement-guidelines.pdf" },
   { id: "3", title: "Quarry & Mining Operations Guidelines", category: "Environmental & Mining", size: "1.8 MB", file: "quarry-guidelines.pdf" },
   { id: "4", title: "State of Origin Application Form PDF", category: "Civic Services", size: "850 KB", file: "origin-form.pdf" },
 ];
 
 export const FAQS = [
-  { question: "How do I apply for Certificate of Origin in Odeda LGA?", answer: "Navigate to Services Catalogue, select Certificate of Origin, fill in ancestral details, upload required documents, and complete online payment." },
-  { question: "What is the fee for Tenement Rate in Odeda?", answer: "Tenement rates vary based on property classification (Residential, Commercial, Industrial). You can calculate and pay directly on the portal." },
+  { question: `How do I apply for Certificate of Origin in ${LGA_CONFIG.identity.formalTitle}?`, answer: "Navigate to Services Catalogue, select Certificate of Origin, fill in ancestral details, upload required documents, and complete online payment." },
+  { question: `What is the fee for Tenement Rate in ${LGA_CONFIG.identity.name}?`, answer: "Tenement rates vary based on property classification (Residential, Commercial, Industrial). You can calculate and pay directly on the portal." },
   { question: "How do haulage drivers pay transit fees?", answer: "Haulage drivers or dispatch officers generate instant transit passes via the Haulage Fees service page and present the QR receipt at inspection points." },
-  { question: "Can I verify an issued certificate?", answer: "Yes, all Odeda LGA certificates and licences contain a unique QR code and verification token that can be verified online instantly." },
+  { question: "Can I verify an issued certificate?", answer: `Yes, all ${LGA_CONFIG.identity.formalTitle} certificates and licences contain a unique QR code and verification token that can be verified online instantly.` },
 ];
 
 export const GALLERY = [
-  { id: "1", title: "Odeda LGA Secretariat Complex", category: "Infrastructure", image: "/assets/banner5.png" },
+  { id: "1", title: `${LGA_CONFIG.identity.fullName} Secretariat Complex`, category: "Infrastructure", image: "/assets/banner5.png" },
   { id: "2", title: "Osiele Modern Market Opening", category: "Commerce", image: "/assets/banner2.png" },
   { id: "3", title: "Quarry Inspection & Mining Facilities", category: "Industry", image: "/assets/banner1.png" },
 ];
 
 export const INVEST_OPPS = [
   { title: "Granite & Quarry Mining Expansion", sector: "Solid Minerals", location: "Alagbagba & Ilugun Wards", desc: "High yield granite reserves with direct proximity to Abeokuta-Lagos expressways." },
-  { title: "Commercial Cassava Processing Plants", sector: "Agro-Allied Industry", location: "Odeda & Olugbo Wards", desc: "Abundant cassava farm supply for ethanol, starch, and flour production." },
+  { title: "Commercial Cassava Processing Plants", sector: "Agro-Allied Industry", location: `${LGA_CONFIG.identity.name} & Olugbo Wards`, desc: "Abundant cassava farm supply for ethanol, starch, and flour production." },
   { title: "Student Housing & Estate Development", sector: "Real Estate", location: "Camp / FUNAAB Corridor", desc: "High demand for modern student apartments and commercial shopping complexes." },
 ];
 
 export const TOURISM = [
-  { title: "Arakanga Forest Reserve & Eco-Park", location: "Odeda LGA", category: "Eco-Tourism", desc: "Lush tropical vegetation, wildlife conservation, and serene hiking trails." },
+  { title: "Arakanga Forest Reserve & Eco-Park", location: LGA_CONFIG.identity.formalTitle, category: "Eco-Tourism", desc: "Lush tropical vegetation, wildlife conservation, and serene hiking trails." },
   { title: "Olugbo Traditional Chieftaincy Heritage", location: "Olugbo Ward", category: "Cultural Heritage", desc: "Rich ancestral Yoruba history and traditional festivals." },
 ];
 

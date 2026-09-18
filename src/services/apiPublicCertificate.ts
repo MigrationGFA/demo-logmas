@@ -4,6 +4,7 @@ import { PublicCertificate } from "@/types/publicCertificate";
 import { generatePublicToken, formatOfficialDate } from "@/lib/certificateTokens";
 import { getOdedaApplications } from "@/lib/odedaApplications";
 import { getOdedaServiceById } from "@/config/odedaServices";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { apiCertificates } from "./apiCertificates";
 
 // Seeded official certificates matching the exact client designs and tokens
@@ -194,8 +195,8 @@ export function transformApplicationToPublicCertificate(app: any, publicToken: s
   const expiryDate = app.expiryDate || new Date(new Date(issuedDate).setFullYear(new Date(issuedDate).getFullYear() + (isClub ? 2 : 1))).toISOString();
   
   const applicantName = app.fullName || app.applicant || app.formData?.fullName || app.formData?.clubName || app.details?.applicantName || "Applicant";
-  const address = app.address || app.formData?.address || app.formData?.secretariatAddress || app.details?.address || "Odeda Local Government Area, Ogun State, Nigeria";
-  const ward = app.ward || app.formData?.ward || app.details?.ward || "Ward 1 (Odeda Central)";
+  const address = app.address || app.formData?.address || app.formData?.secretariatAddress || app.details?.address || `${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`;
+  const ward = app.ward || app.formData?.ward || app.details?.ward || LGA_CONFIG.wards[0]?.name || "Ward 1";
 
   const formattedIssueDate = formatOfficialDate(issuedDate);
   const formattedExpiryDate = formatOfficialDate(expiryDate);
@@ -210,7 +211,7 @@ export function transformApplicationToPublicCertificate(app: any, publicToken: s
         objectives: app.formData?.objectives || "Youth Development, Skill Acquisition, Community Service",
         validity: formattedExpiryDate,
         motto: "Development • Participation • A Better Tomorrow",
-        statutoryLawNotice: "Registered in accordance with the Local Government Club Registration Guidelines and bye-laws of Odeda Local Government.",
+        statutoryLawNotice: `Registered in accordance with the Local Government Club Registration Guidelines and bye-laws of ${LGA_CONFIG.identity.fullName}.`,
       }
     : {
         nameOfApplicant: applicantName,
@@ -221,9 +222,9 @@ export function transformApplicationToPublicCertificate(app: any, publicToken: s
         ward,
         dateOfIssue: formattedIssueDate,
         validUntil: formattedExpiryDate,
-        stateOfOrigin: "Ogun State",
-        lgaOfOrigin: "Odeda Local Government Area",
-        statutoryLawNotice: "This Certificate is issued in accordance with the provisions of the Local Government (Establishment) Law of Ogun State, 2006 and other applicable laws.",
+        stateOfOrigin: LGA_CONFIG.identity.state,
+        lgaOfOrigin: LGA_CONFIG.identity.formalTitle,
+        statutoryLawNotice: `This Certificate is issued in accordance with the provisions of the Local Government (Establishment) Law of ${LGA_CONFIG.identity.state}, 2006 and other applicable laws.`,
       };
 
   return {
@@ -235,7 +236,7 @@ export function transformApplicationToPublicCertificate(app: any, publicToken: s
       code: app.serviceId || (isClub ? "club_registration" : "certificate_of_origin"),
       name: app.serviceName || service?.name || (isClub ? "Certificate of Club Registration" : "Certificate of Origin"),
       category: app.category || service?.category || "Certificates",
-      description: service?.description || "Official statutory certificate issued by Odeda Local Government.",
+      description: service?.description || `Official statutory certificate issued by ${LGA_CONFIG.identity.fullName}.`,
       templateType,
     },
     applicant: {
@@ -255,21 +256,21 @@ export function transformApplicationToPublicCertificate(app: any, publicToken: s
     status: app.status?.toLowerCase() === "declined" || app.status?.toLowerCase() === "rejected" ? "revoked" : "valid",
     statusMessage: "Official Document — Verified & Active in LOGMAS Registry",
     issuer: {
-      name: "Hon. Akinyemi A. Odunayo",
-      title: "Executive Chairman",
-      organization: "Odeda Local Government",
-      subtitle: "Ogun State, Nigeria",
-      councillorName: app.assignedCouncillor ? `${app.assignedCouncillor.firstName} ${app.assignedCouncillor.lastName}` : "Hon. Osunnowo Azeez",
-      holgaName: "Dr. K. A. Adebisi (HOLGA)",
+      name: LGA_CONFIG.leadership.chairman.name,
+      title: LGA_CONFIG.leadership.chairman.title,
+      organization: LGA_CONFIG.identity.fullName,
+      subtitle: `${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
+      councillorName: app.assignedCouncillor ? `${app.assignedCouncillor.firstName} ${app.assignedCouncillor.lastName}` : LGA_CONFIG.leadership.councillor.name,
+      holgaName: LGA_CONFIG.leadership.headOfLocalGovAdmin.name,
     },
     certificateData: certData,
     verification: {
       valid: true,
       verifiedAt: new Date().toISOString(),
-      qrUrl: typeof window !== "undefined" ? `${window.location.origin}/certificate/${publicToken}` : `https://logmas.gov.ng/certificate/${publicToken}`,
+      qrUrl: typeof window !== "undefined" ? `${window.location.origin}/certificate/${publicToken}` : `https://${LGA_CONFIG.certificates.verificationDomain}/certificate/${publicToken}`,
       qrToken: app.qrToken || publicToken.substring(0, 8),
-      verificationUrl: `https://verify.odeda.ogunstate.gov.ng/verify?code=${encodeURIComponent(certNumber)}`,
-      verificationMessage: "Authentic certificate issued by Odeda Local Government Secretariat.",
+      verificationUrl: `https://${LGA_CONFIG.certificates.verificationDomain}/verify?code=${encodeURIComponent(certNumber)}`,
+      verificationMessage: `Authentic certificate issued by ${LGA_CONFIG.identity.fullName} Secretariat.`,
     },
   };
 }

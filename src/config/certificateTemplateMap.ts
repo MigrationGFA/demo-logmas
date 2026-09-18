@@ -10,6 +10,8 @@
  * You can freely change any service's assigned template here.
  */
 
+import { LGA_CONFIG } from "./lga.config";
+
 export type MasterTemplateType = "landscape" | "portrait";
 
 export interface ServiceTemplateEntry {
@@ -151,7 +153,8 @@ export const ALL_12_SERVICES_ALLOCATION: ServiceTemplateEntry[] = [
   },
 ];
 
-const LOCAL_STORAGE_KEY_OVERRIDES = "odeda_custom_template_allocations";
+const LOCAL_STORAGE_KEY_OVERRIDES = `${LGA_CONFIG.identity.id}_custom_template_allocations`;
+const LEGACY_STORAGE_KEY_OVERRIDES = "odeda_custom_template_allocations";
 
 /**
  * Retrieve saved overrides from localStorage
@@ -159,7 +162,7 @@ const LOCAL_STORAGE_KEY_OVERRIDES = "odeda_custom_template_allocations";
 export function getSavedTemplateOverrides(): Record<string, MasterTemplateType> {
   if (typeof window === "undefined") return {};
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY_OVERRIDES);
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY_OVERRIDES) || localStorage.getItem(LEGACY_STORAGE_KEY_OVERRIDES);
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};

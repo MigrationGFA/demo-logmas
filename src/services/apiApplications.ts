@@ -20,13 +20,14 @@ import {
   getOdedaServiceById,
   getConfiguredFeeForService,
 } from "@/config/odedaServices";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 // Helper to normalize an application from backend or local storage
 function normalizeApplication(raw: any): any {
   if (!raw) return raw;
   const service = getOdedaServiceById(raw.serviceId || "");
   const serviceName =
-    raw.serviceName || service?.name || "Odeda LGA Statutory Service";
+    raw.serviceName || service?.name || `${LGA_CONFIG.identity.formalTitle} Statutory Service`;
   const category = raw.category || service?.category || "Services";
   const rawStatus = raw.status || "submitted";
 

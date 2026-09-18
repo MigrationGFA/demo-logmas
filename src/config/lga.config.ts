@@ -67,6 +67,14 @@ export interface LgaExecutiveLeadership {
     name: string;
     title: string;
   };
+  headOfLocalGovAdmin?: {
+    name: string;
+    title: string;
+  };
+  councillor?: {
+    name: string;
+    title: string;
+  };
 }
 
 export interface LgaContactConfig {
@@ -240,6 +248,14 @@ export const LGA_CONFIG: LgaConfiguration = {
     treasurer: {
       name: "Head of Local Government Treasury",
       title: "Council Treasurer",
+    },
+    headOfLocalGovAdmin: {
+      name: "Dr. K. A. Adebisi",
+      title: "Head of Local Government Administration (HOLGA)",
+    },
+    councillor: {
+      name: "Hon. Osunnowo Azeez",
+      title: "Ward Councillor",
     },
   },
 

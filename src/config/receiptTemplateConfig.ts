@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ReceiptDetails, Receipt } from "@/services/apiReceipts";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 export interface ReceiptFieldDefinition {
   key: string;
@@ -58,7 +59,7 @@ export const RECEIPT_FONTS = {
  */
 export const OFFICIAL_RECEIPT_CONFIG: MasterReceiptConfig = {
   id: "official_receipt",
-  name: "Official Odeda LGA Statutory Receipt",
+  name: `Official ${LGA_CONFIG.identity.name} LGA Statutory Receipt`,
   orientation: "landscape",
   aspectRatio: "4 / 3",
   minHeight: "680px",
@@ -157,7 +158,7 @@ export const OFFICIAL_RECEIPT_CONFIG: MasterReceiptConfig = {
       fontWeight: 700,
       color: "#0D3B1E",
       textTransform: "uppercase",
-      format: (r) => r.customerName || r.serviceName || r.payerName || "Odeda Indigene / Resident",
+      format: (r) => r.customerName || r.serviceName || r.payerName || `${LGA_CONFIG.identity.name} Indigene / Resident`,
     },
 
     // ==========================================

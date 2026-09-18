@@ -3,8 +3,10 @@
  * Ensures internal database UUIDs are never exposed in public routes.
  */
 
+import { LGA_CONFIG } from "@/config/lga.config";
+
 // Simple deterministic hash to generate consistent, opaque hex public tokens (e.g. "40c4b26f" or "8f3d7c9a4e2b")
-export function generatePublicToken(identifier: string, seed: string = "odeda_lga_cert"): string {
+export function generatePublicToken(identifier: string, seed: string = `${LGA_CONFIG.identity.id}_lga_cert`): string {
   if (!identifier) return "cert_" + Math.random().toString(36).substring(2, 10);
   
   // If it's already a clean opaque token, return sanitized version

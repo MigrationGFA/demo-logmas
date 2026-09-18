@@ -12,6 +12,7 @@
  * `CertificateRenderer` and `CertificateViewer`. Do NOT import from this file in new code.
  */
 import { PublicCertificate } from "@/types/publicCertificate";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 /** @deprecated Use `MasterTemplateType` from `@/config/certificateTemplateMap` instead. */
 export type CertificateOrientation = "landscape" | "portrait";
@@ -214,7 +215,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontSize: "0.9cqw",
         lineHeight: "1.2",
         color: "#1E293B",
-        format: (c) => c.certificateData?.address || c.applicant.address || "Odeda LGA, Ogun State, Nigeria",
+        format: (c) => c.certificateData?.address || c.applicant.address || `${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
       },
 
       // Right Column Row 2: Objectives Value Line
@@ -296,7 +297,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontSize: "1.8cqw",
         color: "#0D3B1E",
         textTransform: "uppercase",
-        format: () => "ODEDA LOCAL GOVERNMENT",
+        format: () => LGA_CONFIG.identity.fullName.toUpperCase(),
       },
 
       // Top Header: State & Country Subtitle
@@ -311,7 +312,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontSize: "0.85cqw",
         color: "#15803D",
         textTransform: "uppercase",
-        format: () => "OGUN STATE, NIGERIA",
+        format: () => `${LGA_CONFIG.identity.state.toUpperCase()}, ${LGA_CONFIG.identity.country.toUpperCase()}`,
       },
 
       // Top Header: Secretariat Address & Web
@@ -325,7 +326,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontWeight: "normal",
         fontSize: "0.72cqw",
         color: "#475569",
-        format: () => "P.M.B. 01, Ita Oshin, Odeda, Ogun State. • info@odeda.ogunstate.gov.ng",
+        format: () => `${LGA_CONFIG.contact.shortAddress} • ${LGA_CONFIG.contact.email}`,
       },
 
       // Certificate Number (Top Right)
@@ -369,8 +370,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontSize: "0.88cqw",
         lineHeight: "1.4",
         color: "#1E293B",
-        format: () =>
-          "This is to certify that the goods / individual described below originated from Odeda Local Government Area, Ogun State, Nigeria and that they are produced, manufactured or recognized in this area.",
+        format: () => LGA_CONFIG.certificates.legalWording.originPreamble,
       },
 
       // ================= DATA TABLE ROWS (y ≈ 43.5% to 67.5%) =================
@@ -448,7 +448,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontSize: "0.85cqw",
         lineHeight: "1.25",
         color: "#1E293B",
-        format: (c) => c.certificateData?.address || c.applicant.address || "Ward 7 (Itesi / Camp), Odeda LGA, Ogun State",
+        format: (c) => c.certificateData?.address || c.applicant.address || `${LGA_CONFIG.wards[6]?.name || "Ward 7"}, ${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}`,
       },
 
       // Row 3: Description of Goods
@@ -719,7 +719,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontWeight: "bold",
         fontSize: "0.78cqw",
         color: "#334155",
-        format: (c) => c.issuer.title || "Executive Chairman, Odeda Local Government",
+        format: (c) => c.issuer.title || `${LGA_CONFIG.leadership.chairman.title}, ${LGA_CONFIG.identity.fullName}`,
       },
     },
   },
@@ -748,7 +748,8 @@ export const DEFAULT_SERVICE_TEMPLATE_MAPPINGS: Record<string, string> = {
   haulage_fees: "origin_portrait",
 };
 
-const STORAGE_KEY_TEMPLATE_OVERRIDES = "odeda_service_template_overrides";
+const STORAGE_KEY_TEMPLATE_OVERRIDES = `${LGA_CONFIG.identity.id}_service_template_overrides`;
+const LEGACY_STORAGE_KEY_TEMPLATE_OVERRIDES = "odeda_service_template_overrides";
 
 /**
  * Retrieves all saved custom overrides from localStorage
@@ -757,7 +758,7 @@ const STORAGE_KEY_TEMPLATE_OVERRIDES = "odeda_service_template_overrides";
 export function getSavedTemplateOverrides(): Record<string, string> {
   if (typeof window === "undefined") return {};
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_TEMPLATE_OVERRIDES);
+    const raw = localStorage.getItem(STORAGE_KEY_TEMPLATE_OVERRIDES) || localStorage.getItem(LEGACY_STORAGE_KEY_TEMPLATE_OVERRIDES);
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -774,6 +775,7 @@ export function setServiceTemplateOverride(serviceId: string, templateId: string
     const current = getSavedTemplateOverrides();
     current[serviceId] = templateId;
     localStorage.setItem(STORAGE_KEY_TEMPLATE_OVERRIDES, JSON.stringify(current));
+    window.dispatchEvent(new CustomEvent(`${LGA_CONFIG.identity.id}:template-override-change`, { detail: { serviceId, templateId } }));
     window.dispatchEvent(new CustomEvent("odeda:template-override-change", { detail: { serviceId, templateId } }));
   } catch (e) {
     console.error("Error saving template override", e);
