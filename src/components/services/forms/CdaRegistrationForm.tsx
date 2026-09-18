@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { ServiceType, getConfiguredFeeForService } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec, UploadedFileMeta } from "./DocumentUploadStep";
@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 const cdaOfficerSchema = z.object({
   role: z.string().min(1, "Role is required"),

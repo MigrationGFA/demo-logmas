@@ -58,7 +58,7 @@ import {
   INVEST_OPPS,
   TOURISM,
   WARDS_INFO,
-} from "@/lib/mock-data";
+} from "@/config/lgaContent.config";
 import bannerSecretariat from "@/assets/banner5.png";
 import bannerOjudeOba from "@/assets/banner1.png";
 import bannerMarket from "@/assets/banner2.png";

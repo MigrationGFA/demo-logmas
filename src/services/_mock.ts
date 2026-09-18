@@ -7,7 +7,7 @@ const useMockFlag = env.VITE_USE_MOCK;
 const apiBase = env.VITE_API_BASE_URL;
 
 export const MOCK_MODE: boolean =
-  useMockFlag === "false" ? false : !apiBase || useMockFlag === "true" || useMockFlag === undefined;
+  false;
 
 // Tiny artificial latency so the UI exercises loading states like a real network.
 export const tick = <T>(value: T, ms = 80): Promise<T> =>

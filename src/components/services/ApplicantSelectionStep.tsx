@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, UserCheck, UserPlus, ShieldCheck, CheckCircle2, User, Phone, MapPin, Building2, AlertCircle } from "lucide-react";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { ApplicantSearchResult } from "@/types/application";
 import { useSearchApplicants } from "@/hooks/queries/useApplications";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 export interface ApplicantSnapshot {
   applicantId?: string | null;

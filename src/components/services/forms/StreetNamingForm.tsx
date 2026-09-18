@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
@@ -26,6 +26,8 @@ import {
 import { Plus, Trash2, MapPin, Building, Users } from "lucide-react";
 import { ApplicantSnapshot } from "../ApplicantSelectionStep";
 import { formatAndValidateNigerianPhoneNumber } from "@/lib/helper";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 interface Props {
   service: ServiceType;

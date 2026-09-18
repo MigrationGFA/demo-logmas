@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { GALLERY } from "@/lib/mock-data";
+import { GALLERY } from "@/config/lgaContent.config";
 import { Image as ImageIcon } from "lucide-react";
 
 export default function GalleryPage() {

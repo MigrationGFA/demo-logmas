@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
@@ -25,6 +25,8 @@ import {
 } from "./ReviewSubmitStep";
 import { Plus, Trash2, Truck, Gauge } from "lucide-react";
 import { ApplicantSnapshot } from "../ApplicantSelectionStep";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 const vehicleSchema = z.object({
   plateNumber: z.string().min(1, "Plate / Reg number is required"),

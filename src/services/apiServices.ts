@@ -43,7 +43,7 @@ export interface UpdateServicePayload {
   feeConfig?: UpdateServiceFeeConfig;
 }
 
-// Service functions with standalone fallback logic
+// Service functions
 export const services = {
   listServices: () => api.get<ServiceType[]>("/services"),
 

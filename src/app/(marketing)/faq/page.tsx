@@ -8,7 +8,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { FAQS } from "@/lib/mock-data";
+import { FAQS } from "@/config/lgaContent.config";
 
 // export const metadata = {
 //     title: "FAQ  -  Ijebu North East LGA",

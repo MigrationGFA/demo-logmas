@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { ServiceType, getConfiguredFeeForService } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
@@ -17,6 +17,8 @@ import { ReviewSubmitStep, ReviewSection, ReviewRepeatableSection } from "./Revi
 import { Plus, Trash2, Building, ShieldCheck, Trash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ApplicantSnapshot } from "../ApplicantSelectionStep";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 const facilityUnitSchema = z.object({
   unitName: z.string().min(1, "Unit name is required"),

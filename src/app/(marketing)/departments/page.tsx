@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { DEPARTMENTS } from "@/lib/mock-data";
+import { DEPARTMENTS } from "@/config/lgaContent.config";
 import * as Icons from "lucide-react";
 import { LucideIcon } from "lucide-react";
 

@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { TOURISM } from "@/lib/mock-data";
+import { TOURISM } from "@/config/lgaContent.config";
 import { Calendar, MapPin, Camera } from "lucide-react";
 import Link from "next/link";
 

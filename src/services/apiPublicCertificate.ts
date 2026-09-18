@@ -1,184 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
 import { PublicCertificate } from "@/types/publicCertificate";
-import { generatePublicToken, formatOfficialDate } from "@/lib/certificateTokens";
-import { getLgaApplications } from "@/lib/lgaApplications";
+import { formatOfficialDate } from "@/lib/certificateTokens";
 import { getLgaServiceById } from "@/config/lgaServices";
 import { LGA_CONFIG } from "@/config/lga.config";
 import { apiCertificates } from "./apiCertificates";
-
-// Seeded official certificates matching the exact client designs and tokens
-const SEEDED_CERTIFICATES: PublicCertificate[] = [
-  // 1. Certificate of Club Registration (Landscape) - Matching WhatsApp Image 2026-08-21 at 5.16.46 PM.jpeg
-  {
-    publicToken: "club123",
-    documentId: "LGA-CR-00123",
-    certificateNumber: "LGA/CR/2026/CLUB/00123",
-    applicationNo: "APP-CLUB-2026-00123",
-    service: {
-      code: "club_registration",
-      name: "Certificate of Club Registration",
-      category: "Certificates",
-      description: `Official registration and certification for social, sports, cultural, and youth clubs operating in ${LGA_CONFIG.identity.name} LGA.`,
-      templateType: "club",
-    },
-    applicant: {
-      name: "Youth Empowerment Club",
-      address: `${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      phone: "+234 803 123 4567",
-      email: "info@youthempowerment.org.ng",
-      ward: LGA_CONFIG.wards[0]?.name || "Ward 1",
-    },
-    issuedAt: "2026-08-21T10:00:00Z",
-    validUntil: "2028-08-21T10:00:00Z",
-    expiryDate: "2028-08-21T10:00:00Z",
-    status: "valid",
-    statusMessage: "Official Document  -  Verified & Active in LOGMAS Registry",
-    issuer: {
-      name: LGA_CONFIG.leadership.chairman.name,
-      title: LGA_CONFIG.leadership.chairman.title,
-      organization: LGA_CONFIG.identity.fullName,
-      subtitle: `${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      councillorName: LGA_CONFIG.leadership.viceChairman?.name || "Ward Councillor",
-      holgaName: LGA_CONFIG.leadership.secretary?.name || "Head of Local Government Administration",
-    },
-    certificateData: {
-      clubName: "Youth Empowerment Club",
-      registrationNo: "LGA/CR/2026/CLB/00123",
-      category: "Community Development",
-      dateOfRegistration: "21st August, 2026",
-      address: `${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      objectives: "Youth Development, Skill Acquisition, Community Service",
-      validity: "21st August, 2028",
-      motto: "Development • Participation • A Better Tomorrow",
-      statutoryLawNotice: `Registered in accordance with the Local Government Club Registration Guidelines and bye-laws of ${LGA_CONFIG.identity.fullName}.`,
-    },
-    verification: {
-      valid: true,
-      verifiedAt: new Date().toISOString(),
-      qrUrl: "https://logmas.gov.ng/certificate/club123",
-      qrToken: "CR-2026-00123",
-      verificationUrl: `${LGA_CONFIG.verification.verifyUrl}?code=LGA/CR/2026/CLUB/00123`,
-      verificationMessage: `Authentic certificate issued by ${LGA_CONFIG.identity.fullName} Secretariat.`,
-    },
-  },
-
-  // 2. Certificate of Origin (Portrait) - Matching State_of_Origin.png (Doc ID: 40c4b26f)
-  {
-    publicToken: "40c4b26f",
-    documentId: "40c4b26f",
-    certificateNumber: "ODE/CERT/2026/40c4b26f",
-    applicationNo: "APP-COO-2026-40c4b26f",
-    service: {
-      code: "certificate_of_origin",
-      name: "Certificate of Origin",
-      category: "Certificates",
-      description: `Official indigene certificate issued to born residents and descendants of ${LGA_CONFIG.identity.formalTitle}.`,
-      templateType: "origin",
-    },
-    applicant: {
-      name: "Adebayo Olawale Babatunde",
-      address: `Ward 7 (Itesi / Camp), ${LGA_CONFIG.identity.fullName}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      phone: "+234 802 345 6789",
-      email: "adebayo.citizen@gmail.com",
-      ward: "Ward 7 (Itesi / Camp)",
-      gender: "Male",
-      dateOfBirth: "1994-06-12",
-      nin: "78392019482",
-    },
-    issuedAt: "2026-08-21T09:00:00Z",
-    validUntil: "2027-08-21T09:00:00Z",
-    expiryDate: "2027-08-21T09:00:00Z",
-    status: "valid",
-    statusMessage: "Official Document  -  Verified & Active in LOGMAS Registry",
-    issuer: {
-      name: LGA_CONFIG.leadership.chairman.name,
-      title: LGA_CONFIG.leadership.chairman.title,
-      organization: LGA_CONFIG.identity.fullName,
-      subtitle: `${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      councillorName: "Hon. Osunnowo Azeez (Ward Councillor)",
-      holgaName: LGA_CONFIG.leadership.secretary?.name || "Head of Local Government Administration",
-    },
-    certificateData: {
-      nameOfApplicant: "Adebayo Olawale Babatunde",
-      address: `Ward 7 (Itesi / Camp), ${LGA_CONFIG.identity.fullName}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      descriptionOfGoods: "General Merchandise / Indigene Verification Record",
-      countryOfDestination: "Nigeria",
-      purpose: "For Documentation / Official Use",
-      ward: "Ward 7 (Itesi / Camp)",
-      dateOfIssue: "21st August, 2026",
-      validUntil: "21st August, 2027",
-      stateOfOrigin: LGA_CONFIG.identity.state,
-      lgaOfOrigin: LGA_CONFIG.identity.formalTitle,
-      statutoryLawNotice: "This Certificate is issued in accordance with the provisions of the Local Government (Establishment) Law of Ogun State, 2006 and other applicable laws.",
-    },
-    verification: {
-      valid: true,
-      verifiedAt: new Date().toISOString(),
-      qrUrl: "https://logmas.gov.ng/certificate/40c4b26f",
-      qrToken: "40c4b26f",
-      verificationUrl: `${LGA_CONFIG.verification.verifyUrl}?code=ODE/CERT/2026/40c4b26f`,
-      verificationMessage: `Authentic certificate issued by ${LGA_CONFIG.identity.fullName} Secretariat.`,
-    },
-  },
-
-  // 3. Alternate public token sample: 8f3d7c9a4e
-  {
-    publicToken: "8f3d7c9a4e",
-    documentId: "8f3d7c9a4e",
-    certificateNumber: "ODE/COO/2026/000001",
-    applicationNo: "ODE-2026-101",
-    service: {
-      code: "certificate_of_origin",
-      name: "Certificate of Origin",
-      category: "Certificates",
-      description: `Official indigene certificate issued to born residents and descendants of ${LGA_CONFIG.identity.formalTitle}.`,
-      templateType: "origin",
-    },
-    applicant: {
-      name: "Adebayo Citizen",
-      address: `24 Abeokuta-Ibadan Expressway, ${LGA_CONFIG.identity.name}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      phone: "+234 801 234 5678",
-      email: "adebayo@example.com",
-      ward: "Ward 7 (Itesi / Camp)",
-      gender: "Male",
-      dateOfBirth: "1992-05-14",
-    },
-    issuedAt: "2026-08-02T11:00:00Z",
-    validUntil: "2027-08-02T11:00:00Z",
-    expiryDate: "2027-08-02T11:00:00Z",
-    status: "valid",
-    statusMessage: "Official Document  -  Verified & Active in LOGMAS Registry",
-    issuer: {
-      name: LGA_CONFIG.leadership.chairman.name,
-      title: LGA_CONFIG.leadership.chairman.title,
-      organization: LGA_CONFIG.identity.fullName,
-      subtitle: `${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      councillorName: "Hon. Osunnowo Azeez (Ward Councillor)",
-    },
-    certificateData: {
-      nameOfApplicant: "Adebayo Citizen",
-      address: `24 Abeokuta-Ibadan Expressway, ${LGA_CONFIG.identity.name}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-      descriptionOfGoods: "Indigeneity & Lineage Record Verification",
-      countryOfDestination: "Nigeria",
-      purpose: "Employment & Statutory Verification",
-      ward: "Ward 7 (Itesi / Camp)",
-      dateOfIssue: "2nd August, 2026",
-      validUntil: "2nd August, 2027",
-      stateOfOrigin: LGA_CONFIG.identity.state,
-      lgaOfOrigin: LGA_CONFIG.identity.formalTitle,
-      statutoryLawNotice: "This Certificate is issued in accordance with the provisions of the Local Government (Establishment) Law of Ogun State, 2006 and other applicable laws.",
-    },
-    verification: {
-      valid: true,
-      verifiedAt: new Date().toISOString(),
-      qrUrl: "https://logmas.gov.ng/certificate/8f3d7c9a4e",
-      qrToken: "8f3d7c9a4e",
-      verificationUrl: `${LGA_CONFIG.verification.verifyUrl}?code=ODE/COO/2026/000001`,
-      verificationMessage: `Authentic certificate issued by ${LGA_CONFIG.identity.fullName} Secretariat.`,
-    },
-  },
-];
 
 /**
  * Normalizes an application record into a PublicCertificate response.
@@ -278,7 +104,7 @@ export function transformApplicationToPublicCertificate(app: any, publicToken: s
 export const apiPublicCertificate = {
   /**
    * Fetch public certificate information by public token.
-   * Consumes GET /api/v1/public/certificates/:publicToken with robust fallback to registered applications.
+  * Consumes GET /api/v1/public/certificates/:publicToken via backend certificate lookup.
    */
   getPublicCertificate: async (token: string): Promise<PublicCertificate> => {
     const cleanToken = token.trim();
@@ -297,68 +123,11 @@ export const apiPublicCertificate = {
           return response as unknown as PublicCertificate;
         }
         return apiCertificates.transformBackendToPublicCertificate(response as any, cleanToken);
-        // Fallback transformation
-        // return apiCertificates.transformBackendToPublicCertificate(response, cleanToken);
       }
     } catch (err) {
       console.warn("apiPublicCertificate backend lookup failed, checking local registry:", err);
       // Continue to local resolution
     }
-
-    // 2. Check Seeded Official Certificates
-    // const seeded = SEEDED_CERTIFICATES.find(
-    //   (c) =>
-    //     c.publicToken.toLowerCase() === cleanToken.toLowerCase() ||
-    //     c.documentId?.toLowerCase() === cleanToken.toLowerCase() ||
-    //     c.certificateNumber.toLowerCase() === cleanToken.toLowerCase() ||
-    //     cleanToken.toLowerCase().includes(c.publicToken.toLowerCase())
-    // );
-    // if (seeded) {
-    //   return seeded;
-    // }
-
-    // // 3. Check local applications store
-    // const localApps = getLgaApplications();
-    // const matchedApp = localApps.find((a) => {
-    //   const computedToken = generatePublicToken(a.id);
-    //   const computedAppToken = generatePublicToken(a.applicationNo);
-    //   return (
-    //     computedToken === cleanToken ||
-    //     computedAppToken === cleanToken ||
-    //     a.id === cleanToken ||
-    //     a.applicationNo === cleanToken ||
-    //     a.certificateNumber === cleanToken ||
-    //     a.qrToken === cleanToken ||
-    //     a.verificationCode === cleanToken
-    //   );
-    // });
-
-    // if (matchedApp) {
-    //   return transformApplicationToPublicCertificate(matchedApp, cleanToken);
-    // }
-
-    // // 4. Default fallback: generate an authentic certificate instance for this token
-    // // Determine template by keyword in token
-    // const isClub = cleanToken.toLowerCase().includes("club") || cleanToken.toLowerCase().includes("clb");
-    // const certNum = isClub
-    //   ? `LGA/CR/2026/CLUB/${cleanToken.substring(0, 5).toUpperCase()}`
-    //   : `ODE/CERT/2026/${cleanToken.substring(0, 8)}`;
-
-    // const fallbackApp = {
-    //   id: cleanToken,
-    //   applicationNo: `ODE-APP-${cleanToken.substring(0, 6)}`,
-    //   serviceId: isClub ? "club_registration" : "certificate_of_origin",
-    //   serviceName: isClub ? "Certificate of Club Registration" : "Certificate of Origin",
-    //   category: "Certificates",
-    //   fullName: isClub ? "Youth Empowerment Club" : "Adebayo Olawale Babatunde",
-    //   address: "the Local Government Area, Ogun State, Nigeria",
-    //   ward: "Ward 7 (Itesi / Camp)",
-    //   status: "Approved",
-    //   certificateNumber: certNum,
-    //   issuedAt: new Date().toISOString(),
-    // };
-
-    // return transformApplicationToPublicCertificate(fallbackApp, cleanToken);
 
     throw new Error("Certificate not found in public registry");
   },

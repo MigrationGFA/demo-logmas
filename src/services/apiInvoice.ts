@@ -199,7 +199,7 @@ export const invoicesService = {
         },
       });
     } catch {
-      console.error("Failed to fetch invoices hub data. Returning fallback data.");
+      throw new Error("Unable to fetch invoice hub data from backend");
     }
   },
 
@@ -241,16 +241,7 @@ verifyPayment: async (reference: string): Promise<VerifyPaymentResponse> => {
 
    // Field officer sends Paystack link via SMS + email
   sendPaymentLink: async (id: string): Promise<SendPaymentLinkResponse> => {
-    try {
-      return await api.post<SendPaymentLinkResponse>(`/invoices/${id}/send-payment-link`, {});
-    } catch {
-      return {
-        reference: `ODE-LINK-${id}`,
-        checkoutLink: `https://logmas.gov.ng/pay/${id}`,
-        smsSent: true,
-        emailSent: true,
-      };
-    }
+    return await api.post<SendPaymentLinkResponse>(`/invoices/${id}/send-payment-link`, {});
   },
 
 

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { INVEST_OPPS } from "@/lib/mock-data";
+import { INVEST_OPPS } from "@/config/lgaContent.config";
 import * as Icons from "lucide-react";
 import { ArrowRight, TrendingUp, CheckCircle2, Download } from "lucide-react";
 

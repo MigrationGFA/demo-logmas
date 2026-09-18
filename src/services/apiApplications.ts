@@ -8,17 +8,9 @@ import {
 } from "@/types/application";
 import {
   getLgaApplications,
-  getLgaApplicationById,
-  saveLgaApplications,
-  createLgaApplication as createLocalApp,
-  updateApplicationStatus as updateLocalStatus,
-  approveAndGenerateCertificate as localApproveCert,
 } from "@/lib/lgaApplications";
-import { tokenManager } from "@/services/apiAuth";
-import { getStoreSnapshot } from "@/lib/store";
 import {
   getLgaServiceById,
-  getConfiguredFeeForService,
 } from "@/config/lgaServices";
 import { LGA_CONFIG } from "@/config/lga.config";
 
@@ -305,12 +297,6 @@ export const apiApplications = {
     id: string,
     notes?: string,
   ): Promise<Application> => {
-    const user = tokenManager.getUser();
-    const actorName = user
-      ? `${user.firstName} ${user.lastName || ""}`.trim()
-      : "LGA Admin";
-    const actorRole = user?.role || "lga_admin";
-
     try {
       const res = await api.patch<any>(
         `/applications/admin/${id}/under-review`,
@@ -318,30 +304,16 @@ export const apiApplications = {
           notes,
         },
       );
-      if (res) return res;
-    } catch (err) {
-      try {
-        const res2 = await api.post<any>(
-          `/applications/admin/${id}/under-review`,
-          {
-            notes,
-          },
-        );
-        if (res2) return normalizeApplication(res2);
-      } catch {
-        // Continue to local sync
-      }
+      return normalizeApplication(res);
+    } catch {
+      const res2 = await api.post<any>(
+        `/applications/admin/${id}/under-review`,
+        {
+          notes,
+        },
+      );
+      return normalizeApplication(res2);
     }
-
-    const updated = updateLocalStatus(
-      id,
-      "Under Review",
-      { name: actorName, role: actorRole },
-      { correctionNotes: notes },
-    );
-
-    if (!updated) throw new Error("Application not found to update status");
-    return normalizeApplication(updated);
   },
 
   /**
@@ -351,45 +323,17 @@ export const apiApplications = {
     id: string,
     notes?: string,
   ): Promise<Application> => {
-    const user = tokenManager.getUser();
-    const actorName = user
-      ? `${user.firstName} ${user.lastName || ""}`.trim()
-      : "LGA Executive Admin";
-    const actorRole = user?.role || "lga_admin";
-
     try {
       const res = await api.patch<any>(`/applications/admin/${id}/approve`, {
         notes,
       });
-      if (res) return normalizeApplication(res);
-    } catch (err) {
-      try {
-        const res2 = await api.post<any>(`/applications/admin /${id}/approve`, {
-          notes,
-        });
-        if (res2) return normalizeApplication(res2);
-      } catch {
-        // Continue to local sync
-      }
+      return normalizeApplication(res);
+    } catch {
+      const res2 = await api.post<any>(`/applications/admin/${id}/approve`, {
+        notes,
+      });
+      return normalizeApplication(res2);
     }
-
-    const updated = localApproveCert(id, { name: actorName, role: actorRole });
-    if (!updated) {
-      const fallbackUpdate = updateLocalStatus(
-        id,
-        "Approved",
-        { name: actorName, role: actorRole },
-        {
-          certificateNumber: `ODE/CERT/2026/${Math.floor(100000 + Math.random() * 899999)}`,
-          issuedAt: new Date().toISOString(),
-          issuedBy: actorName,
-        },
-      );
-      if (!fallbackUpdate) throw new Error("Application not found");
-      return normalizeApplication(fallbackUpdate);
-    }
-
-    return normalizeApplication(updated);
   },
 
   /**
@@ -405,37 +349,17 @@ export const apiApplications = {
       );
     }
 
-    const user = tokenManager.getUser();
-    const actorName = user
-      ? `${user.firstName} ${user.lastName || ""}`.trim()
-      : "LGA Review Officer";
-    const actorRole = user?.role || "lga_admin";
-
     try {
       const res = await api.patch<any>(`/applications/admin/${id}/decline`, {
         declineReason,
       });
-      if (res) return normalizeApplication(res);
-    } catch (err) {
-      try {
-        const res2 = await api.post<any>(`/applications/admin/${id}/decline`, {
-          declineReason,
-        });
-        if (res2) return normalizeApplication(res2);
-      } catch {
-        // Continue to local sync
-      }
+      return normalizeApplication(res);
+    } catch {
+      const res2 = await api.post<any>(`/applications/admin/${id}/decline`, {
+        declineReason,
+      });
+      return normalizeApplication(res2);
     }
-
-    const updated = updateLocalStatus(
-      id,
-      "Rejected",
-      { name: actorName, role: actorRole },
-      { rejectionReason: declineReason },
-    );
-
-    if (!updated) throw new Error("Application not found");
-    return normalizeApplication(updated);
   },
 
   /**
@@ -473,31 +397,10 @@ export const apiApplications = {
         });
       }
     } catch {
-      // Ignore and fallback to local snapshot
+      // Continue to next backend-driven source.
     }
 
-    // 2. Query local store snapshot customers
-    const storeCustomers = getStoreSnapshot().customers || [];
-    storeCustomers.forEach((c) => {
-      const text =
-        `${c.name || ""} ${c.phone || ""} ${c.email || ""} ${c.businessName || ""}`.toLowerCase();
-      if (text.includes(q)) {
-        if (!results.some((r) => r.id === c.id)) {
-          results.push({
-            id: c.id,
-            name: c.name || c.businessName || "Citizen",
-            phone: c.phone || "",
-            email: c.email,
-            address: c.address,
-            ward: c.ward,
-            role: c.businessName ? "business_owner" : "citizen",
-            businessName: c.businessName,
-          });
-        }
-      }
-    });
-
-    // 3. Query existing application records for past applicants
+    // 2. Query existing backend-sourced application records for past applicants
     const existingApps = getLgaApplications();
     existingApps.forEach((app) => {
       const match =

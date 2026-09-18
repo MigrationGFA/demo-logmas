@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { DOWNLOADS } from "@/lib/mock-data";
+import { DOWNLOADS } from "@/config/lgaContent.config";
 import { FileText, Download } from "lucide-react";
 import { toast } from "sonner";
 

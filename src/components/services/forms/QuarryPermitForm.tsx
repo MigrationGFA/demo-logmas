@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { ServiceType } from "@/config/lgaServices";
 import { FormWizard, FormStep } from "./FormWizard";
 import { DocumentUploadStep, DocumentSpec } from "./DocumentUploadStep";
@@ -15,6 +15,8 @@ import { ReviewSubmitStep, ReviewSection, ReviewRepeatableSection } from "./Revi
 import { Plus, Trash2, Mountain, HardHat, Cog } from "lucide-react";
 import { ApplicantSnapshot } from "../ApplicantSelectionStep";
 import { formatAndValidateNigerianPhoneNumber } from "@/lib/helper";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 interface Props {
   service: ServiceType;

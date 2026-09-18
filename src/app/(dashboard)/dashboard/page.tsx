@@ -27,7 +27,6 @@ import {
   UserCog,
   Loader2,
 } from "lucide-react";
-import {  APPLICATIONS } from "@/lib/mock-data";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/queries/useAuth";
 import { tokenManager } from "@/services/apiAuth";

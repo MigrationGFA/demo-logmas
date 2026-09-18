@@ -4,10 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { WARDS } from "@/lib/mock-data";
 import { LGA_CONFIG } from "@/config/lga.config";
 import { Building2, Users, Target, Award, MapPin, Calendar, Crown, ScrollText } from "lucide-react";
 import Link from "next/link";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 
 const TIMELINE = [

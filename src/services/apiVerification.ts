@@ -240,7 +240,7 @@ export const apiVerification = {
       }
     }
 
-    // 3. Fallback: Public certificate registry (handles seeded certificates and local application stores)
+    // 3. Query public certificate registry endpoint
     try {
       const publicCert = await apiPublicCertificate.getPublicCertificate(clean);
       if (publicCert && publicCert.certificateNumber) {

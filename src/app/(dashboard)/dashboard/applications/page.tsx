@@ -53,7 +53,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import { tokenManager } from "@/services/apiAuth";
 import { getPublicCertificateUrl } from "@/lib/certificateTokens";
 import {
@@ -68,6 +68,8 @@ import { DocumentsViewer } from "@/components/services/DocumentsViewer";
 import { useServices } from "@/hooks/queries/useServices";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { TableSkeleton } from "@/components/ui/LoadingSkeleton";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 export default function ApplicationsPage() {
   const currentUser = tokenManager.getUser();

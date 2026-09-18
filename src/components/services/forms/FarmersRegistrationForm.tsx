@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import {
   ServiceType,
 } from "@/config/lgaServices";
@@ -27,6 +27,8 @@ import {
 import { Plus, Trash2, Sprout, Tractor, Layers } from "lucide-react";
 import { ApplicantSnapshot } from "../ApplicantSelectionStep";
 import { formatAndValidateNigerianPhoneNumber } from "@/lib/helper";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 interface Props {
   service: ServiceType;

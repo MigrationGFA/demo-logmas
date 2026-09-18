@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WARDS } from "@/lib/mock-data";
+import { LGA_CONFIG } from "@/config/lga.config";
 import {
   ServiceType,
   getConfiguredFeeForService,
@@ -29,6 +29,8 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+const WARDS = LGA_CONFIG.wards.map((ward) => ward.name);
 
 export const certificateOfOriginSchema = z.object({
   fullName: z.string().min(2, "Full legal name is required"),

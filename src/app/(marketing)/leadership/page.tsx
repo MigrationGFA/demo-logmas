@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { LEADERSHIP } from "@/lib/mock-data";
+import { LEADERSHIP } from "@/config/lgaContent.config";
 import { LGA_CONFIG } from "@/config/lga.config";
 import { Mail, Phone, Crown, Quote } from "lucide-react";
 import Link from "next/link";

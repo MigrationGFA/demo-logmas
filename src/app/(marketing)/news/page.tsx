@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageShell, PageHero } from "@/components/page-shell";
-import { NEWS } from "@/lib/mock-data";
+import { NEWS } from "@/config/lgaContent.config";
 import { Calendar, ArrowRight, Search } from "lucide-react";
 
 const EXTENDED_NEWS = [
