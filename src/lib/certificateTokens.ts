@@ -38,7 +38,7 @@ export function generatePublicToken(identifier: string, seed: string = `${LGA_CO
  * e.g. "21st August, 2026"
  */
 export function formatOfficialDate(dateInput: string | Date | null | undefined): string {
-  if (!dateInput) return "21st August, 2026";
+  if (!dateInput) return "";
   
   try {
     const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;

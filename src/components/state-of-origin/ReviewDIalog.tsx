@@ -36,6 +36,7 @@ import { useCouncillorStateOfOrigin } from "@/hooks/queries/useServices";
 import { tokenManager } from "@/services/apiAuth";
 import Link from "next/link";
 import { useStaffManagement } from "@/hooks/queries/useLgaAdmin";
+import { getPublicCertificateUrl } from "@/lib/certificateTokens";
 
 interface ReviewDialogProps {
   app: Application;
@@ -149,6 +150,26 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
   const showDecideActions = canDecide && isWardCouncillor;
   const showViewCertificate =
     !canDecide && isCitizen && isApproved && hasCertificate;
+
+  const handleViewCertificate = () => {
+    const certToken =
+      app.certificate?.certificateNumber ||
+      app.certificate?.verificationCode ||
+      app.certificate?.qrToken ||
+      app.certificate?.id ||
+      app.certificateNumber ||
+      app.verificationCode ||
+      app.qrToken ||
+      app.id;
+
+    if (!certToken) {
+      toast.error("Certificate record or token is not yet available for this application.");
+      return;
+    }
+
+    const certUrl = getPublicCertificateUrl(encodeURIComponent(certToken));
+    window.open(certUrl, "_blank");
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
@@ -429,9 +450,7 @@ function ReviewDialog({ app, canDecide, councillor }: ReviewDialogProps) {
               <Button
                 variant="outline"
                 className="border-success/50 text-success hover:text-success"
-                onClick={() =>
-                  window.open(`/dashboard/certificate/${app.id}`, "_blank")
-                }
+                onClick={handleViewCertificate}
               >
                 <FileText className="h-4 w-4 mr-1.5" />
                 View Certificate

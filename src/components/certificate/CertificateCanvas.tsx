@@ -4,7 +4,11 @@
 import React from "react";
 import { PublicCertificate } from "@/types/publicCertificate";
 import { CertificateRenderer } from "./CertificateRenderer";
-import { MasterCertificateConfig, getMasterTemplateConfig } from "@/config/certificateFieldConfig";
+import {
+  MasterCertificateConfig,
+  LANDSCAPE_TEMPLATE_CONFIG,
+  getMasterTemplateConfig,
+} from "@/config/certificateFieldConfig";
 import { resolveTemplateForService } from "@/config/certificateTemplateMap";
 
 interface CertificateCanvasProps {
@@ -20,10 +24,13 @@ export function CertificateCanvas({
   className = "",
   isWatermarked = false,
 }: CertificateCanvasProps) {
+  // Deterministically enforce landscape master template configuration
   const config =
-    templateConfig && templateConfig.fields
+    templateConfig && templateConfig.fields && templateConfig.orientation === "landscape"
       ? templateConfig
-      : getMasterTemplateConfig(resolveTemplateForService(certificate.service.code || certificate.service.name));
+      : getMasterTemplateConfig(
+          resolveTemplateForService(certificate.service.code || certificate.service.name)
+        );
 
   return (
     <CertificateRenderer

@@ -28,7 +28,7 @@ export function CertificateRenderer({
   // Extract dynamic repeating content rows if template defines a contentZone
   const dynamicRows = useMemo(() => {
     if (!config.contentZone) return [];
-    const maxRows = config.contentZone.maxRows || 8;
+    const maxRows = config.contentZone.maxRows || 6;
     return extractCertificateContentRows(certificate, maxRows);
   }, [certificate, config.contentZone]);
 
@@ -49,8 +49,8 @@ export function CertificateRenderer({
     <div
       className={`cert-canvas-container relative w-full select-none bg-white shadow-2xl transition-all ${className}`}
       style={{
-        aspectRatio: config.aspectRatio,
-        maxWidth: config.orientation === "landscape" ? "1120px" : "800px",
+        aspectRatio: config.aspectRatio || "1.414 / 1",
+        maxWidth: "1120px",
         minHeight: config.minHeight,
         margin: "0 auto",
         containerType: "inline-size",
@@ -72,9 +72,16 @@ export function CertificateRenderer({
       <div className="absolute inset-0 w-full h-full pointer-events-none">
         {Object.entries(config.fields).map(([fieldKey, field]: [string, CertificateFieldDefinition]) => {
           // Resolve dynamic value
-          const value = field.format
+          const rawValue = field.format
             ? field.format(certificate)
             : (certificate.certificateData as any)?.[fieldKey] || "";
+
+          const value =
+            typeof rawValue === "string"
+              ? rawValue.trim()
+              : rawValue !== null && rawValue !== undefined
+              ? String(rawValue).trim()
+              : "";
 
           if (!value) return null;
 
@@ -115,7 +122,7 @@ export function CertificateRenderer({
                 fontStyle: field.fontStyle || "normal",
                 whiteSpace:
                   field.whiteSpace ||
-                  (typeof value === "string" && value.includes("\n")
+                  (value.includes("\n")
                     ? "pre-line"
                     : field.maxLines && field.maxLines > 1
                     ? "normal"
@@ -127,6 +134,7 @@ export function CertificateRenderer({
               <span
                 className="w-full select-text leading-tight"
                 style={{ whiteSpace: "inherit" }}
+                title={value}
               >
                 {value}
               </span>
@@ -136,7 +144,9 @@ export function CertificateRenderer({
 
         {/* 2b. DYNAMIC REPEATING CONTENT ROWS (Universal Service Form Data Schema) */}
         {config.contentZone &&
-          dynamicRows.map((row, index) => {
+          dynamicRows
+            .filter((row) => row.value && row.value.trim() !== "")
+            .map((row, index) => {
             const rowY = config.contentZone!.startY + index * config.contentZone!.rowHeight;
             const labelFontFamily = config.contentZone!.labelFontFamily || config.templateDefaults.fontFamily;
             const labelFontSize = config.contentZone!.labelFontSize || config.templateDefaults.fontSize;
@@ -170,7 +180,7 @@ export function CertificateRenderer({
                     textOverflow: "ellipsis",
                   }}
                 >
-                  <span className="truncate select-text">{row.label}</span>
+                  <span className="truncate select-text" title={row.label}>{row.label}</span>
                 </div>
 
                 {/* Separator Colon */}
@@ -213,7 +223,7 @@ export function CertificateRenderer({
                     textOverflow: "ellipsis",
                   }}
                 >
-                  <span className="truncate select-text">{row.value}</span>
+                  <span className="truncate select-text" title={row.value}>{row.value}</span>
                 </div>
               </React.Fragment>
             );

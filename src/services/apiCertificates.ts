@@ -4,6 +4,10 @@ import { BackendCertificate } from "@/types/certificate";
 import { PublicCertificate } from "@/types/publicCertificate";
 import { formatOfficialDate, generatePublicToken } from "@/lib/certificateTokens";
 import { LGA_CONFIG } from "@/config/lga.config";
+import {
+  buildCanonicalCertificateData,
+  getServiceFieldMapping,
+} from "@/config/certificateServiceFieldMap";
 
 /**
  * Service for the official Backend Certificate Endpoints:
@@ -85,36 +89,57 @@ export const apiCertificates = {
     const formData: Record<string, any> = rawApp.formData || {};
     const applicantRaw: Record<string, any> = rawApp.applicant || {};
     const serviceRaw: Record<string, any> = cert.service || {};
+    const rawCertData: Record<string, any> = (cert as any).certificateData || {};
 
-    const isClub =
-      serviceRaw.code?.toLowerCase().includes("club") ||
-      serviceRaw.code?.toLowerCase().includes("cda") ||
-      serviceRaw.code?.toLowerCase().includes("association") ||
-      serviceRaw.certificateType === "CERTIFICATE_OF_REGISTRATION";
+    const serviceCode = serviceRaw.code || serviceRaw.id || "certificate_of_origin";
+    const serviceMapping = getServiceFieldMapping(serviceCode);
+
+    // Build unified, authoritative, and deduplicated certificate data
+    // Data Precedence: certificateData is authoritative; formData is fallback.
+    const certificateData = buildCanonicalCertificateData(
+      serviceCode,
+      rawCertData,
+      formData,
+      applicantRaw
+    );
 
     const applicantName =
+      certificateData.nameOfApplicant ||
+      certificateData.clubName ||
+      certificateData.associationName ||
+      certificateData.businessName ||
+      certificateData.farmerName ||
+      certificateData.operatorName ||
+      certificateData.propertyOwner ||
+      certificateData.companyName ||
       applicantRaw.name ||
       formData.fullName ||
-      formData.clubName ||
-      formData.associationName ||
-      formData.businessName ||
+      formData.applicantName ||
       formData.name ||
-      "Official Applicant";
+      "";
 
     const applicantAddress =
-      formData.address ||
-      formData.secretariatAddress ||
+      certificateData.address ||
+      certificateData.secretariatAddress ||
+      certificateData.businessAddress ||
+      certificateData.premisesAddress ||
+      certificateData.farmLocation ||
+      certificateData.propertyAddress ||
+      certificateData.siteLocation ||
+      applicantRaw.address ||
       formData.residentialAddress ||
-      formData.businessAddress ||
-      `${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`;
+      formData.address ||
+      "";
 
     const applicantWard =
+      certificateData.ward ||
+      applicantRaw.ward ||
       formData.ward ||
       formData.wardName ||
       formData.lgaWard ||
-      LGA_CONFIG.wards[0]?.name || "Ward 1";
+      "";
 
-    const formattedIssuedDate = formatOfficialDate(cert.issuedAt);
+    const formattedIssuedDate = cert.issuedAt ? formatOfficialDate(cert.issuedAt) : "";
     const validUntilDate = cert.expiresAt
       ? formatOfficialDate(cert.expiresAt)
       : "Indefinite / Subject to LGA Verification";
@@ -126,66 +151,31 @@ export const apiCertificates = {
       cert.verificationCode ||
       generatePublicToken(cert.id);
 
-    // Build dynamic certificateData dictionary for the layout templates
-    const certificateData: Record<string, any> = {
-      ...formData,
-      // Origin specific fields
-      nameOfApplicant: applicantName,
-      address: applicantAddress,
-      ward: applicantWard,
-      dateOfIssue: formattedIssuedDate,
-      validUntil: validUntilDate,
-      stateOfOrigin: formData.stateOfOrigin || formData.state || "Ogun State",
-      lgaOfOrigin:
-        formData.lgaOfOrigin ||
-        formData.lga ||
-        formData.originLga ||
-        LGA_CONFIG.identity.formalTitle,
-      descriptionOfGoods:
-        formData.descriptionOfGoods ||
-        formData.purposeDescription ||
-        "General Merchandise & Indigene Civic Verification",
-      countryOfDestination:
-        formData.countryOfDestination ||
-        formData.destination ||
-        "Federal Republic of Nigeria",
-      purpose:
-        formData.purpose ||
-        formData.reasonForApplication ||
-        "Official Indigene Verification & Documentation",
-
-      // Club / Association specific fields
-      clubName: formData.clubName || applicantName,
-      registrationNo: cert.certificateNumber,
-      category:
-        formData.category ||
-        serviceRaw.category ||
-        "Social & Community Development",
-      dateOfRegistration: formattedIssuedDate,
-      objectives:
-        formData.objectives ||
-        formData.aims ||
-        "Youth Empowerment, Community Development & Civic Leadership",
-      motto: formData.motto || "Unity, Peace and Progress",
-      validity: validUntilDate,
-      statutoryLawNotice:
-        `Registered in accordance with the Local Government Statutory Guidelines and bye-laws of ${LGA_CONFIG.identity.fullName}.`,
-    };
+    // Ensure system dates are present in certificateData without fake static placeholders
+    if (formattedIssuedDate && !certificateData.dateOfIssue) {
+      certificateData.dateOfIssue = formattedIssuedDate;
+    }
+    if (formattedIssuedDate && !certificateData.dateOfRegistration) {
+      certificateData.dateOfRegistration = formattedIssuedDate;
+    }
+    if (cert.certificateNumber && !certificateData.registrationNo) {
+      certificateData.registrationNo = cert.certificateNumber;
+    }
 
     return {
       id: cert.id,
       publicToken: effectiveToken,
       documentId: cert.id,
-      certificateNumber: cert.certificateNumber,
-      applicationNo: rawApp.applicationNumber || `ODE-APP-${cert.id.substring(0, 6)}`,
+      certificateNumber: cert.certificateNumber || "",
+      applicationNo: rawApp.applicationNumber || cert.certificateNumber || cert.id,
       service: {
         id: serviceRaw.id,
-        code: serviceRaw.code || "certificate_of_origin",
-        name: serviceRaw.name || "Certificate of Origin",
+        code: serviceCode,
+        name: serviceRaw.name || serviceMapping.serviceName,
         category: serviceRaw.category || "Certificates",
         description: serviceRaw.description,
-        templateType: isClub ? "club" : "origin",
-        revenueHead: serviceRaw.revenueHead || "1001 - Statutory LGA Revenue",
+        templateType: "landscape",
+        revenueHead: serviceRaw.revenueHead,
         certificateType: serviceRaw.certificateType,
         estimatedDays: serviceRaw.estimatedDays,
       },
@@ -195,7 +185,7 @@ export const apiCertificates = {
         address: applicantAddress,
         phone: applicantRaw.phone || formData.phone || null,
         email: applicantRaw.email || formData.email || null,
-        ward: applicantWard,
+        ward: applicantWard || null,
         nin: formData.nin || null,
         gender: formData.gender || null,
         dateOfBirth: formData.dateOfBirth || null,
@@ -208,27 +198,27 @@ export const apiCertificates = {
       statusMessage: `Official Document - Verified & Active in ${LGA_CONFIG.identity.name} LGA Registry`,
       issuer: {
         id: cert.issuedBy?.id,
-        name: cert.issuedBy?.name || "Hon. Akinyemi A. Odunayo",
+        name: cert.issuedBy?.name || LGA_CONFIG.leadership.chairman.name,
         title:
           cert.issuedBy?.role === "chairman"
-            ? "Executive Chairman"
+            ? LGA_CONFIG.leadership.chairman.title
             : cert.issuedBy?.name
-              ? `${cert.issuedBy.name} (${cert.issuedBy.role || "LGA Admin"})`
-              : "Executive Chairman",
-              organization: LGA_CONFIG.identity.fullName,
-              subtitle: `${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
-        councillorName: formData.councillorName || "Hon. Osunnowo Azeez",
-        holgaName: "Dr. K. A. Adebisi (HOLGA)",
+              ? `${cert.issuedBy.name} (${cert.issuedBy.role || "Authorized Signatory"})`
+              : LGA_CONFIG.leadership.chairman.title,
+        organization: LGA_CONFIG.identity.fullName,
+        subtitle: `${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}`,
+        councillorName: formData.councillorName || LGA_CONFIG.leadership.viceChairman?.name,
+        holgaName: LGA_CONFIG.leadership.secretary?.name || "Head of Local Government Administration",
         role: cert.issuedBy?.role || "lga_admin",
       },
       certificateData,
       verification: {
         valid: true,
         verifiedAt: new Date().toISOString(),
-        qrUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/certificate/${encodeURIComponent(cert.certificateNumber || effectiveToken)}`,
+        qrUrl: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/certificate/${encodeURIComponent(cert.certificateNumber || effectiveToken)}`,
         qrToken: cert.qrToken,
         verificationCode: cert.verificationCode,
-        verificationUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/verify?code=${encodeURIComponent(cert.certificateNumber || cert.verificationCode)}`,
+        verificationUrl: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/verify?code=${encodeURIComponent(cert.certificateNumber || cert.verificationCode || "")}`,
         verificationMessage:
           `Authentic certificate issued by ${LGA_CONFIG.identity.fullName} Secretariat.`,
       },

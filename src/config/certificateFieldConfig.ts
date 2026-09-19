@@ -2,6 +2,10 @@
 import { PublicCertificate } from "@/types/publicCertificate";
 import { MasterTemplateType } from "./certificateTemplateMap";
 import { LGA_CONFIG } from "./lga.config";
+import {
+  resolveServiceFields,
+  getServiceFieldMapping,
+} from "./certificateServiceFieldMap";
 
 /**
  * ============================================================================
@@ -324,71 +328,26 @@ const FIELD_PRIORITY_ORDER: string[] = [
 
 /**
  * Extracts and orders dynamic content rows from a certificate's certificateData/formData
+ * Uses the centralized service field mapping system with semantic deduplication.
  */
 export function extractCertificateContentRows(
   certificate: PublicCertificate,
-  maxRows: number = 8
+  maxRows: number = 6
 ): CertificateContentRow[] {
-  const sourceData: Record<string, any> = {
-    ...(certificate.certificateData || {}),
-    ...(certificate.application?.formData || {}),
-  };
+  const serviceIdOrCode =
+    certificate.service?.code ||
+    certificate.service?.id ||
+    "certificate_of_origin";
 
-  // Ensure baseline applicant information is available if missing from source data
-  if (
-    !sourceData.nameOfApplicant &&
-    !sourceData.fullName &&
-    !sourceData.clubName &&
-    !sourceData.businessName &&
-    certificate.applicant?.name
-  ) {
-    sourceData.nameOfApplicant = certificate.applicant.name;
-  }
-  if (
-    !sourceData.address &&
-    !sourceData.businessAddress &&
-    !sourceData.secretariatAddress &&
-    certificate.applicant?.address
-  ) {
-    sourceData.address = certificate.applicant.address;
-  }
-  if (!sourceData.ward && certificate.applicant?.ward) {
-    sourceData.ward = certificate.applicant.ward;
-  }
-
-  // Filter valid candidate keys
-  const candidateKeys = Object.keys(sourceData).filter((key) => {
-    if (EXCLUDED_ROW_KEYS.has(key)) return false;
-    const val = sourceData[key];
-    if (val === null || val === undefined) return false;
-    if (typeof val === "string" && val.trim() === "") return false;
-    if (typeof val === "boolean") return false;
-    if (typeof val === "object" && !Array.isArray(val)) return false;
-    return true;
+  const resolved = resolveServiceFields({
+    serviceIdOrCode,
+    certificateData: certificate.certificateData,
+    formData: certificate.application?.formData,
+    applicant: certificate.applicant,
+    maxRows,
   });
 
-  // Sort by priority order
-  candidateKeys.sort((a, b) => {
-    const indexA = FIELD_PRIORITY_ORDER.indexOf(a);
-    const indexB = FIELD_PRIORITY_ORDER.indexOf(b);
-    const orderA = indexA === -1 ? 999 : indexA;
-    const orderB = indexB === -1 ? 999 : indexB;
-    return orderA - orderB;
-  });
-
-  const rows: CertificateContentRow[] = [];
-  for (const key of candidateKeys) {
-    if (rows.length >= maxRows) break;
-    const rawVal = sourceData[key];
-    const displayVal = Array.isArray(rawVal) ? rawVal.join(", ") : String(rawVal);
-    rows.push({
-      key,
-      label: formatFieldLabel(key),
-      value: displayVal,
-    });
-  }
-
-  return rows;
+  return resolved.contentRows;
 }
 
 /**
@@ -426,28 +385,28 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
   },
 
   qrCode: {
-    x: 78.4,
-    y: 73.8,
-    width: 7.8,
-    height: 11.0,
+    x: 77.8,
+    y: 72.8,
+    width: 8.2,
+    height: 11.6,
     padding: 2,
   },
 
   signatureImage: {
     src: LGA_CONFIG.leadership.chairman.signatureImagePath,
     x: 14.5,
-    y: 73.5,
+    y: 72.8,
     width: 14.5,
     height: 6.2,
   },
 
   contentZone: {
-    startY: 48.0,
-    rowHeight: 4.2,
-    labelX: 18.0,
-    labelWidth: 26.0,
-    valueX: 46.0,
-    valueWidth: 42.0,
+    startY: 44.2,
+    rowHeight: 4.4,
+    labelX: 16.5,
+    labelWidth: 26.5,
+    valueX: 44.5,
+    valueWidth: 43.5,
     labelFontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
     labelFontSize: "0.88cqw",
     valueFontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
@@ -470,7 +429,11 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       fontWeight: 600,
       letterSpacing: "0.03em",
       color: "#0D3B1E",
-      format: (c) => c.certificateNumber || c.certificateData?.registrationNo || `${LGA_CONFIG.certificates.namingConventions.generalPrefix}/2026/00123`,
+      format: (c) =>
+        c.certificateNumber ||
+        c.certificateData?.registrationNo ||
+        c.applicationNo ||
+        "",
     },
 
     // Top Right Date of Issue
@@ -484,7 +447,10 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       fontSize: "0.92cqw",
       fontWeight: 600,
       color: "#1E293B",
-      format: (c) => c.certificateData?.dateOfRegistration || c.certificateData?.dateOfIssue || c.issuedAt || "21st August, 2026",
+      format: (c) =>
+        c.certificateData?.dateOfRegistration ||
+        c.certificateData?.dateOfIssue ||
+        (c.issuedAt ? formatOfficialDate(c.issuedAt) : ""),
     },
 
     // Green Ribbon Certificate Title Banner (Dynamic to Service being viewed)
@@ -492,23 +458,32 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       key: "certificateTitle",
       x: 50.0,
       y: 34.0,
-      width: 65.0,
+      width: 66.0,
       textAlign: "center",
       fontFamily: CERTIFICATE_FONTS.CINZEL_BOLD,
-      fontSize: "1.65cqw",
+      fontSize: "1.55cqw",
       fontWeight: 900,
-      letterSpacing: "0.08em",
+      letterSpacing: "0.06em",
       color: "#FFFFFF",
       textTransform: "uppercase",
-      format: (c) => c.service?.name?.toUpperCase() || c.certificateData?.certificateTitle?.toUpperCase() || "OFFICIAL STATUTORY CERTIFICATE",
+      format: (c) => {
+        const serviceCode = c.service?.code || c.service?.id;
+        const mapping = getServiceFieldMapping(serviceCode);
+        return (
+          c.certificateData?.certificateTitle ||
+          mapping.certificateTitle ||
+          c.service?.name ||
+          "OFFICIAL STATUTORY CERTIFICATE"
+        ).toUpperCase();
+      },
     },
 
     // Executive Chairman Signer Name (above signature line)
     signerName: {
       key: "signerName",
       x: 21.8,
-      y: 81.5,
-      width: 22.0,
+      y: 81.2,
+      width: 24.0,
       textAlign: "center",
       fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
       fontSize: "0.90cqw",
@@ -522,7 +497,7 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
     signerTitle: {
       key: "signerTitle",
       x: 21.8,
-      y: 84.5,
+      y: 84.6,
       width: 24.0,
       textAlign: "center",
       fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
@@ -537,8 +512,8 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
     // Verification QR Code Label
     qrCodeLabel: {
       key: "qrCodeLabel",
-      x: 82.3,
-      y: 86.5,
+      x: 81.9,
+      y: 86.2,
       width: 18.0,
       textAlign: "center",
       fontFamily: CERTIFICATE_FONTS.ARIMO,
