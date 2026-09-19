@@ -1,7 +1,7 @@
 import React from "react";
 import { PublicCertificate } from "@/types/publicCertificate";
 import { CertificateRenderer } from "../CertificateRenderer";
-import { PORTRAIT_TEMPLATE_CONFIG } from "@/config/certificateFieldConfig";
+import { LANDSCAPE_TEMPLATE_CONFIG } from "@/config/certificateFieldConfig";
 
 interface CertificateOfOriginTemplateProps {
   certificate: PublicCertificate;
@@ -15,8 +15,9 @@ export function CertificateOfOriginTemplate({
   return (
     <CertificateRenderer
       certificate={certificate}
-      config={PORTRAIT_TEMPLATE_CONFIG}
+      config={LANDSCAPE_TEMPLATE_CONFIG}
       className={className}
     />
   );
 }
+

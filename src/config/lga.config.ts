@@ -308,16 +308,16 @@ export const LGA_CONFIG: LgaConfiguration = {
       verificationPrefix: "VER-ODE",
     },
     templates: {
-      portrait: {
-        id: "portrait",
-        name: "Official Portrait Certificate (Origin & Statutory Permits)",
-        defaultTitle: "CERTIFICATE OF ORIGIN",
-        backgroundImage: "/certificates/templates/origin-template.jpg",
-      },
       landscape: {
         id: "landscape",
-        name: "Official Landscape Certificate (Club & Association Registration)",
-        defaultTitle: "CERTIFICATE OF CLUB REGISTRATION",
+        name: "Official Statutory Certificate (Landscape)",
+        defaultTitle: "OFFICIAL STATUTORY CERTIFICATE",
+        backgroundImage: "/certificates/templates/club-registration-template.jpg",
+      },
+      portrait: {
+        id: "portrait",
+        name: "Official Portrait Certificate (Deprecated - Standardized on Landscape)",
+        defaultTitle: "OFFICIAL STATUTORY CERTIFICATE",
         backgroundImage: "/certificates/templates/club-registration-template.jpg",
       },
       receipt: {

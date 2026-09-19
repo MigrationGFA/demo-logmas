@@ -1,13 +1,10 @@
 /**
  * LOGMAS SERVICE TO CERTIFICATE TEMPLATE MAPPING
  * 
- * Maps all 12 official the Local Government services to one of the
- * two official master certificate layouts:
+ * Maps all 12 official Local Government services to the official unified
+ * master certificate layout: "landscape" (The official Master Landscape Template).
  * 
- * 1. "landscape" → The official Club Registration & Organizations master template
- * 2. "portrait"  → The official Certificate of Origin & Statutory Permits master template
- * 
- * You can freely change any service's assigned template here.
+ * The portrait template has been discarded entirely in favor of the unified landscape format.
  */
 
 import { LGA_CONFIG } from "./lga.config";
@@ -17,18 +14,19 @@ export type MasterTemplateType = "landscape" | "portrait";
 export interface ServiceTemplateEntry {
   serviceId: string;
   serviceName: string;
-  template: MasterTemplateType;
+  template: "landscape";
   description: string;
 }
 
 /**
  * COMPLETE ALLOCATION TABLE FOR ALL 12 LOGMAS SERVICES
+ * All services standardized on the official landscape master template.
  */
-export const SERVICE_TEMPLATE_MAP: Record<string, MasterTemplateType> = {
+export const SERVICE_TEMPLATE_MAP: Record<string, "landscape"> = {
   // 1. Indigene & Identity
-  certificate_of_origin: "portrait",
-  state_of_origin: "portrait",
-  origin: "portrait",
+  certificate_of_origin: "landscape",
+  state_of_origin: "landscape",
+  origin: "landscape",
 
   // 2. Clubs & Social Organizations
   club_registration: "landscape",
@@ -39,40 +37,40 @@ export const SERVICE_TEMPLATE_MAP: Record<string, MasterTemplateType> = {
   cda: "landscape",
 
   // 4. Agricultural & Farmers
-  farmers_registration: "portrait",
-  farmers: "portrait",
+  farmers_registration: "landscape",
+  farmers: "landscape",
 
   // 5. Environmental Health & Sanitation
-  environmental_sanitation: "portrait",
-  sanitation: "portrait",
+  environmental_sanitation: "landscape",
+  sanitation: "landscape",
 
   // 6. Property & Tenement
-  tenement_rate: "portrait",
-  tenement: "portrait",
+  tenement_rate: "landscape",
+  tenement: "landscape",
 
   // 7. Urban Planning & Street Naming
-  street_naming: "portrait",
-  street: "portrait",
+  street_naming: "landscape",
+  street: "landscape",
 
   // 8. Freight & Haulage Transit
-  haulage_fees: "portrait",
-  haulage: "portrait",
+  haulage_fees: "landscape",
+  haulage: "landscape",
 
   // 9. Liquor & Hospitality Excise
-  liquor_licence: "portrait",
-  liquor: "portrait",
+  liquor_licence: "landscape",
+  liquor: "landscape",
 
   // 10. Entertainment & Viewing Centres
-  viewing_centre_licence: "portrait",
-  viewing_centre: "portrait",
+  viewing_centre_licence: "landscape",
+  viewing_centre: "landscape",
 
   // 11. Solid Minerals & Quarry Permits
-  quarry_permit: "portrait",
-  quarry: "portrait",
+  quarry_permit: "landscape",
+  quarry: "landscape",
 
   // 12. Micro Trade & Kiosk Permits
-  kiosk_licence: "portrait",
-  kiosk: "portrait",
+  kiosk_licence: "landscape",
+  kiosk: "landscape",
 };
 
 /**
@@ -82,8 +80,8 @@ export const ALL_12_SERVICES_ALLOCATION: ServiceTemplateEntry[] = [
   {
     serviceId: "certificate_of_origin",
     serviceName: "Certificate of Origin",
-    template: "portrait",
-    description: "Official indigene verification certificate with tabular bio data.",
+    template: "landscape",
+    description: "Official indigene verification certificate with verified bio data.",
   },
   {
     serviceId: "club_registration",
@@ -100,55 +98,55 @@ export const ALL_12_SERVICES_ALLOCATION: ServiceTemplateEntry[] = [
   {
     serviceId: "farmers_registration",
     serviceName: "Certificate of Farmers Registration",
-    template: "portrait",
+    template: "landscape",
     description: "Crop, livestock, and poultry farmer registration certificate.",
   },
   {
     serviceId: "environmental_sanitation",
     serviceName: "Certificate of Environmental Sanitation Compliance",
-    template: "portrait",
+    template: "landscape",
     description: "Commercial & industrial public health compliance certificate.",
   },
   {
     serviceId: "tenement_rate",
     serviceName: "Tenement Rate Clearance",
-    template: "portrait",
+    template: "landscape",
     description: "Statutory property rate clearance and valuation certificate.",
   },
   {
     serviceId: "street_naming",
     serviceName: "Street Naming and Property Numbering",
-    template: "portrait",
+    template: "landscape",
     description: "Urban planning street name approval and house numbering certificate.",
   },
   {
     serviceId: "haulage_fees",
     serviceName: "Haulage Transit Permit",
-    template: "portrait",
+    template: "landscape",
     description: "Heavy-duty transit, mineral, and produce transport clearance.",
   },
   {
     serviceId: "liquor_licence",
     serviceName: "Liquor Licence",
-    template: "portrait",
+    template: "landscape",
     description: "Statutory retail and wholesale alcoholic beverage trading licence.",
   },
   {
     serviceId: "viewing_centre_licence",
     serviceName: "Viewing Centre Licence Fee",
-    template: "portrait",
+    template: "landscape",
     description: "Commercial viewing centre and entertainment venue safety licence.",
   },
   {
     serviceId: "quarry_permit",
     serviceName: "Quarry Fees and Permits",
-    template: "portrait",
+    template: "landscape",
     description: "Granite extraction, mining, and natural resources operating permit.",
   },
   {
     serviceId: "kiosk_licence",
     serviceName: "Kiosk Licence",
-    template: "portrait",
+    template: "landscape",
     description: "Micro-trade booth, roadside kiosk, and container permit.",
   },
 ];
@@ -160,57 +158,23 @@ const LEGACY_STORAGE_KEY_OVERRIDES = "legacy_custom_template_allocations";
  * Retrieve saved overrides from localStorage
  */
 export function getSavedTemplateOverrides(): Record<string, MasterTemplateType> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY_OVERRIDES) || localStorage.getItem(LEGACY_STORAGE_KEY_OVERRIDES);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
+  return {};
 }
 
 /**
  * Save custom template override for a service
  */
-export function setServiceTemplateOverride(serviceId: string, template: MasterTemplateType): void {
-  if (typeof window === "undefined") return;
-  try {
-    const current = getSavedTemplateOverrides();
-    current[serviceId.toLowerCase().replace(/[- \s]+/g, "_")] = template;
-    localStorage.setItem(LOCAL_STORAGE_KEY_OVERRIDES, JSON.stringify(current));
-  } catch (err) {
-    console.error("Failed to save template override:", err);
-  }
+export function setServiceTemplateOverride(_serviceId: string, _template: MasterTemplateType): void {
+  // No-op: all services are strictly standardized on the official landscape template
 }
 
 /**
  * Resolves the active master template for any service ID or code
+ * Always returns "landscape" as portrait has been discarded entirely.
  */
 export function resolveTemplateForService(
-  serviceIdOrCode?: string,
-  explicitTemplate?: MasterTemplateType
+  _serviceIdOrCode?: string,
+  _explicitTemplate?: MasterTemplateType
 ): MasterTemplateType {
-  if (explicitTemplate === "landscape" || explicitTemplate === "portrait") {
-    return explicitTemplate;
-  }
-
-  const cleanKey = (serviceIdOrCode || "").toLowerCase().replace(/[- \s]+/g, "_");
-
-  // 1. Check user override
-  const overrides = getSavedTemplateOverrides();
-  if (overrides[cleanKey]) {
-    return overrides[cleanKey];
-  }
-
-  // 2. Check predefined mapping
-  if (SERVICE_TEMPLATE_MAP[cleanKey]) {
-    return SERVICE_TEMPLATE_MAP[cleanKey];
-  }
-
-  // 3. Fallback heuristic
-  if (cleanKey.includes("club") || cleanKey.includes("cda") || cleanKey.includes("association")) {
-    return "landscape";
-  }
-
-  return "portrait";
+  return "landscape";
 }

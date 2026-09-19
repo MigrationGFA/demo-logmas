@@ -404,261 +404,7 @@ export const OFFICIAL_CHAIRMAN = {
 
 /**
  * ============================================================================
- * 1. MASTER PORTRAIT TEMPLATE CONFIGURATION (Certificate of Origin & Permits)
- * Background Artwork sourced from LGA_CONFIG
- * ============================================================================
- */
-export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = {
-  id: LGA_CONFIG.certificates.templates.portrait.id,
-  name: LGA_CONFIG.certificates.templates.portrait.name,
-  orientation: "portrait",
-  aspectRatio: "1 / 1.414", // A4 Portrait Aspect Ratio
-  minHeight: "1050px",
-  backgroundImage: LGA_CONFIG.certificates.templates.portrait.backgroundImage,
-  defaultTitle: LGA_CONFIG.certificates.templates.portrait.defaultTitle,
-
-  templateDefaults: {
-    fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-    fontSize: "0.95cqw",
-    fontWeight: 400,
-    color: "#1E293B",
-    lineHeight: "1.35",
-  },
-
-  qrCode: {
-    x: 13.0,
-    y: 76.5,
-    width: 14.2,
-    height: 9.8,
-    padding: 3,
-  },
-
-  signatureImage: {
-    src: LGA_CONFIG.leadership.chairman.signatureImagePath,
-    x: 64.0,      // % from left
-    y: 75.8,      // % from top
-    width: 20.0,  // % width
-    height: 5.8,  // % height
-  },
-
-  contentZone: {
-    startY: 44.0,
-    rowHeight: 3.4,
-    labelX: 18.0,
-    labelWidth: 29.0,
-    valueX: 50.0,
-    valueWidth: 35.0,
-    labelFontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-    labelFontSize: "0.90cqw",
-    valueFontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-    valueFontSize: "0.95cqw",
-    labelColor: "#0D3B1E",
-    valueColor: "#1E293B",
-    maxRows: 8,
-  },
-
-  fields: {
-    // ------------------------------------------------------------------------
-    // TOP HEADER SECTION
-    // ------------------------------------------------------------------------
-    councilTitle: {
-      key: "councilTitle",
-      x: 50.0,
-      y: 8.5,
-      width: 65.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.CINZEL_BOLD,
-      fontSize: "1.85cqw",
-      fontWeight: 900,
-      letterSpacing: "0.08em",
-      color: "#0D3B1E", // Deep forest government green
-      textTransform: "uppercase",
-      format: () => LGA_CONFIG.identity.fullName.toUpperCase(),
-    },
-
-    councilSubtitle: {
-      key: "councilSubtitle",
-      x: 50.0,
-      y: 11.5,
-      width: 50.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND_SEMIBOLD,
-      fontSize: "1.05cqw",
-      fontWeight: 700,
-      letterSpacing: "0.12em",
-      color: "#15803D",
-      textTransform: "uppercase",
-      format: () => `${LGA_CONFIG.identity.state.toUpperCase()}, ${LGA_CONFIG.identity.country.toUpperCase()}`,
-    },
-
-    councilAddress: {
-      key: "councilAddress",
-      x: 50.0,
-      y: 13.8,
-      width: 65.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.ARIMO,
-      fontSize: "0.72cqw",
-      fontWeight: 400,
-      letterSpacing: "0.02em",
-      color: "#475569",
-      format: () => `${LGA_CONFIG.contact.shortAddress} • ${LGA_CONFIG.contact.portalUrl.replace(/^https?:\/\//, "")}`,
-    },
-
-    // Top Right Certificate Number
-    certificateNumber: {
-      key: "certificateNumber",
-      x: 76.5,
-      y: 20.5,
-      width: 34.0,
-      textAlign: "right",
-      fontFamily: CERTIFICATE_FONTS.ARIMO,
-      fontSize: "0.85cqw",
-      fontWeight: 600,
-      letterSpacing: "0.02em",
-      color: "#0D3B1E",
-      format: (c) => `Certificate No: ${c.certificateNumber || "ODE/CERT/2026/001"}`,
-    },
-
-    // Top Right Date of Issue
-    dateOfIssue: {
-      key: "dateOfIssue",
-      x: 76.5,
-      y: 23.0,
-      width: 34.0,
-      textAlign: "right",
-      fontFamily: CERTIFICATE_FONTS.ARIMO,
-      fontSize: "0.78cqw",
-      fontWeight: 500,
-      letterSpacing: "0.02em",
-      color: "#334155",
-      format: (c) => `Date of Issue: ${c.certificateData?.dateOfIssue || c.issuedAt || "21st August, 2026"}`,
-    },
-
-    // ------------------------------------------------------------------------
-    // CERTIFICATE TITLE IN GREEN RIBBON BANNER
-    // ------------------------------------------------------------------------
-    certificateTitle: {
-      key: "certificateTitle",
-      x: 50.0,
-      y: 33.0,
-      width: 55.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.CINZEL_BOLD,
-      fontSize: "1.6cqw",
-      fontWeight: 900,
-      letterSpacing: "0.08em",
-      color: "#FFFFFF",
-      textTransform: "uppercase",
-      format: (c) => c.service.name?.toUpperCase() || "CERTIFICATE OF ORIGIN",
-    },
-
-    // Dynamic Certifying Preamble Paragraph (Scaled to Service description)
-    certifyingIntro: {
-      key: "certifyingIntro",
-      x: 50.0,
-      y: 38.2,
-      width: 74.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.95cqw",
-      fontWeight: 400,
-      fontStyle: "normal",
-      lineHeight: "1.4",
-      letterSpacing: "0.01em",
-      color: "#1E293B",
-      format: (c) =>
-        c.certificateData?.certifyingIntro ||
-        (c.service?.description
-          ? `This is to certify that the applicant named below has fulfilled all statutory requirements for ${c.service.name || "Statutory Certification"} in ${LGA_CONFIG.identity.formalTitle}, ${LGA_CONFIG.identity.state}, ${LGA_CONFIG.identity.country}.`
-          : `This is to certify that the particulars detailed below have been duly inspected, verified, and officially recorded under the statutory authority of ${LGA_CONFIG.identity.fullName}, ${LGA_CONFIG.identity.state}.`),
-    },
-
-    // ------------------------------------------------------------------------
-    // ------------------------------------------------------------------------
-    // STATUTORY NOTICE & SIGNATURE SECTION
-    // ------------------------------------------------------------------------
-    statutoryLawNotice: {
-      key: "statutoryLawNotice",
-      x: 50.0,
-      y: 72.2,
-      width: 68.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND_ITALIC,
-      fontSize: "0.82cqw",
-      fontWeight: 500,
-      fontStyle: "italic",
-      lineHeight: "1.25",
-      color: "#334155",
-      format: (c) =>
-        c.certificateData?.statutoryLawNotice ||
-        LGA_CONFIG.certificates.statutoryNotice,
-    },
-
-    // QR Code Subtitle
-    qrCodeLabel: {
-      key: "qrCodeLabel",
-      x: 20.1,
-      y: 87.2,
-      width: 22.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.ARIMO,
-      fontSize: "0.68cqw",
-      color: "#475569",
-      lineHeight: "1.2",
-      whiteSpace: "pre-line",
-      format: () => `Scan to verify authenticity\nor visit: ${LGA_CONFIG.verification.domain}`,
-    },
-
-    // Chairman Signer Name (above Executive Chairman)
-    signerName: {
-      key: "signerName",
-      x: 74.0,
-      y: 82.2,
-      width: 25.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.95cqw",
-      fontWeight: 700,
-      letterSpacing: "0.02em",
-      color: "#0D3B1E",
-      format: () => OFFICIAL_CHAIRMAN.name,
-    },
-
-    signerTitle: {
-      key: "signerTitle",
-      x: 74.0,
-      y: 85.5,
-      width: 25.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.80cqw",
-      fontWeight: 500,
-      lineHeight: "1.2",
-      color: "#334155",
-      whiteSpace: "pre-line",
-      format: () => OFFICIAL_CHAIRMAN.fullTitle,
-    },
-
-    footerDisclaimer: {
-      key: "footerDisclaimer",
-      x: 50.0,
-      y: 95.0,
-      width: 85.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.ARIMO,
-      fontSize: "0.68cqw",
-      color: "#64748B",
-      fontStyle: "italic",
-      format: (c) =>
-        `Document ID: ${c.publicToken?.slice(0, 10) || "ODE-SEC-40c"} • This certificate is computer generated and does not require further signature. • ðŸ”’ Secure Document`,
-    },
-  },
-};
-
-/**
- * ============================================================================
- * 2. MASTER LANDSCAPE TEMPLATE CONFIGURATION (Club Registration & CDAs)
+ * 1. UNIFIED MASTER LANDSCAPE TEMPLATE CONFIGURATION (All Services)
  * Background Artwork: /certificates/templates/club-registration-template.jpg
  * ============================================================================
  */
@@ -724,7 +470,7 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       fontWeight: 600,
       letterSpacing: "0.03em",
       color: "#0D3B1E",
-      format: (c) => c.certificateNumber || c.certificateData?.registrationNo || `${LGA_CONFIG.certificates.numberPrefix}/CR/2026/CLB/00123`,
+      format: (c) => c.certificateNumber || c.certificateData?.registrationNo || `${LGA_CONFIG.certificates.namingConventions.generalPrefix}/2026/00123`,
     },
 
     // Top Right Date of Issue
@@ -738,10 +484,10 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       fontSize: "0.92cqw",
       fontWeight: 600,
       color: "#1E293B",
-      format: (c) => c.certificateData?.dateOfRegistration || c.certificateData?.dateOfIssue || "21st August, 2026",
+      format: (c) => c.certificateData?.dateOfRegistration || c.certificateData?.dateOfIssue || c.issuedAt || "21st August, 2026",
     },
 
-    // Green Ribbon Certificate Title Banner
+    // Green Ribbon Certificate Title Banner (Dynamic to Service being viewed)
     certificateTitle: {
       key: "certificateTitle",
       x: 50.0,
@@ -754,7 +500,53 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       letterSpacing: "0.08em",
       color: "#FFFFFF",
       textTransform: "uppercase",
-      format: (c) => c.service.name?.toUpperCase() || "CERTIFICATE OF CLUB REGISTRATION",
+      format: (c) => c.service?.name?.toUpperCase() || c.certificateData?.certificateTitle?.toUpperCase() || "OFFICIAL STATUTORY CERTIFICATE",
+    },
+
+    // Executive Chairman Signer Name (above signature line)
+    signerName: {
+      key: "signerName",
+      x: 21.8,
+      y: 81.5,
+      width: 22.0,
+      textAlign: "center",
+      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
+      fontSize: "0.90cqw",
+      fontWeight: 700,
+      letterSpacing: "0.02em",
+      color: "#0D3B1E",
+      format: (c) => c.issuer?.name || OFFICIAL_CHAIRMAN.name,
+    },
+
+    // Executive Chairman Official Title
+    signerTitle: {
+      key: "signerTitle",
+      x: 21.8,
+      y: 84.5,
+      width: 24.0,
+      textAlign: "center",
+      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
+      fontSize: "0.75cqw",
+      fontWeight: 500,
+      lineHeight: "1.2",
+      color: "#334155",
+      whiteSpace: "pre-line",
+      format: (c) => c.issuer?.title || OFFICIAL_CHAIRMAN.fullTitle,
+    },
+
+    // Verification QR Code Label
+    qrCodeLabel: {
+      key: "qrCodeLabel",
+      x: 82.3,
+      y: 86.5,
+      width: 18.0,
+      textAlign: "center",
+      fontFamily: CERTIFICATE_FONTS.ARIMO,
+      fontSize: "0.62cqw",
+      color: "#475569",
+      lineHeight: "1.2",
+      whiteSpace: "pre-line",
+      format: () => `Scan to verify authenticity\nor visit: ${LGA_CONFIG.verification.domain}`,
     },
 
     footerBanner: {
@@ -775,17 +567,24 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
 };
 
 /**
- * MASTER TEMPLATES DICTIONARY
+ * @deprecated DISCARDED - The portrait template has been discarded entirely in favor of the unified landscape template.
  */
-export const MASTER_CERTIFICATE_CONFIGS: Record<MasterTemplateType, MasterCertificateConfig> = {
-  portrait: PORTRAIT_TEMPLATE_CONFIG,
+export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = LANDSCAPE_TEMPLATE_CONFIG;
+
+/**
+ * MASTER TEMPLATES DICTIONARY
+ * Standardized exclusively on Landscape master template.
+ */
+export const MASTER_CERTIFICATE_CONFIGS: Record<string, MasterCertificateConfig> = {
   landscape: LANDSCAPE_TEMPLATE_CONFIG,
+  portrait: LANDSCAPE_TEMPLATE_CONFIG, // Discarded in favor of landscape
 };
 
 /**
- * Helper to fetch configuration for a specific master template
+ * Helper to fetch configuration for a master template.
+ * Always returns the unified LANDSCAPE_TEMPLATE_CONFIG.
  */
-export function getMasterTemplateConfig(template: MasterTemplateType): MasterCertificateConfig {
-  return MASTER_CERTIFICATE_CONFIGS[template] || PORTRAIT_TEMPLATE_CONFIG;
+export function getMasterTemplateConfig(_template?: string): MasterCertificateConfig {
+  return LANDSCAPE_TEMPLATE_CONFIG;
 }
 

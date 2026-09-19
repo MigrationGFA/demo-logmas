@@ -731,21 +731,21 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
  * @deprecated Superseded by `SERVICE_TEMPLATE_MAP` in `src/config/certificateTemplateMap.ts`.
  */
 export const DEFAULT_SERVICE_TEMPLATE_MAPPINGS: Record<string, string> = {
-  certificate_of_origin: "origin_portrait",
-  state_of_origin: "origin_portrait",
-  origin: "origin_portrait",
+  certificate_of_origin: "club_landscape",
+  state_of_origin: "club_landscape",
+  origin: "club_landscape",
   
   club_registration: "club_landscape",
   cda_registration: "club_landscape",
-  farmers_registration: "origin_portrait",
-  environmental_sanitation: "origin_portrait",
-  street_naming: "origin_portrait",
-  tenement_rate: "origin_portrait",
-  viewing_centre_licence: "origin_portrait",
-  liquor_licence: "origin_portrait",
-  quarry_permit: "origin_portrait",
-  kiosk_licence: "origin_portrait",
-  haulage_fees: "origin_portrait",
+  farmers_registration: "club_landscape",
+  environmental_sanitation: "club_landscape",
+  street_naming: "club_landscape",
+  tenement_rate: "club_landscape",
+  viewing_centre_licence: "club_landscape",
+  liquor_licence: "club_landscape",
+  quarry_permit: "club_landscape",
+  kiosk_licence: "club_landscape",
+  haulage_fees: "club_landscape",
 };
 
 const STORAGE_KEY_TEMPLATE_OVERRIDES = `${LGA_CONFIG.identity.id}_service_template_overrides`;
@@ -787,33 +787,9 @@ export function setServiceTemplateOverride(serviceId: string, templateId: string
  * @deprecated Superseded by `resolveTemplateForService` in `src/config/certificateTemplateMap.ts` + `getMasterTemplateConfig` in `src/config/certificateFieldConfig.ts`.
  */
 export function getCertificateTemplateConfig(
-  serviceCodeOrId?: string,
-  explicitTemplateId?: string
+  _serviceCodeOrId?: string,
+  _explicitTemplateId?: string
 ): CertificateTemplateConfig {
-  // 1. If an explicit template ID is requested, return it if found
-  if (explicitTemplateId && CERTIFICATE_TEMPLATES[explicitTemplateId]) {
-    return CERTIFICATE_TEMPLATES[explicitTemplateId];
-  }
-
-  // 2. Check localStorage custom user override
-  const cleanCode = (serviceCodeOrId || "").toLowerCase().replace(/[- \s]+/g, "_");
-  const overrides = getSavedTemplateOverrides();
-  if (overrides[cleanCode] && CERTIFICATE_TEMPLATES[overrides[cleanCode]]) {
-    return CERTIFICATE_TEMPLATES[overrides[cleanCode]];
-  }
-
-  // 3. Check Default Mapping
-  const mappedTemplateId = DEFAULT_SERVICE_TEMPLATE_MAPPINGS[cleanCode];
-  if (mappedTemplateId && CERTIFICATE_TEMPLATES[mappedTemplateId]) {
-    return CERTIFICATE_TEMPLATES[mappedTemplateId];
-  }
-
-  // 4. Heuristic Fallback based on keywords
-  if (cleanCode.includes("club") || cleanCode.includes("cda") || cleanCode.includes("association")) {
-    return CERTIFICATE_TEMPLATES.club_landscape;
-  }
-
-  // Default to Portrait Origin
-  return CERTIFICATE_TEMPLATES.origin_portrait;
+  return CERTIFICATE_TEMPLATES.club_landscape;
 }
 

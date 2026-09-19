@@ -4,13 +4,7 @@ import React, { useState } from "react";
 import { PublicCertificate } from "@/types/publicCertificate";
 import { CertificateRenderer } from "./CertificateRenderer";
 import {
-  MasterTemplateType,
-  resolveTemplateForService,
-  setServiceTemplateOverride,
-} from "@/config/certificateTemplateMap";
-import {
-  MASTER_CERTIFICATE_CONFIGS,
-  getMasterTemplateConfig,
+  LANDSCAPE_TEMPLATE_CONFIG,
   MasterCertificateConfig,
 } from "@/config/certificateFieldConfig";
 import { LGA_CONFIG } from "@/config/lga.config";
@@ -26,17 +20,9 @@ import {
   ExternalLink,
   ArrowLeft,
   LayoutTemplate,
-  Save,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -52,26 +38,8 @@ export function CertificateViewer({
   const [copied, setCopied] = useState(false);
   const [zoomLevel, setZoomLevel] = useState<number>(100);
 
-  // Determine initial master template (landscape or portrait)
-  const [activeTemplateType, setActiveTemplateType] = useState<MasterTemplateType>(() => {
-    return resolveTemplateForService(certificate.service.code || certificate.service.name);
-  });
-
-  const activeConfig: MasterCertificateConfig = getMasterTemplateConfig(activeTemplateType);
-
-  // Handle live template switch
-  const handleTemplateChange = (templateType: MasterTemplateType) => {
-    setActiveTemplateType(templateType);
-    const newConfig = getMasterTemplateConfig(templateType);
-    toast.success(`Switched to ${newConfig.name}`);
-  };
-
-  // Save current template as default for this service
-  const handleSaveAsDefault = () => {
-    const serviceKey = certificate.service.code || certificate.service.name;
-    setServiceTemplateOverride(serviceKey, activeTemplateType);
-    toast.success(`Saved "${activeConfig.name}" as default master template for ${certificate.service.name}`);
-  };
+  // Standardized exclusively on unified Master Landscape Template
+  const activeConfig: MasterCertificateConfig = LANDSCAPE_TEMPLATE_CONFIG;
 
   const handleCopyLink = async () => {
     try {
@@ -91,8 +59,6 @@ export function CertificateViewer({
   const handlePrint = () => {
     window.print();
   };
-
-  const isLandscape = activeConfig.orientation === "landscape";
 
   return (
     <div className="certificate-viewer-root w-full min-h-screen bg-slate-100/90 dark:bg-slate-950 py-6 px-3 sm:px-6">
@@ -138,7 +104,7 @@ export function CertificateViewer({
             max-width: 100% !important;
           }
           @page {
-            size: ${isLandscape ? "landscape" : "portrait"};
+            size: landscape;
             margin: 0;
           }
         }
@@ -181,40 +147,12 @@ export function CertificateViewer({
             </div>
           </div>
 
-          {/* Center/Right: Master Template Switcher & Action Controls */}
+          {/* Right: Format Badge & Action Controls */}
           <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-end">
-            {/* MASTER TEMPLATE SELECTOR */}
-            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/80 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400 pl-1.5">
-                <LayoutTemplate className="w-3.5 h-3.5 text-emerald-700" />
-                <span className="hidden sm:inline">Template:</span>
-              </div>
-              <Select
-                value={activeTemplateType}
-                onValueChange={(val) => handleTemplateChange(val as MasterTemplateType)}
-              >
-                <SelectTrigger className="h-7 text-xs bg-white dark:bg-slate-900 min-w-[195px] border-slate-200">
-                  <SelectValue placeholder="Select template" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="portrait" className="text-xs">
-                    Portrait (Origin & Permits)
-                  </SelectItem>
-                  <SelectItem value="landscape" className="text-xs">
-                    Landscape (Club & Associations)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-[11px] text-slate-600 hover:text-emerald-700 gap-1"
-                onClick={handleSaveAsDefault}
-                title="Save this master template layout as default for this service"
-              >
-                <Save className="w-3 h-3" />
-                <span className="hidden xl:inline">Set Default</span>
-              </Button>
+            {/* OFFICIAL LANDSCAPE BADGE */}
+            <div className="flex items-center gap-1.5 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-lg px-2.5 py-1 border border-emerald-600/20 text-xs font-medium">
+              <LayoutTemplate className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+              <span>Official Landscape Format</span>
             </div>
 
             {/* Zoom Controls */}
