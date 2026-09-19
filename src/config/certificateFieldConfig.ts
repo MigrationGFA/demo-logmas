@@ -6,6 +6,7 @@ import {
   resolveServiceFields,
   getServiceFieldMapping,
 } from "./certificateServiceFieldMap";
+import { formatOfficialDate } from "@/lib/certificateTokens";
 
 /**
  * ============================================================================
@@ -32,8 +33,10 @@ export const CERTIFICATE_FONTS = {
   EB_GARAMOND_ITALIC: "'EB Garamond', 'Garamond', 'Times New Roman', serif",
 
   // Official Emphasis, Field Labels, Applicant/Club Name, Signer Name
-  LIBERTINUS_SERIF: "'Libertinus Serif', 'Times New Roman', 'Liberation Serif', serif",
-  LIBERTINUS_SERIF_BOLD: "'Libertinus Serif', 'Times New Roman', 'Liberation Serif', serif",
+  LIBERTINUS_SERIF:
+    "'Libertinus Serif', 'Times New Roman', 'Liberation Serif', serif",
+  LIBERTINUS_SERIF_BOLD:
+    "'Libertinus Serif', 'Times New Roman', 'Liberation Serif', serif",
 
   // Crisp Official Sans-Serif (Subtitles, Contacts, Footer & Disclaimers, Clean Labels)
   ARIMO: "'Arimo', Arial, sans-serif",
@@ -62,7 +65,7 @@ export interface CertificateFieldDefinition {
   width?: number; // Maximum width in % (0 - 100) to prevent overflow
   height?: number; // Optional height in %
   textAlign?: "left" | "center" | "right";
-  
+
   // TYPOGRAPHY (Strictly conforming to official guidelines)
   fontFamily?: string;
   fontSize?: string; // Container query width (e.g. "1.2cqw", "0.95cqw") or px
@@ -74,7 +77,7 @@ export interface CertificateFieldDefinition {
   fontStyle?: "normal" | "italic";
   whiteSpace?: "normal" | "nowrap" | "pre-line" | "pre-wrap";
   maxLines?: number;
-  
+
   // Custom Dynamic Value Extractor
   format?: (certificate: PublicCertificate) => string;
 }
@@ -90,7 +93,7 @@ export interface MasterCertificateConfig {
   minHeight: string;
   backgroundImage: string;
   defaultTitle: string;
-  
+
   // Template-level typography defaults
   templateDefaults: {
     fontFamily: string;
@@ -112,9 +115,9 @@ export interface MasterCertificateConfig {
   // Official Signature Image overlay configuration
   signatureImage?: {
     src: string;
-    x: number;      // % from left
-    y: number;      // % from top
-    width: number;  // % width
+    x: number; // % from left
+    y: number; // % from top
+    width: number; // % width
     height: number; // % height
   };
 
@@ -129,19 +132,19 @@ export interface MasterCertificateConfig {
  * Dynamic Content Zone configuration for repeating data rows
  */
 export interface CertificateContentZone {
-  startY: number;       // % from top where the first row begins
-  rowHeight: number;    // % vertical gap between rows
-  labelX: number;       // % left position for labels
-  labelWidth: number;   // % max width for labels
-  valueX: number;       // % left position for values
-  valueWidth: number;   // % max width for values
+  startY: number; // % from top where the first row begins
+  rowHeight: number; // % vertical gap between rows
+  labelX: number; // % left position for labels
+  labelWidth: number; // % max width for labels
+  valueX: number; // % left position for values
+  valueWidth: number; // % max width for values
   labelFontFamily: string;
   labelFontSize: string;
   valueFontFamily: string;
   valueFontSize: string;
   labelColor: string;
   valueColor: string;
-  maxRows: number;       // safety cap so overflow content doesn't run off the card
+  maxRows: number; // safety cap so overflow content doesn't run off the card
 }
 
 export interface CertificateContentRow {
@@ -332,7 +335,7 @@ const FIELD_PRIORITY_ORDER: string[] = [
  */
 export function extractCertificateContentRows(
   certificate: PublicCertificate,
-  maxRows: number = 6
+  maxRows: number = 6,
 ): CertificateContentRow[] {
   const serviceIdOrCode =
     certificate.service?.code ||
@@ -479,78 +482,82 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
     },
 
     // Executive Chairman Signer Name (above signature line)
-    signerName: {
-      key: "signerName",
-      x: 21.8,
-      y: 81.2,
-      width: 24.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.90cqw",
-      fontWeight: 700,
-      letterSpacing: "0.02em",
-      color: "#0D3B1E",
-      format: (c) => c.issuer?.name || OFFICIAL_CHAIRMAN.name,
-    },
+    // signerName: {
+    //   key: "signerName",
+    //   x: 21.8,
+    //   y: 81.2,
+    //   width: 24.0,
+    //   textAlign: "center",
+    //   fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
+    //   fontSize: "0.90cqw",
+    //   fontWeight: 700,
+    //   letterSpacing: "0.02em",
+    //   color: "#0D3B1E",
+    //   format: (c) => c.issuer?.name || OFFICIAL_CHAIRMAN.name,
+    // },
 
     // Executive Chairman Official Title
-    signerTitle: {
-      key: "signerTitle",
-      x: 21.8,
-      y: 84.6,
-      width: 24.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.75cqw",
-      fontWeight: 500,
-      lineHeight: "1.2",
-      color: "#334155",
-      whiteSpace: "pre-line",
-      format: (c) => c.issuer?.title || OFFICIAL_CHAIRMAN.fullTitle,
-    },
+    // signerTitle: {
+    //   key: "signerTitle",
+    //   x: 21.8,
+    //   y: 84.6,
+    //   width: 24.0,
+    //   textAlign: "center",
+    //   fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
+    //   fontSize: "0.75cqw",
+    //   fontWeight: 500,
+    //   lineHeight: "1.2",
+    //   color: "#334155",
+    //   whiteSpace: "pre-line",
+    //   format: (c) => c.issuer?.title || OFFICIAL_CHAIRMAN.fullTitle,
+    // },
 
     // Verification QR Code Label
     qrCodeLabel: {
       key: "qrCodeLabel",
       x: 81.9,
-      y: 86.2,
+      y: 90.2,
       width: 18.0,
       textAlign: "center",
       fontFamily: CERTIFICATE_FONTS.ARIMO,
-      fontSize: "0.62cqw",
+      fontSize: "0.8cqw",
       color: "#475569",
       lineHeight: "1.2",
       whiteSpace: "pre-line",
-      format: () => `Scan to verify authenticity\nor visit: ${LGA_CONFIG.verification.domain}`,
+      format: () => ` ${LGA_CONFIG.verification.domain}`,
     },
 
-    footerBanner: {
-      key: "footerBanner",
-      x: 50.0,
-      y: 94.6,
-      width: 82.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.CINZEL,
-      fontSize: "0.80cqw",
-      fontWeight: 700,
-      letterSpacing: "0.08em",
-      color: "#FEF08A",
-      textTransform: "uppercase",
-      format: () => `${LGA_CONFIG.identity.fullName.toUpperCase()} - ${LGA_CONFIG.identity.motto.toUpperCase()}`,
-    },
+    // footerBanner: {
+    //   key: "footerBanner",
+    //   x: 50.0,
+    //   y: 94.6,
+    //   width: 82.0,
+    //   textAlign: "center",
+    //   fontFamily: CERTIFICATE_FONTS.CINZEL,
+    //   fontSize: "0.80cqw",
+    //   fontWeight: 700,
+    //   letterSpacing: "0.08em",
+    //   color: "#FEF08A",
+    //   textTransform: "uppercase",
+    //   format: () => `${LGA_CONFIG.identity.fullName.toUpperCase()} - ${LGA_CONFIG.identity.motto.toUpperCase()}`,
+    // },
   },
 };
 
 /**
  * @deprecated DISCARDED - The portrait template has been discarded entirely in favor of the unified landscape template.
  */
-export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig = LANDSCAPE_TEMPLATE_CONFIG;
+export const PORTRAIT_TEMPLATE_CONFIG: MasterCertificateConfig =
+  LANDSCAPE_TEMPLATE_CONFIG;
 
 /**
  * MASTER TEMPLATES DICTIONARY
  * Standardized exclusively on Landscape master template.
  */
-export const MASTER_CERTIFICATE_CONFIGS: Record<string, MasterCertificateConfig> = {
+export const MASTER_CERTIFICATE_CONFIGS: Record<
+  string,
+  MasterCertificateConfig
+> = {
   landscape: LANDSCAPE_TEMPLATE_CONFIG,
   portrait: LANDSCAPE_TEMPLATE_CONFIG, // Discarded in favor of landscape
 };
@@ -559,7 +566,8 @@ export const MASTER_CERTIFICATE_CONFIGS: Record<string, MasterCertificateConfig>
  * Helper to fetch configuration for a master template.
  * Always returns the unified LANDSCAPE_TEMPLATE_CONFIG.
  */
-export function getMasterTemplateConfig(_template?: string): MasterCertificateConfig {
+export function getMasterTemplateConfig(
+  _template?: string,
+): MasterCertificateConfig {
   return LANDSCAPE_TEMPLATE_CONFIG;
 }
-

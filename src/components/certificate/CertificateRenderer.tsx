@@ -32,6 +32,8 @@ export function CertificateRenderer({
     return extractCertificateContentRows(certificate, maxRows);
   }, [certificate, config.contentZone]);
 
+  console.log(config.fields);
+
   // Generate verification URL for QR code
   const qrVerificationUrl = useMemo(() => {
     if (certificate.verification?.verificationUrl) {

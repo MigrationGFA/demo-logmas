@@ -312,7 +312,7 @@ export const LGA_CONFIG: LgaConfiguration = {
         id: "landscape",
         name: "Official Statutory Certificate (Landscape)",
         defaultTitle: "OFFICIAL STATUTORY CERTIFICATE",
-        backgroundImage: "/certificates/templates/club-registration-template.jpg",
+        backgroundImage: "/certificates/templates/template.png",
       },
       portrait: {
         id: "portrait",
