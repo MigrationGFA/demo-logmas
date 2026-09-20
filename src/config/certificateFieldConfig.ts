@@ -360,6 +360,193 @@ export function extractCertificateContentRows(
 }
 
 /**
+ * Resolves the primary recipient/subject name for the prominent certificate banner.
+ * Dynamically determines entity subject based on service type:
+ * - Street Naming -> Approved / Proposed Street Name
+ * - Club / Association / CDA -> Club or Association Name
+ * - Certificate of Origin -> Name of Applicant
+ * - Business / Kiosk / Trade -> Business / Enterprise Name
+ * - Farmers -> Farmer or Farm Name
+ * - Tenement / Property -> Property Owner / Building Name
+ * - Haulage / Transport -> Operator / Company Name
+ * - Sanitation / Licences -> Premises / Center Name
+ */
+export function getCertificateRecipientName(certificate: PublicCertificate): string {
+  const serviceCode = (certificate.service?.code || certificate.service?.id || "").toLowerCase();
+  const serviceName = (certificate.service?.name || "").toLowerCase();
+  const certData = (certificate.certificateData || {}) as Record<string, any>;
+  const formData = (certificate.application?.formData || {}) as Record<string, any>;
+
+  // Helper to extract first non-empty trimmed string
+  const findVal = (...keys: string[]): string | null => {
+    for (const k of keys) {
+      const v1 = certData[k];
+      if (v1 && typeof v1 === "string" && v1.trim()) return v1.trim();
+      const v2 = formData[k];
+      if (v2 && typeof v2 === "string" && v2.trim()) return v2.trim();
+    }
+    return null;
+  };
+
+  // 1. Street Naming & Property Numbering
+  if (serviceCode.includes("street") || serviceName.includes("street")) {
+    const street = findVal(
+      "proposedStreetName",
+      "streetName",
+      "approvedStreetName",
+      "approvedName",
+      "nameOfStreet"
+    );
+    if (street) return street;
+  }
+
+  // 2. Club, CDA & Association Registration
+  if (
+    serviceCode.includes("club") ||
+    serviceCode.includes("cda") ||
+    serviceCode.includes("association") ||
+    serviceName.includes("club") ||
+    serviceName.includes("association")
+  ) {
+    const club = findVal(
+      "clubName",
+      "cdaName",
+      "associationName",
+      "organizationName",
+      "societyName",
+      "unionName"
+    );
+    if (club) return club;
+  }
+
+  // 3. Certificate of Origin / State of Origin / Indigene
+  if (
+    serviceCode.includes("origin") ||
+    serviceCode.includes("indigene") ||
+    serviceName.includes("origin")
+  ) {
+    const applicant =
+      findVal("nameOfApplicant", "fullName", "applicantName", "name") ||
+      certificate.applicant?.name;
+    if (applicant) return applicant;
+  }
+
+  // 4. Farmers Registration & Agriculture
+  if (serviceCode.includes("farm") || serviceName.includes("farm")) {
+    const farmer = findVal(
+      "farmerName",
+      "farmName",
+      "enterpriseName",
+      "nameOfApplicant",
+      "fullName"
+    );
+    if (farmer) return farmer;
+  }
+
+  // 5. Viewing Centre, Liquor, Sanitation, Kiosk, Business / Trade
+  if (
+    serviceCode.includes("viewing") ||
+    serviceCode.includes("liquor") ||
+    serviceCode.includes("sanitation") ||
+    serviceCode.includes("kiosk") ||
+    serviceCode.includes("business") ||
+    serviceCode.includes("trade") ||
+    serviceCode.includes("market")
+  ) {
+    const entity = findVal(
+      "businessName",
+      "premisesName",
+      "centreName",
+      "enterpriseName",
+      "kioskName",
+      "companyName",
+      "operatorName",
+      "applicantName"
+    );
+    if (entity) return entity;
+  }
+
+  // 6. Tenement Rate / Property
+  if (serviceCode.includes("tenement") || serviceCode.includes("property")) {
+    const property = findVal(
+      "propertyOwner",
+      "ownerName",
+      "buildingName",
+      "premisesAddress",
+      "occupierName"
+    );
+    if (property) return property;
+  }
+
+  // 7. Haulage Fees / Transport
+  if (serviceCode.includes("haulage") || serviceName.includes("haulage")) {
+    const transport = findVal(
+      "operatorName",
+      "companyName",
+      "vehicleOwner",
+      "transporterName"
+    );
+    if (transport) return transport;
+  }
+
+  // 8. Marriage / Burial
+  if (serviceCode.includes("marriage") || serviceName.includes("marriage")) {
+    const groom = findVal("groomName", "husbandName");
+    const bride = findVal("brideName", "wifeName");
+    if (groom && bride) return `${groom} & ${bride}`;
+    const couple = findVal("coupleNames", "coupleName");
+    if (couple) return couple;
+  }
+  if (serviceCode.includes("burial") || serviceCode.includes("death")) {
+    const deceased = findVal("deceasedName", "nameOfDeceased");
+    if (deceased) return deceased;
+  }
+
+  // 9. Check service mapping canonical primary entity field
+  try {
+    const mapping = getServiceFieldMapping(serviceCode || serviceName);
+    if (mapping && mapping.canonicalOrder && mapping.canonicalOrder.length > 0) {
+      const primaryKey = mapping.canonicalOrder[0];
+      const primaryVal = certData[primaryKey] || formData[primaryKey];
+      if (primaryVal && typeof primaryVal === "string" && primaryVal.trim()) {
+        return primaryVal.trim();
+      }
+      const fieldDef = mapping.fields[primaryKey];
+      if (fieldDef && fieldDef.sourceKeys) {
+        const sourceVal = findVal(...fieldDef.sourceKeys);
+        if (sourceVal) return sourceVal;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  // 10. Universal fallback order
+  return (
+    findVal(
+      "proposedStreetName",
+      "streetName",
+      "approvedStreetName",
+      "clubName",
+      "cdaName",
+      "associationName",
+      "businessName",
+      "farmerName",
+      "premisesName",
+      "centreName",
+      "operatorName",
+      "propertyOwner",
+      "nameOfApplicant",
+      "fullName",
+      "applicantName",
+      "name"
+    ) ||
+    certificate.applicant?.name ||
+    ""
+  );
+}
+
+/**
  * Official leadership signatories for statutory certificates
  * Sourced from central LGA_CONFIG.
  */
@@ -493,7 +680,7 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       },
     },
 
-    // Recipient / Club / Applicant Name (Prominent Centered Header)
+    // Recipient / Subject Name (Prominent Centered Header - dynamically resolves by service)
     recipientName: {
       key: "recipientName",
       x: 50.0,
@@ -506,15 +693,7 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       letterSpacing: "0.03em",
       color: "#0D3B1E",
       textTransform: "uppercase",
-      format: (c) =>
-        c.certificateData?.clubName ||
-        c.certificateData?.nameOfApplicant ||
-        c.certificateData?.associationName ||
-        c.certificateData?.businessName ||
-        c.certificateData?.farmerName ||
-        c.certificateData?.operatorName ||
-        c.applicant?.name ||
-        "",
+      format: (c) => getCertificateRecipientName(c),
     },
 
     // Executive Chairman Signer Name (above signature line)

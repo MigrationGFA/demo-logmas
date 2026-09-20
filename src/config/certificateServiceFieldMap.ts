@@ -87,6 +87,13 @@ export const EXCLUDED_ROW_KEYS = new Set([
   "isApproved",
   "reviewStatus",
   "assignedCouncillor",
+  "supportingDocuments",
+  "consentLetter",
+  "siteInspection",
+  "sitePlan",
+  "minutesOfMeeting",
+  "files",
+  "attachments",
   "createdAt",
   "updatedAt",
 ]);
@@ -791,6 +798,9 @@ export const SERVICE_FIELD_MAPPINGS: Record<string, ServiceCertificateMapping> =
       "locationWard",
       "applicantName",
       "neighborhood",
+      // Customizable by developers: uncomment to include elders or signpost note on the certificate
+      // "communityElders",
+      // "signpostSpecification",
     ],
     fields: {
       proposedStreetName: {
@@ -818,6 +828,16 @@ export const SERVICE_FIELD_MAPPINGS: Record<string, ServiceCertificateMapping> =
         canonicalKey: "neighborhood",
         label: "Quarter / Neighborhood",
         sourceKeys: ["neighborhood", "area", "address"],
+      },
+      communityElders: {
+        canonicalKey: "communityElders",
+        label: "Endorsing Elders",
+        sourceKeys: ["elders", "communityElders", "endorsers"],
+      },
+      signpostSpecification: {
+        canonicalKey: "signpostSpecification",
+        label: "Signpost Details",
+        sourceKeys: ["signpostNote", "signpost", "signpostDetails"],
       },
     },
   },
@@ -953,23 +973,72 @@ function createGenericServiceMapping(serviceId: string, name: string): ServiceCe
 
 /**
  * Formats a raw value safely for display without placeholder injection.
+ * Prevents any "[object Object]" or non-primitive leaks from appearing on official certificates.
  */
 function sanitizeDisplayValue(val: any): string | null {
   if (val === null || val === undefined) return null;
   if (typeof val === "boolean") return null;
+
   if (typeof val === "string") {
     const trimmed = val.trim();
-    return trimmed.length > 0 ? trimmed : null;
+    if (
+      trimmed.length === 0 ||
+      trimmed.toLowerCase().includes("[object") ||
+      trimmed === "undefined" ||
+      trimmed === "null"
+    ) {
+      return null;
+    }
+    return trimmed;
   }
+
   if (Array.isArray(val)) {
     const validItems = val
-      .map((item) => (typeof item === "string" ? item.trim() : String(item)))
-      .filter((item) => item.length > 0);
+      .map((item) => {
+        if (item === null || item === undefined) return "";
+        if (typeof item === "string") return item.trim();
+        if (typeof item === "number") return String(item);
+        if (typeof item === "object") {
+          // If item is an object (e.g. elder endorsement or signpost spec), extract human name/title
+          return (
+            item.name ||
+            item.fullName ||
+            item.elderName ||
+            item.title ||
+            item.label ||
+            item.value ||
+            item.text ||
+            ""
+          );
+        }
+        return "";
+      })
+      .map((s) => (typeof s === "string" ? s.trim() : String(s)))
+      .filter((s) => s.length > 0 && !s.toLowerCase().includes("[object"));
     return validItems.length > 0 ? validItems.join(", ") : null;
   }
+
   if (typeof val === "number") {
     return isNaN(val) ? null : String(val);
   }
+
+  if (typeof val === "object") {
+    // If val is a nested object, extract readable string property if present
+    const candidate =
+      val.name ||
+      val.fullName ||
+      val.title ||
+      val.label ||
+      val.value ||
+      val.text ||
+      val.description;
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      const trimmed = candidate.trim();
+      return trimmed.toLowerCase().includes("[object") ? null : trimmed;
+    }
+    return null;
+  }
+
   return null;
 }
 

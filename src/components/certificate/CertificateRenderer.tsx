@@ -276,6 +276,7 @@ export function CertificateRenderer({
               left: `${config.signatureImage.x}%`,
               width: `${config.signatureImage.width}%`,
               height: `${config.signatureImage.height}%`,
+              mixBlendMode: "multiply",
             }}
           />
         )}
