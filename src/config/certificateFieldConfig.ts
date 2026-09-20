@@ -145,6 +145,12 @@ export interface CertificateContentZone {
   labelColor: string;
   valueColor: string;
   maxRows: number; // safety cap so overflow content doesn't run off the card
+  columns?: number;
+  rightColumnLabelX?: number;
+  rightColumnLabelWidth?: number;
+  rightColumnValueX?: number;
+  rightColumnValueWidth?: number;
+  splitAfterRow?: number;
 }
 
 export interface CertificateContentRow {
@@ -374,8 +380,8 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
   id: LGA_CONFIG.certificates.templates.landscape.id,
   name: LGA_CONFIG.certificates.templates.landscape.name,
   orientation: "landscape",
-  aspectRatio: "1.414 / 1", // A4 Landscape Aspect Ratio
-  minHeight: "750px",
+  aspectRatio: "1.5 / 1",
+  minHeight: "700px",
   backgroundImage: LGA_CONFIG.certificates.templates.landscape.backgroundImage,
   defaultTitle: LGA_CONFIG.certificates.templates.landscape.defaultTitle,
 
@@ -388,48 +394,54 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
   },
 
   qrCode: {
-    x: 77.8,
-    y: 72.8,
-    width: 8.2,
-    height: 11.6,
-    padding: 2,
+    x: 79.0,
+    y: 74.0,
+    width: 6.6,
+    height: 9.8,
+    padding: 1,
   },
 
   signatureImage: {
     src: LGA_CONFIG.leadership.chairman.signatureImagePath,
-    x: 14.5,
-    y: 72.8,
-    width: 14.5,
-    height: 6.2,
+    x: 15.5,
+    y: 72.0,
+    width: 15.0,
+    height: 7.2,
   },
 
   contentZone: {
-    startY: 44.2,
-    rowHeight: 4.4,
-    labelX: 16.5,
-    labelWidth: 26.5,
-    valueX: 44.5,
-    valueWidth: 43.5,
+    startY: 61.5,
+    rowHeight: 3.2,
+    labelX: 13.5,
+    labelWidth: 10.5,
+    valueX: 24.5,
+    valueWidth: 14.5,
     labelFontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-    labelFontSize: "0.88cqw",
+    labelFontSize: "0.82cqw",
     valueFontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-    valueFontSize: "0.92cqw",
+    valueFontSize: "0.85cqw",
     labelColor: "#0D3B1E",
     valueColor: "#1E293B",
-    maxRows: 6,
+    maxRows: 7,
+    columns: 2,
+    rightColumnLabelX: 62.5,
+    rightColumnLabelWidth: 10.0,
+    rightColumnValueX: 73.0,
+    rightColumnValueWidth: 15.5,
+    splitAfterRow: 4,
   },
 
   fields: {
     // Top Right Certificate Number
     certificateNumber: {
       key: "certificateNumber",
-      x: 88.2,
-      y: 8.6,
-      width: 17.0,
+      x: 75.4,
+      y: 11.2,
+      width: 21.0,
       textAlign: "left",
       fontFamily: CERTIFICATE_FONTS.ARIMO,
       fontSize: "0.92cqw",
-      fontWeight: 600,
+      fontWeight: 700,
       letterSpacing: "0.03em",
       color: "#0D3B1E",
       format: (c) =>
@@ -442,9 +454,9 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
     // Top Right Date of Issue
     dateOfIssue: {
       key: "dateOfIssue",
-      x: 88.2,
-      y: 14.5,
-      width: 17.0,
+      x: 75.4,
+      y: 16.5,
+      width: 21.0,
       textAlign: "left",
       fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
       fontSize: "0.92cqw",
@@ -460,8 +472,8 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
     certificateTitle: {
       key: "certificateTitle",
       x: 50.0,
-      y: 34.0,
-      width: 66.0,
+      y: 33.0,
+      width: 65.0,
       textAlign: "center",
       fontFamily: CERTIFICATE_FONTS.CINZEL_BOLD,
       fontSize: "1.55cqw",
@@ -481,66 +493,93 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       },
     },
 
+    // Recipient / Club / Applicant Name (Prominent Centered Header)
+    recipientName: {
+      key: "recipientName",
+      x: 50.0,
+      y: 45.8,
+      width: 70.0,
+      textAlign: "center",
+      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
+      fontSize: "1.45cqw",
+      fontWeight: 800,
+      letterSpacing: "0.03em",
+      color: "#0D3B1E",
+      textTransform: "uppercase",
+      format: (c) =>
+        c.certificateData?.clubName ||
+        c.certificateData?.nameOfApplicant ||
+        c.certificateData?.associationName ||
+        c.certificateData?.businessName ||
+        c.certificateData?.farmerName ||
+        c.certificateData?.operatorName ||
+        c.applicant?.name ||
+        "",
+    },
+
     // Executive Chairman Signer Name (above signature line)
-    // signerName: {
-    //   key: "signerName",
-    //   x: 21.8,
-    //   y: 81.2,
-    //   width: 24.0,
-    //   textAlign: "center",
-    //   fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-    //   fontSize: "0.90cqw",
-    //   fontWeight: 700,
-    //   letterSpacing: "0.02em",
-    //   color: "#0D3B1E",
-    //   format: (c) => c.issuer?.name || OFFICIAL_CHAIRMAN.name,
-    // },
+    signerName: {
+      key: "signerName",
+      x: 22.9,
+      y: 81.6,
+      width: 24.0,
+      textAlign: "center",
+      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
+      fontSize: "0.90cqw",
+      fontWeight: 700,
+      letterSpacing: "0.02em",
+      color: "#0D3B1E",
+      format: (c) => c.issuer?.name || OFFICIAL_CHAIRMAN.name,
+    },
 
     // Executive Chairman Official Title
-    // signerTitle: {
-    //   key: "signerTitle",
-    //   x: 21.8,
-    //   y: 84.6,
-    //   width: 24.0,
-    //   textAlign: "center",
-    //   fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-    //   fontSize: "0.75cqw",
-    //   fontWeight: 500,
-    //   lineHeight: "1.2",
-    //   color: "#334155",
-    //   whiteSpace: "pre-line",
-    //   format: (c) => c.issuer?.title || OFFICIAL_CHAIRMAN.fullTitle,
-    // },
+    signerTitle: {
+      key: "signerTitle",
+      x: 22.9,
+      y: 85.2,
+      width: 24.0,
+      textAlign: "center",
+      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
+      fontSize: "0.75cqw",
+      fontWeight: 500,
+      lineHeight: "1.2",
+      color: "#334155",
+      whiteSpace: "pre-line",
+      format: (c) => c.issuer?.title || OFFICIAL_CHAIRMAN.fullTitle,
+    },
 
     // Verification QR Code Label
     qrCodeLabel: {
       key: "qrCodeLabel",
-      x: 81.9,
-      y: 90.2,
+      x: 82.2,
+      y: 86.6,
       width: 18.0,
       textAlign: "center",
       fontFamily: CERTIFICATE_FONTS.ARIMO,
-      fontSize: "0.8cqw",
+      fontSize: "0.62cqw",
       color: "#475569",
       lineHeight: "1.2",
       whiteSpace: "pre-line",
-      format: () => ` ${LGA_CONFIG.verification.domain}`,
+      format: () =>
+        `Scan to verify authenticity\nor visit: ${LGA_CONFIG.verification.domain}`,
     },
 
-    // footerBanner: {
-    //   key: "footerBanner",
-    //   x: 50.0,
-    //   y: 94.6,
-    //   width: 82.0,
-    //   textAlign: "center",
-    //   fontFamily: CERTIFICATE_FONTS.CINZEL,
-    //   fontSize: "0.80cqw",
-    //   fontWeight: 700,
-    //   letterSpacing: "0.08em",
-    //   color: "#FEF08A",
-    //   textTransform: "uppercase",
-    //   format: () => `${LGA_CONFIG.identity.fullName.toUpperCase()} - ${LGA_CONFIG.identity.motto.toUpperCase()}`,
-    // },
+    // Footer Banner
+    footerBanner: {
+      key: "footerBanner",
+      x: 50.0,
+      y: 94.1,
+      width: 82.0,
+      textAlign: "center",
+      fontFamily: CERTIFICATE_FONTS.CINZEL,
+      fontSize: "0.78cqw",
+      fontWeight: 700,
+      letterSpacing: "0.08em",
+      color: "#FEF08A",
+      textTransform: "uppercase",
+      format: () =>
+        `${LGA_CONFIG.identity.fullName.toUpperCase()} - ${LGA_CONFIG.identity.motto.toUpperCase()}`,
+    },
   },
 };
 

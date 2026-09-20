@@ -32,8 +32,6 @@ export function CertificateRenderer({
     return extractCertificateContentRows(certificate, maxRows);
   }, [certificate, config.contentZone]);
 
-  console.log(config.fields);
-
   // Generate verification URL for QR code
   const qrVerificationUrl = useMemo(() => {
     if (certificate.verification?.verificationUrl) {
@@ -148,88 +146,99 @@ export function CertificateRenderer({
         {config.contentZone &&
           dynamicRows
             .filter((row) => row.value && row.value.trim() !== "")
-            .map((row, index) => {
-            const rowY = config.contentZone!.startY + index * config.contentZone!.rowHeight;
-            const labelFontFamily = config.contentZone!.labelFontFamily || config.templateDefaults.fontFamily;
-            const labelFontSize = config.contentZone!.labelFontSize || config.templateDefaults.fontSize;
-            const labelColor = config.contentZone!.labelColor || "#0D3B1E";
-            const valueFontFamily = config.contentZone!.valueFontFamily || config.templateDefaults.fontFamily;
-            const valueFontSize = config.contentZone!.valueFontSize || config.templateDefaults.fontSize;
-            const valueColor = config.contentZone!.valueColor || config.templateDefaults.color;
+            .map((row, index, allRows) => {
+              const zone = config.contentZone!;
+              const isTwoCol = zone.columns === 2 && allRows.length > 3;
+              const splitIndex = zone.splitAfterRow ?? Math.ceil(allRows.length / 2);
+              const isRightCol = isTwoCol && index >= splitIndex;
+              const colRowIndex = isRightCol ? index - splitIndex : index;
 
-            // Coordinate calculations
-            const colonX = config.contentZone!.labelX + config.contentZone!.labelWidth;
-            const colonWidth = Math.max(1, config.contentZone!.valueX - colonX);
+              const rowY = zone.startY + colRowIndex * zone.rowHeight;
+              const labelX = isRightCol ? (zone.rightColumnLabelX ?? 62.5) : zone.labelX;
+              const labelWidth = isRightCol ? (zone.rightColumnLabelWidth ?? 10.0) : zone.labelWidth;
+              const valueX = isRightCol ? (zone.rightColumnValueX ?? 73.0) : zone.valueX;
+              const valueWidth = isRightCol ? (zone.rightColumnValueWidth ?? 15.5) : zone.valueWidth;
 
-            return (
-              <React.Fragment key={`dynamic-row-${row.key}-${index}`}>
-                {/* Row Label */}
-                <div
-                  id={`cert-row-label-${row.key}`}
-                  className="absolute flex items-center overflow-hidden"
-                  style={{
-                    top: `${rowY}%`,
-                    left: `${config.contentZone!.labelX}%`,
-                    width: `${config.contentZone!.labelWidth}%`,
-                    transform: "translate(0, -50%)",
-                    justifyContent: "flex-start",
-                    textAlign: "left",
-                    fontFamily: labelFontFamily,
-                    fontSize: labelFontSize,
-                    fontWeight: 700,
-                    color: labelColor,
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  <span className="truncate select-text" title={row.label}>{row.label}</span>
-                </div>
+              const labelFontFamily = zone.labelFontFamily || config.templateDefaults.fontFamily;
+              const labelFontSize = zone.labelFontSize || config.templateDefaults.fontSize;
+              const labelColor = zone.labelColor || "#0D3B1E";
+              const valueFontFamily = zone.valueFontFamily || config.templateDefaults.fontFamily;
+              const valueFontSize = zone.valueFontSize || config.templateDefaults.fontSize;
+              const valueColor = zone.valueColor || config.templateDefaults.color;
 
-                {/* Separator Colon */}
-                <div
-                  id={`cert-row-colon-${row.key}`}
-                  className="absolute flex items-center justify-center select-none"
-                  style={{
-                    top: `${rowY}%`,
-                    left: `${colonX}%`,
-                    width: `${colonWidth}%`,
-                    transform: "translate(0, -50%)",
-                    fontFamily: labelFontFamily,
-                    fontSize: labelFontSize,
-                    fontWeight: 700,
-                    color: labelColor,
-                  }}
-                >
-                  :
-                </div>
+              // Coordinate calculations
+              const colonX = labelX + labelWidth;
+              const colonWidth = Math.max(0.5, valueX - colonX);
 
-                {/* Row Value */}
-                <div
-                  id={`cert-row-value-${row.key}`}
-                  className="absolute flex items-center overflow-hidden"
-                  style={{
-                    top: `${rowY}%`,
-                    left: `${config.contentZone!.valueX}%`,
-                    width: `${config.contentZone!.valueWidth}%`,
-                    transform: "translate(0, -50%)",
-                    justifyContent: "flex-start",
-                    textAlign: "left",
-                    fontFamily: valueFontFamily,
-                    fontSize: valueFontSize,
-                    fontWeight: 600,
-                    color: valueColor,
-                    lineHeight: "1.25",
-                    letterSpacing: "0.01em",
-                    wordBreak: "break-word",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  <span className="truncate select-text" title={row.value}>{row.value}</span>
-                </div>
-              </React.Fragment>
-            );
-          })}
+              return (
+                <React.Fragment key={`dynamic-row-${row.key}-${index}`}>
+                  {/* Row Label */}
+                  <div
+                    id={`cert-row-label-${row.key}`}
+                    className="absolute flex items-center overflow-hidden"
+                    style={{
+                      top: `${rowY}%`,
+                      left: `${labelX}%`,
+                      width: `${labelWidth}%`,
+                      transform: "translate(0, -50%)",
+                      justifyContent: "flex-start",
+                      textAlign: "left",
+                      fontFamily: labelFontFamily,
+                      fontSize: labelFontSize,
+                      fontWeight: 700,
+                      color: labelColor,
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <span className="truncate select-text" title={row.label}>{row.label}</span>
+                  </div>
+
+                  {/* Separator Colon */}
+                  <div
+                    id={`cert-row-colon-${row.key}`}
+                    className="absolute flex items-center justify-center select-none"
+                    style={{
+                      top: `${rowY}%`,
+                      left: `${colonX}%`,
+                      width: `${colonWidth}%`,
+                      transform: "translate(0, -50%)",
+                      fontFamily: labelFontFamily,
+                      fontSize: labelFontSize,
+                      fontWeight: 700,
+                      color: labelColor,
+                    }}
+                  >
+                    :
+                  </div>
+
+                  {/* Row Value */}
+                  <div
+                    id={`cert-row-value-${row.key}`}
+                    className="absolute flex items-center overflow-hidden"
+                    style={{
+                      top: `${rowY}%`,
+                      left: `${valueX}%`,
+                      width: `${valueWidth}%`,
+                      transform: "translate(0, -50%)",
+                      justifyContent: "flex-start",
+                      textAlign: "left",
+                      fontFamily: valueFontFamily,
+                      fontSize: valueFontSize,
+                      fontWeight: 600,
+                      color: valueColor,
+                      lineHeight: "1.25",
+                      letterSpacing: "0.01em",
+                      wordBreak: "break-word",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <span className="truncate select-text" title={row.value}>{row.value}</span>
+                  </div>
+                </React.Fragment>
+              );
+            })}
 
         {/* 3. DYNAMIC OFFICIAL QR VERIFICATION CODE */}
         {config.qrCode && (
