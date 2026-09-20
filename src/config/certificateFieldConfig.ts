@@ -518,35 +518,35 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
     },
 
     // Executive Chairman Signer Name (above signature line)
-    signerName: {
-      key: "signerName",
-      x: 22.9,
-      y: 81.6,
-      width: 24.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
-      fontSize: "0.90cqw",
-      fontWeight: 700,
-      letterSpacing: "0.02em",
-      color: "#0D3B1E",
-      format: (c) => c.issuer?.name || OFFICIAL_CHAIRMAN.name,
-    },
+    // signerName: {
+    //   key: "signerName",
+    //   x: 22.9,
+    //   y: 81.6,
+    //   width: 24.0,
+    //   textAlign: "center",
+    //   fontFamily: CERTIFICATE_FONTS.LIBERTINUS_SERIF_BOLD,
+    //   fontSize: "0.90cqw",
+    //   fontWeight: 700,
+    //   letterSpacing: "0.02em",
+    //   color: "#0D3B1E",
+    //   format: (c) => c.issuer?.name || OFFICIAL_CHAIRMAN.name,
+    // },
 
     // Executive Chairman Official Title
-    signerTitle: {
-      key: "signerTitle",
-      x: 22.9,
-      y: 85.2,
-      width: 24.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
-      fontSize: "0.75cqw",
-      fontWeight: 500,
-      lineHeight: "1.2",
-      color: "#334155",
-      whiteSpace: "pre-line",
-      format: (c) => c.issuer?.title || OFFICIAL_CHAIRMAN.fullTitle,
-    },
+    // signerTitle: {
+    //   key: "signerTitle",
+    //   x: 22.9,
+    //   y: 85.2,
+    //   width: 24.0,
+    //   textAlign: "center",
+    //   fontFamily: CERTIFICATE_FONTS.EB_GARAMOND,
+    //   fontSize: "0.75cqw",
+    //   fontWeight: 500,
+    //   lineHeight: "1.2",
+    //   color: "#334155",
+    //   whiteSpace: "pre-line",
+    //   format: (c) => c.issuer?.title || OFFICIAL_CHAIRMAN.fullTitle,
+    // },
 
     // Verification QR Code Label
     qrCodeLabel: {
@@ -561,25 +561,25 @@ export const LANDSCAPE_TEMPLATE_CONFIG: MasterCertificateConfig = {
       lineHeight: "1.2",
       whiteSpace: "pre-line",
       format: () =>
-        `Scan to verify authenticity\nor visit: ${LGA_CONFIG.verification.domain}`,
+        `${LGA_CONFIG.verification.domain}`,
     },
 
     // Footer Banner
-    footerBanner: {
-      key: "footerBanner",
-      x: 50.0,
-      y: 94.1,
-      width: 82.0,
-      textAlign: "center",
-      fontFamily: CERTIFICATE_FONTS.CINZEL,
-      fontSize: "0.78cqw",
-      fontWeight: 700,
-      letterSpacing: "0.08em",
-      color: "#FEF08A",
-      textTransform: "uppercase",
-      format: () =>
-        `${LGA_CONFIG.identity.fullName.toUpperCase()} - ${LGA_CONFIG.identity.motto.toUpperCase()}`,
-    },
+    // footerBanner: {
+    //   key: "footerBanner",
+    //   x: 50.0,
+    //   y: 94.1,
+    //   width: 82.0,
+    //   textAlign: "center",
+    //   fontFamily: CERTIFICATE_FONTS.CINZEL,
+    //   fontSize: "0.78cqw",
+    //   fontWeight: 700,
+    //   letterSpacing: "0.08em",
+    //   color: "#FEF08A",
+    //   textTransform: "uppercase",
+    //   format: () =>
+    //     `${LGA_CONFIG.identity.fullName.toUpperCase()} - ${LGA_CONFIG.identity.motto.toUpperCase()}`,
+    // },
   },
 };
 
