@@ -69,28 +69,31 @@ export const MANAGEABLE_ROLES: Role[] = [
 ];
 
 const ROLE_NAMES: Record<Role, string> = {
-  super_admin: "LOGMAS Super Admin",
-  chairman: "Hon. (Dr.) Adebayo Adeleke",
-  lga_admin: "Council Admin Officer",
-  treasurer: "Mrs. Amina Mohammed, FCA",
-  auditor: "Council Auditor",
-  ward_councillor: "Hon. Osunnowo Azeez",
-  contractor: "Demo Revenue Agent",
-  field_officer: "Kemi Officer",
-  citizen: "Dr. Babatunde Adeleke",
-  business_owner: "Alhaji Musa (Musa Agro Stores)",
+  super_admin: "Adewale Super",
+  chairman: "Hon. Dr. Waliat Folasade Adeyemo",
+  lga_admin: "Olumide Admin",
+  treasurer: "Yetunde Treasurer",
+  auditor: "Folake Auditor",
+  //  agent: "Sade Subagent",
+  ward_councillor: "Honourable Bisi",
+  contractor: "Femi Agent",
+  field_officer: "Tunji Field",
+  citizen: "Adebayo Citizen",
+  business_owner: "Bola Enterprises",
 };
 
 export const TEST_CREDENTIALS: { role: Role; email: string; password: string }[] = [
-  { role: "citizen", email: "citizen@demo.gov.ng", password: "demo" },
-  { role: "lga_admin", email: "admin@demo.gov.ng", password: "demo" },
-  { role: "treasurer", email: "treasurer@demo.gov.ng", password: "demo" },
-  { role: "chairman", email: "chairman@demo.gov.ng", password: "demo" },
-  { role: "business_owner", email: "business@demo.gov.ng", password: "demo" },
-  { role: "field_officer", email: "field@demo.gov.ng", password: "demo" },
-  { role: "auditor", email: "auditor@demo.gov.ng", password: "demo" },
-  { role: "ward_councillor", email: "councillor@demo.gov.ng", password: "demo" },
-  { role: "super_admin", email: "super@demo.gov.ng", password: "demo" },
+  { role: "citizen", email: "citizen@logmas.gov.ng", password: "demo1234" },
+  { role: "citizen", email: "evans@joemarineng.com", password: "demo1234" },
+  { role: "lga_admin", email: "admin@logmas.gov.ng", password: "demo1234" },
+  { role: "treasurer", email: "treasurer@logmas.gov.ng", password: "demo1234" },
+  { role: "chairman", email: "chairman@logmas.gov.ng", password: "demo1234" },
+  { role: "super_admin", email: "super@logmas.gov.ng", password: "demo1234" },
+  { role: "auditor", email: "auditor@logmas.gov.ng", password: "demo1234" },
+  { role: "ward_councillor", email: "councillor@logmas.gov.ng", password: "demo1234" },
+  { role: "field_officer", email: "field@logmas.gov.ng", password: "demo1234" },
+  { role: "contractor", email: "agent@logmas.gov.ng", password: "demo1234" },
+  { role: "business_owner", email: "business@logmas.gov.ng", password: "demo1234" },
 ];
 
 function readStored(): AuthUser | null {
@@ -123,17 +126,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login: AuthCtx["login"] = async (email, password) => {
+    const cleanEmail = email.trim().toLowerCase();
     const match = TEST_CREDENTIALS.find(
-      (c) => c.email.toLowerCase() === email.trim().toLowerCase(),
+      (c) => c.email.toLowerCase() === cleanEmail,
     );
-    if (!match || password !== match.password) {
-      return { error: "Invalid email or password. Use a demo account below." };
+
+    // Check custom registered users from demo storage
+    let customUser: any = null;
+    if (typeof window !== "undefined") {
+      try {
+        const customUsers = JSON.parse(window.localStorage.getItem("logmas.demo.users") || "[]");
+        customUser = customUsers.find((u: any) => u.email?.toLowerCase() === cleanEmail);
+      } catch {}
     }
+
+    if (!match && !customUser) {
+      // Auto-provision demo citizen if any valid email is entered in demo mode
+      const nameParts = cleanEmail.split("@")[0].split(/[._-]/);
+      const role: Role = "citizen";
+      const u: AuthUser = {
+        id: `mock-${Date.now()}`,
+        email: cleanEmail,
+        firstName: (nameParts[0] ? nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1) : "Demo") + " " + (nameParts[1] ? nameParts[1].charAt(0).toUpperCase() + nameParts[1].slice(1) : "Citizen"),
+        role,
+      };
+      persist(u);
+      setUser(u);
+      return {};
+    }
+
+    const role: Role = match ? match.role : (customUser.role || "citizen");
+    const firstName = match ? ROLE_NAMES[match.role] : `${customUser.firstName || "Demo"} ${customUser.lastName || "User"}`;
     const u: AuthUser = {
-      id: `mock-${match.role}`,
-      email: match.email,
-      firstName: ROLE_NAMES[match.role],
-      role: match.role,
+      id: customUser?.id || `mock-${role}`,
+      email: cleanEmail,
+      firstName,
+      role,
     };
     persist(u);
     setUser(u);

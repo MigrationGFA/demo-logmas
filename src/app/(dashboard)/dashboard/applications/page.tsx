@@ -890,7 +890,7 @@ export default function ApplicationsPage() {
                 <div>
                   <span className="text-[10px] text-muted-foreground block font-medium">Certificate No:</span>
                   <span className="font-mono font-bold text-foreground">
-                    {selectedApp.certificate?.certificateNumber || selectedApp.certificateNumber || `ODE/CERT/2026/${selectedApp.id.slice(0, 8)}`}
+                    {selectedApp.certificate?.certificateNumber || selectedApp.certificateNumber || `DEMO/CERT/2026/${selectedApp.id.slice(0, 8)}`}
                   </span>
                 </div>
                 <div>

@@ -1,3 +1,6 @@
+// Standalone Demo Mode is permanently active with 0 external backend dependency
+export const IS_DEMO_MODE = true;
+
 // Helper to get API URL based on environment
 const getApiUrl = () => {
   return "/api/demo";
@@ -13,4 +16,5 @@ export const ENV = {
   IS_PROD: false,
   GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "",
 };
+
 

@@ -91,7 +91,7 @@ export const NEWS = [
 
 export const INVOICES = [
   {
-    id: "ODE-2451",
+    id: "DEMO-2451",
     customer: `${LGA_CONFIG.identity.name} Agro Allied Ltd`,
     type: "Farmers Registration",
     amount: 5000,
@@ -99,7 +99,7 @@ export const INVOICES = [
     date: "2026-05-08",
   },
   {
-    id: "ODE-2450",
+    id: "DEMO-2450",
     customer: "Rockfield Granite Quarry",
     type: "Quarry Permit",
     amount: 150000,
@@ -107,7 +107,7 @@ export const INVOICES = [
     date: "2026-05-07",
   },
   {
-    id: "ODE-2449",
+    id: "DEMO-2449",
     customer: "Obantoko Plaza",
     type: "Tenement Rate",
     amount: 35000,
@@ -115,7 +115,7 @@ export const INVOICES = [
     date: "2026-04-29",
   },
   {
-    id: "ODE-2448",
+    id: "DEMO-2448",
     customer: "Osiele Viewing Centre",
     type: "Viewing Centre Licence",
     amount: 15000,
@@ -148,7 +148,7 @@ export interface ApplicationRecord {
 
 export const APPLICATIONS: ApplicationRecord[] = [
   {
-    id: "APP-ODE-9821",
+    id: "APP-DEMO-9821",
     applicant: "Adebayo Ogunleye",
     dob: "1988-04-12",
     gender: "Male",
@@ -161,7 +161,7 @@ export const APPLICATIONS: ApplicationRecord[] = [
     serviceId: "certificate_of_origin",
     status: "pending",
     paymentStatus: "paid",
-    receiptNumber: "RCT-20260508-ODE1",
+    receiptNumber: "RCT-20260508-DEMO1",
     amount: 3500,
     date: "2026-05-08",
     history: [
@@ -170,7 +170,7 @@ export const APPLICATIONS: ApplicationRecord[] = [
     ],
   },
   {
-    id: "APP-ODE-9820",
+    id: "APP-DEMO-9820",
     applicant: "Obantoko Progressive Club",
     dob: "1992-11-03",
     gender: "Female",
@@ -183,7 +183,7 @@ export const APPLICATIONS: ApplicationRecord[] = [
     serviceId: "club_registration",
     status: "approved",
     paymentStatus: "paid",
-    receiptNumber: "RCT-20260507-ODE2",
+    receiptNumber: "RCT-20260507-DEMO2",
     amount: 15000,
     date: "2026-05-07",
     history: [
@@ -198,14 +198,14 @@ export const NOTIFICATIONS = [
   {
     id: 1,
     title: "Payment received",
-    body: "Invoice ODE-2451 has been paid in full.",
+    body: "Invoice DEMO-2451 has been paid in full.",
     time: "5m ago",
     type: "success",
   },
   {
     id: 2,
     title: "Application approved",
-    body: "Your Certificate of Origin application APP-ODE-9821 has been approved.",
+    body: "Your Certificate of Origin application APP-DEMO-9821 has been approved.",
     time: "1h ago",
     type: "success",
   },
@@ -219,7 +219,7 @@ export const NOTIFICATIONS = [
   {
     id: 4,
     title: "Invoice overdue",
-    body: "ODE-2449 is past its due date.",
+    body: "DEMO-2449 is past its due date.",
     time: "1d ago",
     type: "warning",
   },

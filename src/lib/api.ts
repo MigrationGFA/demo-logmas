@@ -47,14 +47,53 @@ export function setRefreshToken(token: string | null) {
   else window.localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
+// Phase 1 Guard: In Demo Mode, prevent ANY direct external fetch calls
+if (typeof window !== "undefined" && !(window as any).__logmas_fetch_guarded) {
+  (window as any).__logmas_fetch_guarded = true;
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const urlString =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+        ? input.toString()
+        : input.url;
+
+    // Allow relative paths, local origin, data URIs, or blob URIs
+    const isAllowed =
+      urlString.startsWith("/") ||
+      urlString.startsWith(window.location.origin) ||
+      urlString.startsWith("data:") ||
+      urlString.startsWith("blob:");
+
+    if (!isAllowed) {
+      const errorMsg = `[Demo Mode Guard] External network fetch to "${urlString}" was strictly blocked. LOGMAS is running in zero-backend standalone demo mode.`;
+      console.warn(errorMsg);
+      throw new ApiError(errorMsg, 0, "DEMO_EXTERNAL_BLOCKED");
+    }
+
+    return originalFetch(input, init);
+  };
+}
+
 // Log the API URL being used (helpful for debugging)
-console.log(`API running in ${ENV.IS_DEV ? "DEVELOPMENT" : "PRODUCTION"} mode`);
+console.log(`API running in ${ENV.IS_DEV ? "DEVELOPMENT" : "PRODUCTION"} mode (DEMO_MODE: ${ENV.IS_DEMO_MODE})`);
 console.log(`API Base URL: ${API_BASE_URL}`);
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
   adapter: async (config) => {
+    // Intercept external URLs if any mistakenly passed
+    if (config.url && (config.url.startsWith("http://") || config.url.startsWith("https://"))) {
+      try {
+        const parsed = new URL(config.url);
+        if (typeof window !== "undefined" && parsed.origin !== window.location.origin) {
+          console.warn(`[Demo Mode Guard] Intercepted external Axios URL "${config.url}" and redirected to local mock handler.`);
+          config.url = parsed.pathname + parsed.search;
+        }
+      } catch {}
+    }
     return handleMockApiRequest(config);
   },
 });
@@ -116,6 +155,19 @@ axiosInstance.interceptors.response.use(
       });
       // Redirect to login with a query param to show the message
       window.location.href = '/login?reason=suspended';
+      return Promise.reject(error);
+    }
+
+    // In demo mode, do not call remote auth refresh
+    if (ENV.IS_DEMO_MODE) {
+      if (status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        const mockToken = "demo-offline-session-token";
+        setAuthToken(mockToken);
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${mockToken}`;
+        return axiosInstance(originalRequest);
+      }
       return Promise.reject(error);
     }
 

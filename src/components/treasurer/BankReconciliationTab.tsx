@@ -179,7 +179,7 @@ export default function BankReconciliationTab() {
                       <Badge variant="outline" className="text-[10px] uppercase">
                         {app.paymentMethod || "Virtual Bank Transfer"}
                       </Badge>
-                      <div className="text-[10px] font-mono text-muted-foreground mt-0.5">Ref: {app.qrToken || "ODE-BNK-9920"}</div>
+                      <div className="text-[10px] font-mono text-muted-foreground mt-0.5">Ref: {app.qrToken || "DEMO-BNK-9920"}</div>
                     </TableCell>
                     <TableCell className="font-mono font-bold text-xs text-emerald-600">
                       ₦{app.amount.toLocaleString()}

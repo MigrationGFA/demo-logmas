@@ -137,7 +137,7 @@ function VerifyContent() {
             <div className="relative mt-1.5">
               <Input
                 id="code"
-                placeholder="e.g. ODE/SOO/2026/001 or QR Code"
+                placeholder="e.g. DEMO/SOO/2026/001 or QR Code"
                 {...register("code")}
                 className="pl-10 font-mono text-sm uppercase bg-background"
                 disabled={isLoading}

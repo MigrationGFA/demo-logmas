@@ -238,12 +238,12 @@ const rand = (n = 6) => Math.random().toString(36).slice(2, 2 + n).toUpperCase()
 const today = () => new Date().toISOString();
 const datePart = () => new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
-export const genInvoiceRef = () => `INV-${datePart()}-${rand(4)}`;
-export const genReceiptNumber = () => `RCT-${datePart()}-${rand(4)}`;
-export const genVerificationCode = () => rand(8);
-export const genQRToken = () => rand(12);
+export const genInvoiceRef = () => `DEMO/INV/${new Date().getFullYear()}/${rand(6)}`;
+export const genReceiptNumber = () => `DEMO/RCP/${new Date().getFullYear()}/${rand(6)}`;
+export const genVerificationCode = () => `DEMO-VCODE-${rand(6)}`;
+export const genQRToken = () => `QR-DEMO-${rand(8)}`;
 export const genVirtualAccount = () => `99${Math.floor(10000000 + Math.random() * 89999999)}`;
-export const genId = () => `${Date.now().toString(36)}${rand(4)}`;
+export const genId = () => `demo-${Date.now().toString(36)}${rand(4)}`;
 
 // ============== Seed data ==============
 const WARDS = ["Atan", "Ojowo", "Owu", "Ososa", "Imuwo", "Ikija", "Ife", "Itele", "Mamu"];

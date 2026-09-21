@@ -98,7 +98,7 @@ export interface ApplicationRecord {
 
 export const APPLICATIONS: ApplicationRecord[] = [
   {
-    id: "APP-ODE-9821",
+    id: "APP-DEMO-9821",
     applicant: "Adebayo Ogunleye",
     dob: "1988-04-12",
     gender: "Male",
@@ -111,7 +111,7 @@ export const APPLICATIONS: ApplicationRecord[] = [
     serviceId: "certificate_of_origin",
     status: "pending",
     paymentStatus: "paid",
-    receiptNumber: "RCT-20260508-ODE1",
+    receiptNumber: "RCT-20260508-DEMO1",
     amount: 3500,
     date: "2026-05-08",
     history: [
@@ -120,7 +120,7 @@ export const APPLICATIONS: ApplicationRecord[] = [
     ],
   },
   {
-    id: "APP-ODE-9820",
+    id: "APP-DEMO-9820",
     applicant: "Obantoko Progressive Club",
     dob: "1992-11-03",
     gender: "Female",
@@ -133,7 +133,7 @@ export const APPLICATIONS: ApplicationRecord[] = [
     serviceId: "club_registration",
     status: "approved",
     paymentStatus: "paid",
-    receiptNumber: "RCT-20260507-ODE2",
+    receiptNumber: "RCT-20260507-DEMO2",
     amount: 15000,
     date: "2026-05-07",
     history: [

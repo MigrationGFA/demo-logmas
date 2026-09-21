@@ -340,7 +340,7 @@ export const CERTIFICATE_TEMPLATES: Record<string, CertificateTemplateConfig> = 
         fontWeight: "bold",
         fontSize: "0.95cqw",
         color: "#0D3B1E",
-        format: (c) => `Certificate No: ${c.certificateNumber || "ODE/CERT/2026/001"}`,
+        format: (c) => `Certificate No: ${c.certificateNumber || "DEMO/CERT/2026/001"}`,
       },
 
       // Green Ribbon Banner Certificate Title

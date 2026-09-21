@@ -98,7 +98,7 @@ export const OFFICIAL_RECEIPT_CONFIG: MasterReceiptConfig = {
       fontWeight: 700,
       color: "#064E3B",
       textTransform: "uppercase",
-      format: (r) => r.receiptNumber || "ODE/REC/2026/0001",
+      format: (r) => r.receiptNumber || "DEMO/REC/2026/0001",
     },
 
     verificationCode: {
@@ -113,7 +113,7 @@ export const OFFICIAL_RECEIPT_CONFIG: MasterReceiptConfig = {
       fontWeight: 700,
       color: "#0F766E",
       textTransform: "uppercase",
-      format: (r) => r.verificationCode || r.qrToken || "VER-ODE-REC-001",
+      format: (r) => r.verificationCode || r.qrToken || "VER-DEMO-REC-001",
     },
 
     invoiceRef: {
@@ -128,7 +128,7 @@ export const OFFICIAL_RECEIPT_CONFIG: MasterReceiptConfig = {
       fontWeight: 600,
       color: "#1E293B",
       textTransform: "uppercase",
-      format: (r) => r.invoiceRef || r.invoiceId || "INV-ODE-2026-001",
+      format: (r) => r.invoiceRef || r.invoiceId || "INV-DEMO-2026-001",
     },
 
     paymentMethod: {

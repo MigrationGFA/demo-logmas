@@ -74,11 +74,11 @@ function normalizeApplication(raw: any): any {
 
   return {
     id:
-      raw.id || raw._id || `ODE-2026-${Math.floor(100 + Math.random() * 900)}`,
+      raw.id || raw._id || `DEMO-2026-${Math.floor(100 + Math.random() * 900)}`,
     applicationNo:
       raw.applicationNo ||
       raw.appNo ||
-      `ODE/${(raw.serviceId || "APP").substring(0, 3).toUpperCase()}/2026/${Math.floor(1000 + Math.random() * 9000)}`,
+      `DEMO/${(raw.serviceId || "APP").substring(0, 3).toUpperCase()}/2026/${Math.floor(1000 + Math.random() * 9000)}`,
     serviceId: raw.serviceId || "",
     serviceName,
     category,
@@ -127,7 +127,7 @@ function normalizeApplication(raw: any): any {
     invoiceId: raw.invoiceId || null,
     invoiceNumber: raw.invoiceNumber || raw.invoiceId || null,
     receiptNumber: raw.receiptNumber || null,
-    qrToken: raw.qrToken || `QR-ODE-${raw.id || "APP"}`,
+    qrToken: raw.qrToken || `QR-DEMO-${raw.id || "APP"}`,
     verificationCode:
       raw.verificationCode ||
       `VER-${Math.floor(100000 + Math.random() * 900000)}`,
