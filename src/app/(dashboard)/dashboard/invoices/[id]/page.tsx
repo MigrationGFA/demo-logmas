@@ -33,6 +33,7 @@ import {
   Link2,
   CheckCircle2,
   Loader2,
+  FileBadge,
 } from "lucide-react";
 import {
   useInvoiceDetails,
@@ -301,52 +302,40 @@ export default function InvoiceDetail({
                         payment methods.
                       </div>
                     )}
-                    {/* Remove citizen for production */}
-                    {process.env.NODE_ENV === "development" && (
-                      <Button
-                        className="w-full bg-gradient-hero"
-                        onClick={() => simulatePayment()}
-                        disabled={isRecordingPayment}
-                      >
-                        {isRecordingPayment ? (
-                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                        ) : (
-                          <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                        )}
-                        Simulate transfer received
-                      </Button>
-                    )}
+                    <Button
+                      className="w-full bg-gradient-hero"
+                      onClick={() => simulatePayment()}
+                      disabled={isRecordingPayment}
+                    >
+                      {isRecordingPayment ? (
+                        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                      )}
+                      Simulate Demo Payment (Instant Settlement)
+                    </Button>
                   </div>
                 </TabsContent>
 
                 <TabsContent value="online">
                   <div className="p-4 rounded-lg border border-border/60 bg-background space-y-3">
                     <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                      Pay now
+                      Demo Online Payment
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      You&apos;ll be redirected to Paystack to complete payment
-                      of ₦{totalAmount.toLocaleString()}.
+                      Simulate instantaneous online card or account payment of ₦{totalAmount.toLocaleString()} without external gateway redirects.
                     </p>
                     <Button
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                      className="w-full bg-gradient-hero"
                       onClick={() => simulatePayment()}
+                      disabled={isRecordingPayment}
                     >
-                      <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                      Simulate Successful Payment (Demo)
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => initializeOnlinePayment()}
-                      disabled={isInitializingPayment}
-                    >
-                      {isInitializingPayment ? (
+                      {isRecordingPayment ? (
                         <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
                       ) : (
-                        <Link2 className="h-4 w-4 mr-1.5" />
+                        <CheckCircle2 className="h-4 w-4 mr-1.5" />
                       )}
-                      Pay online via Gateway
+                      Pay ₦{totalAmount.toLocaleString()} Now (Instant Demo)
                     </Button>
                   </div>
                 </TabsContent>
@@ -368,7 +357,7 @@ export default function InvoiceDetail({
             </Card>
           ) : (
             <Card className="p-6 bg-success/5 border-2 border-success/30">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <div className="h-12 w-12 rounded-full bg-success/15 text-success flex items-center justify-center">
                   <CheckCircle2 className="h-6 w-6" />
                 </div>
@@ -383,15 +372,28 @@ export default function InvoiceDetail({
                       new Date(invoice.paidAt).toLocaleString()}
                   </p>
                 </div>
-                {invoice.receipts && invoice.receipts.length > 0 && (
-                  <Button asChild className="ml-auto bg-gradient-hero">
+                <div className="ml-auto flex items-center gap-2 flex-wrap">
+                  {invoice.receipts && invoice.receipts.length > 0 && (
+                    <Button asChild variant="outline" size="sm">
+                      <Link
+                        href={`/dashboard/receipts/${invoice.receipts[0].id}`}
+                      >
+                        <ReceiptIcon className="h-4 w-4 mr-1.5" /> View receipt
+                      </Link>
+                    </Button>
+                  )}
+                  <Button asChild className="bg-gradient-hero" size="sm">
                     <Link
-                      href={`/dashboard/receipts/${invoice.receipts[0].id}`}
+                      href={
+                        invoice.application?.id
+                          ? `/dashboard/certificates/${invoice.application.id}`
+                          : "/dashboard/certificates"
+                      }
                     >
-                      <ReceiptIcon className="h-4 w-4 mr-1.5" /> View receipt
+                      <FileBadge className="h-4 w-4 mr-1.5" /> View / Print Certificate
                     </Link>
                   </Button>
-                )}
+                </div>
               </div>
             </Card>
           )}

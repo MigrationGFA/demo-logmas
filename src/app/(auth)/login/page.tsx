@@ -9,12 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ROLE_LABELS, TEST_CREDENTIALS } from "@/lib/auth";
 import { useAuth } from "@/hooks/queries/useAuth";
-import { ENV } from "@/config/env";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FullPageLoader } from "@/components/ProtectedRoute";
 import logo from "@/assets/logo.png";
 import Image from "next/image";
+import { LGA_CONFIG } from "@/config/lga.config";
 
 export default function Page() {
   return (
@@ -149,12 +149,12 @@ function LoginPage() {
         <Link href="/" className="relative flex flex-col items-center gap-2.5 w-fit">
           <Image src={logo} alt="LOGMAS" className="h-12 w-12" />
           <div className="text-[10px] uppercase font-bold tracking-wider text-muted-background">
-            the LGA
+            {LGA_CONFIG.identity.shortCode} · {LGA_CONFIG.identity.name}
           </div>
         </Link>
         <div className="relative space-y-6">
           <h1 className="text-4xl font-bold tracking-tight leading-tight">
-            Building a Smarter the Local Government
+            Building a Smarter {LGA_CONFIG.identity.name}
           </h1>
           <p className="opacity-90">
             Delivering transparent governance, digital public services, and
@@ -164,8 +164,8 @@ function LoginPage() {
           <div className="grid grid-cols-3 gap-3 max-w-md">
             {[
               { k: "150K+", v: "Population" },
-              { k: "1976", v: "Established" },
-              { k: "10", v: "Wards" },
+              { k: String(LGA_CONFIG.identity.establishedYear), v: "Established" },
+              { k: String(LGA_CONFIG.wards.length), v: "Wards" },
             ].map((s) => (
               <div
                 key={s.v}
@@ -178,7 +178,7 @@ function LoginPage() {
           </div>
         </div>
         <div className="relative text-xs opacity-70">
-          © {new Date().getFullYear()} the Local Government Area
+          © {new Date().getFullYear()} {LGA_CONFIG.identity.fullName}
         </div>
       </div>
 
@@ -201,110 +201,6 @@ function LoginPage() {
               Sign in to continue to your dashboard.
             </p>
           </div>
-
-          {/* Quick Demo 1-Click Access Panel */}
-          <Card className="p-4 bg-primary/5 border-primary/20 shadow-sm">
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  1-Click Demo Login
-                </span>
-              </div>
-              <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider">
-                Instant Access
-              </Badge>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() =>
-                  fill({
-                    role: "citizen",
-                    email: "citizen@demo.gov.ng",
-                    password: "demo",
-                  })
-                }
-                className="group text-left p-2.5 rounded-lg bg-background hover:bg-primary/10 border border-border/80 hover:border-primary/40 transition-all shadow-xs"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground group-hover:text-primary">
-                    Citizen / Applicant
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">Demo</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                  Dr. Babatunde Adeleke
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  fill({
-                    role: "lga_admin",
-                    email: "admin@demo.gov.ng",
-                    password: "demo",
-                  })
-                }
-                className="group text-left p-2.5 rounded-lg bg-background hover:bg-primary/10 border border-border/80 hover:border-primary/40 transition-all shadow-xs"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground group-hover:text-primary">
-                    Council Admin
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">Officer</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                  Council Admin Officer
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  fill({
-                    role: "treasurer",
-                    email: "treasurer@demo.gov.ng",
-                    password: "demo",
-                  })
-                }
-                className="group text-left p-2.5 rounded-lg bg-background hover:bg-primary/10 border border-border/80 hover:border-primary/40 transition-all shadow-xs"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground group-hover:text-primary">
-                    Revenue / Treasury
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">Finance</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                  Mrs. Amina Mohammed, FCA
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  fill({
-                    role: "chairman",
-                    email: "chairman@demo.gov.ng",
-                    password: "demo",
-                  })
-                }
-                className="group text-left p-2.5 rounded-lg bg-background hover:bg-primary/10 border border-border/80 hover:border-primary/40 transition-all shadow-xs"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground group-hover:text-primary">
-                    Executive Chairman
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">Cabinet</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                  Hon. (Dr.) Adebayo Adeleke
-                </p>
-              </button>
-            </div>
-          </Card>
 
           {/* Verification / Registration Message */}
           {verificationMessage && (
@@ -470,30 +366,28 @@ function LoginPage() {
             </Link>
           </p>
 
-          {(ENV.IS_DEMO_MODE || process.env.NODE_ENV === "development") && (
-            <Card className="p-4 bg-secondary/40 border-border/40">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-xs font-semibold uppercase tracking-wider">
-                  Demo accounts
-                </div>
-                <Badge variant="outline" className="text-[10px]">
-                  click to login
-                </Badge>
+          <Card className="p-4 bg-secondary/40 border-border/40">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-semibold uppercase tracking-wider">
+                Demo Accounts
               </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                {TEST_CREDENTIALS.map((c) => (
-                  <button
-                    key={c.role}
-                    type="button"
-                    onClick={() => fill(c)}
-                    className="text-left text-xs p-2 rounded-md bg-background hover:bg-primary hover:text-primary-foreground border border-border/60 transition-smooth"
-                  >
-                    {ROLE_LABELS[c.role]}
-                  </button>
-                ))}
-              </div>
-            </Card>
-          )}
+              <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                1-Click Instant Login
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {TEST_CREDENTIALS.map((c) => (
+                <button
+                  key={c.role}
+                  type="button"
+                  onClick={() => fill(c)}
+                  className="text-left text-xs p-2 rounded-md bg-background hover:bg-primary hover:text-primary-foreground border border-border/60 transition-smooth"
+                >
+                  {ROLE_LABELS[c.role]}
+                </button>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
     </div>

@@ -18,8 +18,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: `${LGA_CONFIG.platform.name} ${LGA_CONFIG.identity.name}`,
-  description: `${LGA_CONFIG.platform.fullName} for ${LGA_CONFIG.identity.fullName}`,
+  title: "LOGMAS Demo Portal",
+  description: "Standalone Zero-Backend Demonstration Portal for Local Government Management and Administration",
+  openGraph: {
+    title: "LOGMAS Demo Portal",
+    description: "Standalone Zero-Backend Demonstration Portal for Local Government Management and Administration",
+  },
 };
 
 export default function RootLayout({

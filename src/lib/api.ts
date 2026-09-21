@@ -3,7 +3,7 @@ import axios, { AxiosError, type AxiosRequestConfig } from "axios";
 import { API_BASE_URL, ENV } from "../config/env";
 import { tokenManager } from "@/services/apiAuth";
 import { toast } from "sonner";
-import { handleDemoMockRequest } from "./mockApiHandler";
+import { handleMockApiRequest } from "./mockApiHandler";
 
 const TOKEN_KEY = "logmas.auth.token";
 const REFRESH_TOKEN_KEY = "logmas.auth.refreshToken";
@@ -54,33 +54,10 @@ console.log(`API Base URL: ${API_BASE_URL}`);
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
+  adapter: async (config) => {
+    return handleMockApiRequest(config);
+  },
 });
-
-// ZERO-BACKEND DEMO MODE ADAPTER: Intercept all HTTP calls with client-side mock handlers
-if (ENV.IS_DEMO_MODE) {
-  axiosInstance.defaults.adapter = async (config) => {
-    try {
-      const mockRes = await handleDemoMockRequest(config);
-      return {
-        data: mockRes.data,
-        status: mockRes.status || 200,
-        statusText: "OK",
-        headers: mockRes.headers || {},
-        config,
-        request: {},
-      };
-    } catch (err: any) {
-      return {
-        data: { status: "error", error: err?.message || "Mock error" },
-        status: 400,
-        statusText: "Bad Request",
-        headers: {},
-        config,
-        request: {},
-      };
-    }
-  };
-}
 
 // Request interceptor for adding token
 axiosInstance.interceptors.request.use((config) => {

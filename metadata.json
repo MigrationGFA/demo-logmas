@@ -1,6 +1,6 @@
 {
-  "name": "LOGMAS Demo LGA",
-  "description": "Local Government Management and Administration System for Demo Local Government Area",
+  "name": "LOGMAS Demo Portal",
+  "description": "Standalone Zero-Backend Demonstration Portal for Local Government Management and Administration",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

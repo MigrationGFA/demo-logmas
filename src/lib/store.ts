@@ -356,11 +356,11 @@ function write(s: Store) {
 }
 
 let _cache: Store | null = null;
-function getStore(): Store {
+export function getStore(): Store {
   if (!_cache) _cache = read();
   return _cache;
 }
-function setStore(updater: (s: Store) => Store) {
+export function setStore(updater: (s: Store) => Store) {
   const next = updater(getStore());
   _cache = next;
   write(next);
@@ -657,58 +657,5 @@ export function togglePermitConfigActive(id: string) {
     ...s,
     permitConfigs: s.permitConfigs.map((c) => c.id === id ? { ...c, isActive: !c.isActive } : c),
   }));
-}
-
-// ============== Helper Aliases for Mock Interception ==============
-export function getInvoices(): Invoice[] {
-  return getStore().invoices;
-}
-
-export function findInvoice(idOrRef: string): Invoice | null {
-  const s = getStore();
-  const target = (idOrRef || "").trim().toUpperCase();
-  return (
-    s.invoices.find(
-      (i) =>
-        i.id === idOrRef ||
-        i.reference.toUpperCase() === target ||
-        i.qrToken.toUpperCase() === target
-    ) || null
-  );
-}
-
-export function updateInvoice(id: string, updates: Partial<Invoice>): Invoice | null {
-  let updated: Invoice | null = null;
-  setStore((s) => ({
-    ...s,
-    invoices: s.invoices.map((inv) => {
-      if (inv.id === id || inv.reference === id) {
-        updated = { ...inv, ...updates };
-        return updated;
-      }
-      return inv;
-    }),
-  }));
-  return updated;
-}
-
-export function addInvoice(inv: Invoice): Invoice {
-  setStore((s) => ({
-    ...s,
-    invoices: [inv, ...s.invoices.filter((i) => i.id !== inv.id && i.reference !== inv.reference)],
-  }));
-  return inv;
-}
-
-export function getReceipts(): Receipt[] {
-  return getStore().receipts;
-}
-
-export function addReceipt(r: Receipt): Receipt {
-  setStore((s) => ({
-    ...s,
-    receipts: [r, ...s.receipts.filter((existing) => existing.id !== r.id)],
-  }));
-  return r;
 }
 
