@@ -69,32 +69,28 @@ export const MANAGEABLE_ROLES: Role[] = [
 ];
 
 const ROLE_NAMES: Record<Role, string> = {
-  super_admin: "Adewale Super",
-  chairman: "Hon. Dr. Waliat Folasade Adeyemo",
-  lga_admin: "Olumide Admin",
-  treasurer: "Yetunde Treasurer",
-  auditor: "Folake Auditor",
-  //  agent: "Sade Subagent",
-  ward_councillor: "Honourable Bisi",
-  contractor: "Femi Agent",
-  field_officer: "Tunji Field",
-  citizen: "Adebayo Citizen",
-  business_owner: "Bola Enterprises",
+  super_admin: "LOGMAS Super Admin",
+  chairman: "Hon. (Dr.) Adebayo Adeleke",
+  lga_admin: "Council Admin Officer",
+  treasurer: "Mrs. Amina Mohammed, FCA",
+  auditor: "Council Auditor",
+  ward_councillor: "Hon. Osunnowo Azeez",
+  contractor: "Demo Revenue Agent",
+  field_officer: "Kemi Officer",
+  citizen: "Dr. Babatunde Adeleke",
+  business_owner: "Alhaji Musa (Musa Agro Stores)",
 };
 
 export const TEST_CREDENTIALS: { role: Role; email: string; password: string }[] = [
-  { role: "super_admin", email: "super@logmas.gov.ng", password: "demo1234" },
-  { role: "chairman", email: "chairman@logmas.gov.ng", password: "demo1234" },
-  { role: "lga_admin", email: "admin@logmas.gov.ng", password: "demo1234" },
-  { role: "treasurer", email: "treasurer@logmas.gov.ng", password: "demo1234" },
-  { role: "auditor", email: "auditor@logmas.gov.ng", password: "demo1234" },
-  { role: "ward_councillor", email: "councillor@logmas.gov.ng", password: "demo1234" },
-  { role: "field_officer", email: "field@logmas.gov.ng", password: "demo1234" },
-  // { role: "agent", email: "subagent@logmas.gov.ng", password: "demo1234" },
-  { role: "contractor", email: "agent@logmas.gov.ng", password: "demo1234" },
-  { role: "citizen", email: "evans@joemarineng.com", password: "demo1234" },
-  // { role: "citizen", email: "citizen@logmas.gov.ng", password: "demo1234" },
-  { role: "business_owner", email: "business@logmas.gov.ng", password: 'demo1234' },
+  { role: "citizen", email: "citizen@demo.gov.ng", password: "demo" },
+  { role: "lga_admin", email: "admin@demo.gov.ng", password: "demo" },
+  { role: "treasurer", email: "treasurer@demo.gov.ng", password: "demo" },
+  { role: "chairman", email: "chairman@demo.gov.ng", password: "demo" },
+  { role: "business_owner", email: "business@demo.gov.ng", password: "demo" },
+  { role: "field_officer", email: "field@demo.gov.ng", password: "demo" },
+  { role: "auditor", email: "auditor@demo.gov.ng", password: "demo" },
+  { role: "ward_councillor", email: "councillor@demo.gov.ng", password: "demo" },
+  { role: "super_admin", email: "super@demo.gov.ng", password: "demo" },
 ];
 
 function readStored(): AuthUser | null {

@@ -329,7 +329,15 @@ export default function InvoiceDetail({
                       of ₦{totalAmount.toLocaleString()}.
                     </p>
                     <Button
-                      className="w-full bg-gradient-hero"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                      onClick={() => simulatePayment()}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                      Simulate Successful Payment (Demo)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
                       onClick={() => initializeOnlinePayment()}
                       disabled={isInitializingPayment}
                     >
@@ -338,7 +346,7 @@ export default function InvoiceDetail({
                       ) : (
                         <Link2 className="h-4 w-4 mr-1.5" />
                       )}
-                      Pay online
+                      Pay online via Gateway
                     </Button>
                   </div>
                 </TabsContent>

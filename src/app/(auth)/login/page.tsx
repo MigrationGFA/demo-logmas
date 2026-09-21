@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ROLE_LABELS, TEST_CREDENTIALS } from "@/lib/auth";
 import { useAuth } from "@/hooks/queries/useAuth";
+import { ENV } from "@/config/env";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FullPageLoader } from "@/components/ProtectedRoute";
@@ -201,6 +202,110 @@ function LoginPage() {
             </p>
           </div>
 
+          {/* Quick Demo 1-Click Access Panel */}
+          <Card className="p-4 bg-primary/5 border-primary/20 shadow-sm">
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  1-Click Demo Login
+                </span>
+              </div>
+              <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider">
+                Instant Access
+              </Badge>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  fill({
+                    role: "citizen",
+                    email: "citizen@demo.gov.ng",
+                    password: "demo",
+                  })
+                }
+                className="group text-left p-2.5 rounded-lg bg-background hover:bg-primary/10 border border-border/80 hover:border-primary/40 transition-all shadow-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground group-hover:text-primary">
+                    Citizen / Applicant
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">Demo</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                  Dr. Babatunde Adeleke
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  fill({
+                    role: "lga_admin",
+                    email: "admin@demo.gov.ng",
+                    password: "demo",
+                  })
+                }
+                className="group text-left p-2.5 rounded-lg bg-background hover:bg-primary/10 border border-border/80 hover:border-primary/40 transition-all shadow-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground group-hover:text-primary">
+                    Council Admin
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">Officer</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                  Council Admin Officer
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  fill({
+                    role: "treasurer",
+                    email: "treasurer@demo.gov.ng",
+                    password: "demo",
+                  })
+                }
+                className="group text-left p-2.5 rounded-lg bg-background hover:bg-primary/10 border border-border/80 hover:border-primary/40 transition-all shadow-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground group-hover:text-primary">
+                    Revenue / Treasury
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">Finance</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                  Mrs. Amina Mohammed, FCA
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  fill({
+                    role: "chairman",
+                    email: "chairman@demo.gov.ng",
+                    password: "demo",
+                  })
+                }
+                className="group text-left p-2.5 rounded-lg bg-background hover:bg-primary/10 border border-border/80 hover:border-primary/40 transition-all shadow-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground group-hover:text-primary">
+                    Executive Chairman
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">Cabinet</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                  Hon. (Dr.) Adebayo Adeleke
+                </p>
+              </button>
+            </div>
+          </Card>
+
           {/* Verification / Registration Message */}
           {verificationMessage && (
             <div
@@ -365,7 +470,7 @@ function LoginPage() {
             </Link>
           </p>
 
-          {process.env.NODE_ENV === "development" && (
+          {(ENV.IS_DEMO_MODE || process.env.NODE_ENV === "development") && (
             <Card className="p-4 bg-secondary/40 border-border/40">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-xs font-semibold uppercase tracking-wider">

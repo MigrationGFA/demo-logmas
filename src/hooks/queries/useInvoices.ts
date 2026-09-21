@@ -162,11 +162,16 @@ export function useInvoicePayment(invoiceId: string) {
   const simulatePaymentMutation = useMutation({
     mutationFn: () => invoicesService.simulatePayment(invoiceId),
     onSuccess: () => {
-      toast.success("Payment simulated successfully!");
+      toast.success("Payment confirmed! Receipt & Certificate generated.");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("logmas:store-change"));
+      }
       queryClient.invalidateQueries({
         queryKey: invoicesKeys.detail(invoiceId),
       });
       queryClient.invalidateQueries({ queryKey: invoicesKeys.hub() });
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["overview"] });
     },
     onError: (error: any) => {
       toast.error(error.message || "Simulation failed");
