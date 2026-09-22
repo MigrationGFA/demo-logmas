@@ -84,16 +84,16 @@ const ROLE_NAMES: Record<Role, string> = {
 
 export const TEST_CREDENTIALS: { role: Role; email: string; password: string }[] = [
   { role: "citizen", email: "citizen@logmas.gov.ng", password: "demo1234" },
+  // { role: "business_owner", email: "business@logmas.gov.ng", password: "demo1234" },
   // { role: "citizen", email: "evans@joemarineng.com", password: "demo1234" },
   { role: "lga_admin", email: "admin@logmas.gov.ng", password: "demo1234" },
   { role: "treasurer", email: "treasurer@logmas.gov.ng", password: "demo1234" },
   { role: "chairman", email: "chairman@logmas.gov.ng", password: "demo1234" },
-  { role: "super_admin", email: "super@logmas.gov.ng", password: "demo1234" },
+  // { role: "super_admin", email: "super@logmas.gov.ng", password: "demo1234" },
   { role: "auditor", email: "auditor@logmas.gov.ng", password: "demo1234" },
-  { role: "ward_councillor", email: "councillor@logmas.gov.ng", password: "demo1234" },
+  // { role: "ward_councillor", email: "councillor@logmas.gov.ng", password: "demo1234" },
   { role: "field_officer", email: "field@logmas.gov.ng", password: "demo1234" },
-  { role: "contractor", email: "agent@logmas.gov.ng", password: "demo1234" },
-  { role: "business_owner", email: "business@logmas.gov.ng", password: "demo1234" },
+  // { role: "contractor", email: "agent@logmas.gov.ng", password: "demo1234" },
 ];
 
 function readStored(): AuthUser | null {

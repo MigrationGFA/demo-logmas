@@ -273,7 +273,7 @@ export default function CertificateOfOriginForm({
 
   const onFormSubmit = async (data: CertificateOfOriginFormData) => {
     if (!declaration) return;
-
+ console.log("✅")
     setIsLoading(true);
     try {
       // Collect actual files mapped by machine-readable requirement keys
