@@ -1046,7 +1046,20 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     });
   }
 
-  if (url.startsWith("/treasurer/service-fees")) {
+  if (url.startsWith("/treasurer/service-fees") || url.startsWith("/treasurer/fees")) {
+    const feeSubMatch = url.match(/^\/treasurer\/(?:service-fees|fees)\/([^/?]+)$/);
+    if (feeSubMatch) {
+      const srvId = feeSubMatch[1];
+      const srv = DEFAULT_SERVICES.find((s) => s.id === srvId) || DEFAULT_SERVICES[0];
+      return respond({
+        id: `fee-${srv.id}`,
+        serviceId: srv.id,
+        serviceName: srv.name,
+        amount: srv.fee,
+        status: "ACTIVE",
+        updatedAt: new Date().toISOString(),
+      });
+    }
     return respond(
       DEFAULT_SERVICES.map((srv) => ({
         id: `fee-${srv.id}`,
@@ -1721,18 +1734,214 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     const s = getStore();
     const apps = getLgaApplications();
     const paidInvoices = s.invoices.filter((i) => i.status === "paid");
-    const totalRev = paidInvoices.reduce((acc, i) => acc + i.amount, 0);
+    const totalRev = paidInvoices.reduce((acc, i) => acc + i.amount, 0) || 18450000;
+    const unpaidInvoices = s.invoices.filter((i) => i.status !== "paid");
+    const pendingAmount = unpaidInvoices.reduce((acc, i) => acc + i.amount, 0) || 3450000;
+
+    let currentRole: string = "citizen";
+    try {
+      if (typeof window !== "undefined") {
+        const storedUser = window.localStorage.getItem("logmas.auth.user");
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          if (parsed?.role) currentRole = parsed.role;
+        }
+      }
+    } catch {}
+
+    const formattedRecentApps = apps.slice(0, 8).map((a, idx) => ({
+      id: a.id || `app-${1001 + idx}`,
+      applicant: a.applicant || a.fullName || a.customerName || "Dr. Babatunde Adeleke",
+      fullName: a.fullName || a.applicant || a.customerName || "Dr. Babatunde Adeleke",
+      service: a.serviceName || a.service || "Certificate of State of Origin",
+      serviceName: a.serviceName || a.service || "Certificate of State of Origin",
+      ward: a.ward || "Atan Ward",
+      status: a.status?.toLowerCase() === "approved" ? "approved" : (a.status?.toLowerCase() === "rejected" ? "rejected" : "pending"),
+      createdAt: a.createdAt || new Date(Date.now() - idx * 86400000).toISOString(),
+      date: a.createdAt || new Date(Date.now() - idx * 86400000).toISOString(),
+      type: a.serviceName || "Local Government Clearance",
+    }));
+
+    const formattedRecentInvoices = s.invoices.slice(0, 6).map((inv) => ({
+      id: inv.id,
+      reference: inv.invoiceNumber || `INV-${inv.id}`,
+      amount: inv.amount,
+      customerName: inv.customerName || "Registered Ratepayer",
+      status: inv.status,
+    }));
+
+    const metrics = {
+      // Citizen metrics
+      pendingPayments: 25000,
+      approvedApplications: apps.filter((a) => a.status?.toLowerCase() === "approved").length || 4,
+      openComplaints: 1,
+      awaitingForm: 2,
+      awaitingFormSubmissions: 2,
+
+      // Business Owner metrics
+      activeNotices: 3,
+      totalPaid: totalRev,
+      outstanding: pendingAmount,
+      activePermits: s.permits.length || 4,
+
+      // Treasurer metrics
+      totalRevenue: totalRev,
+      totalCollected: totalRev,
+      pendingAmount: pendingAmount,
+      invoiceGeneratedCount: s.invoices.length || 142,
+      activeOfficers: s.officers.length || 14,
+      overdueInvoices: s.invoices.filter((i) => i.status === "overdue").length || 3,
+      collectionRate: 84,
+      targetRevenue: 25000000,
+
+      // Councillor metrics
+      pendingApprovals: apps.filter((a) => a.status === "Submitted" || a.status === "Under Review").length || 5,
+      wardComplaints: 2,
+      totalConstituents: 12450,
+      approvedSOO: 42,
+      totalComplaints: 2,
+      activeBusinesses: 128,
+
+      // Auditor metrics
+      anomaliesCount: 2,
+      highValueCount: 6,
+
+      // Field Officer metrics
+      totalInvoicesGenerated: 42,
+      pendingCount: 6,
+      overdueCount: 2,
+      channelBreakdown: { pos: 450000, cash: 120000, transfer: 80000 },
+
+      // Super Admin metrics
+      totalLgas: 1,
+      platformUsers: 1420,
+      systemOfficers: s.officers.length || 14,
+      auditEvents: s.audits.length || 54,
+
+      // Admin / Chairman metrics
+      wardCoverage: 100,
+      citizens: 1240,
+      totalCitizens: 1240,
+      fieldOfficers: s.officers.length || 14,
+      activeOfficersCount: s.officers.length || 14,
+      activeFieldOfficers: s.officers.length || 14,
+      pendingApplications: apps.filter((a) => a.status === "Submitted" || a.status === "Under Review").length || 8,
+      totalInvoices: s.invoices.length || 142,
+      totalInvoicesCount: s.invoices.length || 142,
+      approvedCertificates: 42,
+      pendingBillsCount: unpaidInvoices.length || 24,
+    };
+
+    const stats = {
+      citizens: 1240,
+      totalCitizens: 1240,
+      fieldOfficers: s.officers.length || 14,
+      activeFieldOfficers: s.officers.length || 14,
+      pendingApplications: apps.filter((a) => a.status === "Submitted" || a.status === "Under Review").length || 8,
+      pendingApprovals: apps.filter((a) => a.status === "Submitted" || a.status === "Under Review").length || 8,
+      totalInvoices: s.invoices.length || 142,
+      totalInvoicesCount: s.invoices.length || 142,
+      totalRevenue: totalRev,
+      totalReceipts: s.receipts.length || 118,
+      totalApplications: apps.length || 65,
+    };
+
+    const revenueTrendChart = [
+      { month: "Jan", date: "2026-01-01", amount: 1200000 },
+      { month: "Feb", date: "2026-02-01", amount: 1450000 },
+      { month: "Mar", date: "2026-03-01", amount: 1800000 },
+      { month: "Apr", date: "2026-04-01", amount: 1650000 },
+      { month: "May", date: "2026-05-01", amount: 2100000 },
+      { month: "Jun", date: "2026-06-01", amount: 1950000 },
+      { month: "Jul", date: "2026-07-01", amount: 2300000 },
+      { month: "Aug", date: "2026-08-01", amount: 2600000 },
+      { month: "Sep", date: "2026-09-01", amount: 2850000 },
+    ];
+
+    const categoryBreakdown = [
+      { category: "State of Origin Certificates", amount: 4500000, percentage: 24 },
+      { category: "Trade & Operating Permits", amount: 6800000, percentage: 37 },
+      { category: "Market Tolls & Levies", amount: 3200000, percentage: 17 },
+      { category: "Property Tenement Rates", amount: 3950000, percentage: 22 },
+    ];
+
+    const anomalies = [
+      {
+        id: "anom-1",
+        type: "duplicate_receipt",
+        description: "Multiple receipts detected with identical sequence timestamp",
+        severity: "low",
+        createdAt: "2026-09-20T14:22:00Z",
+      },
+      {
+        id: "anom-2",
+        type: "out_of_hours_collection",
+        description: "Collection logged outside statutory municipal hours (23:14)",
+        severity: "medium",
+        createdAt: "2026-09-21T23:14:00Z",
+      },
+    ];
+
+    const highValueTransactions = [
+      {
+        id: "hvt-1",
+        reference: "TXN-HV-88912",
+        amount: 1500000,
+        customerName: "Grand Atan Commercial Mills Ltd",
+        date: "2026-09-21T11:00:00Z",
+        status: "verified",
+      },
+      {
+        id: "hvt-2",
+        reference: "TXN-HV-88913",
+        amount: 850000,
+        customerName: "Owu Integrated Logistics Park",
+        date: "2026-09-22T08:30:00Z",
+        status: "verified",
+      },
+    ];
+
+    const recentAudits = [
+      {
+        id: "aud-1",
+        action: "REVENUE_RECONCILIATION",
+        performedBy: "Folake Auditor",
+        timestamp: "2026-09-22T08:00:00Z",
+        description: "Daily automated treasury ledger reconciliation cleared.",
+      },
+      {
+        id: "aud-2",
+        action: "PERMIT_RATE_VERIFY",
+        performedBy: "Folake Auditor",
+        timestamp: "2026-09-21T16:45:00Z",
+        description: "Standard commercial tariff schedule verification completed.",
+      },
+    ];
+
+    const contractorRevenueTrend = [
+      { month: "May", amount: 1200000 },
+      { month: "Jun", amount: 1500000 },
+      { month: "Jul", amount: 1800000 },
+      { month: "Aug", amount: 2200000 },
+      { month: "Sep", amount: 2650000 },
+    ];
 
     return respond({
-      stats: {
-        totalRevenue: totalRev || 18450000,
-        totalInvoices: s.invoices.length || 142,
-        totalReceipts: s.receipts.length || 118,
-        totalApplications: apps.length || 65,
-        totalCitizens: 1240,
-        pendingApprovals: apps.filter((a) => a.status === "Submitted" || a.status === "Under Review").length || 8,
-        activeFieldOfficers: 14,
-      },
+      role: currentRole,
+      metrics,
+      stats,
+      recentApplications: formattedRecentApps,
+      applications: formattedRecentApps,
+      recentInvoices: formattedRecentInvoices,
+      revenueTrendChart,
+      categoryBreakdown,
+      anomalies,
+      highValueTransactions,
+      recentAudits,
+      invoices: s.invoices,
+      receipts: s.receipts,
+      officers: s.officers,
+      revenueTrend: contractorRevenueTrend,
       revenueOverview: [
         { name: "Mon", revenue: 420000 },
         { name: "Tue", revenue: 680000 },
@@ -1741,7 +1950,6 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         { name: "Fri", revenue: 990000 },
       ],
       recentActivities: s.audits.slice(0, 10),
-      recentApplications: apps.slice(0, 5),
     });
   }
 
