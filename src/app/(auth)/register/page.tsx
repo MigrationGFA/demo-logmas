@@ -267,11 +267,9 @@ export default function RegisterPage() {
       {
         onSuccess: () => {
           toast.success(
-            "Account created successfully! Please verify your email.",
+            "Account created successfully! Welcome to LOGMAS Demo.",
           );
-          navigate.push(
-            `/login?registered=true&email=${encodeURIComponent(data.email)}`,
-          );
+          navigate.push("/dashboard");
         },
         onError: (error) => {
           toast.error(error.message || "Failed to create account");

@@ -130,7 +130,7 @@ export interface ChangePasswordData {
 
 export const authService = {
   // Register new user
-  register: (data: RegisterData) => api.post<User>("/auth/register", data),
+  register: (data: RegisterData) => api.post<any>("/auth/register", data),
 
   // Login with email/password
   login: (credentials: LoginCredentials) => api.post<AuthResponse>("/auth/login", credentials),

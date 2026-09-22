@@ -12,15 +12,15 @@
  */
 
 export interface LgaIdentityConfig {
-  /** Unique system identifier / slug (e.g. "odeda", "ikeja", "abeokuta-north") */
+  /** Unique system identifier / slug (e.g. "demo-lga", "ikeja", "abeokuta-north") */
   id: string;
-  /** Primary common name (e.g. "Odeda") */
+  /** Primary common name (e.g. "Demo") */
   name: string;
-  /** Full official government entity name (e.g. "Odeda Local Government") */
+  /** Full official government entity name (e.g. "Demo Local Government") */
   fullName: string;
-  /** Formal administrative title (e.g. "Odeda Local Government Area") */
+  /** Formal administrative title (e.g. "Demo Local Government Area") */
   formalTitle: string;
-  /** Official council authority name (e.g. "Odeda Local Government Council") */
+  /** Official council authority name (e.g. "Demo Local Government Council") */
   councilName: string;
   /** Short abbreviation code used in identifiers (e.g. "ODE") */
   shortCode: string;
@@ -40,7 +40,7 @@ export interface LgaIdentityConfig {
   establishedYear: number | string;
   /** Principal establishing legal authority / edict */
   establishingLaw: string;
-  /** Geographic headquarters town (e.g. "Odeda") */
+  /** Geographic headquarters town (e.g. "Demo City") */
   headquarters: string;
 }
 
@@ -339,7 +339,7 @@ export const LGA_CONFIG: LgaConfiguration = {
 
   branding: {
     logoPath: "/logo.png",
-    councilEmblemPath: "/images/odeda-crest.png",
+    councilEmblemPath: "/favicon.ico",
     stateEmblemPath: "/images/ogun-crest.png",
     nationalEmblemPath: "/images/nigeria-crest.png",
     faviconPath: "/favicon.ico",

@@ -323,7 +323,9 @@ export default function ViewingCentreLicenceForm({
     setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
   };
 
-  const currentFee = service.feeConfig.amount;
+  const currentFee = service.feeConfig?.amount
+    ? parseFloat(service.feeConfig.amount)
+    : (service.defaultFee || 0);
 
   const onFormSubmit = (data: ViewingCentreLicenceFormValues) => {
     if (!declaration) return;

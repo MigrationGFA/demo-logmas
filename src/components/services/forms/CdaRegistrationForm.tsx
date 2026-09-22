@@ -378,7 +378,9 @@ export default function CdaRegistrationForm({
     });
   };
 
-   const currentFee = service.feeConfig.amount;
+   const currentFee = service.feeConfig?.amount
+     ? parseFloat(service.feeConfig.amount)
+     : (service.defaultFee || 0);
 
   const reviewSections: ReviewSection[] = [
     {

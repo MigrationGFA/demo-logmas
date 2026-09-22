@@ -103,7 +103,7 @@ export default function PublicServiceDetailPage({ params }: PublicServicePagePro
   }
 
   const IconComponent = ICON_MAP[service.icon] || FileBadge;
-  const currentFee = service.feeConfig.amount;
+  const currentFee = service.feeConfig?.amount ?? service.defaultFee ?? 0;
 
   // Filter related services in same category or adjacent
   const relatedServices = LGA_SERVICES.filter(

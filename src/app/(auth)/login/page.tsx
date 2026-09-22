@@ -36,7 +36,9 @@ function LoginPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login({ email, password });
+    const loginEmail = email.trim() || "citizen@logmas.gov.ng";
+    const loginPass = password || "demo1234";
+    login({ email: loginEmail, password: loginPass });
   };
 
   const fill = (c: (typeof TEST_CREDENTIALS)[number]) => {

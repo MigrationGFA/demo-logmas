@@ -64,7 +64,7 @@ export function createLgaServiceCatalog(lga: LgaConfiguration = LGA_CONFIG): Ser
   const lgaName = lga.identity.name;
   const formalTitle = lga.identity.formalTitle;
 
-  return [
+  const catalog: ServiceType[] = [
     {
       id: "certificate_of_origin",
       name: "Certificate of Origin",
@@ -394,6 +394,17 @@ export function createLgaServiceCatalog(lga: LgaConfiguration = LGA_CONFIG): Ser
       color: "success",
     },
   ];
+
+  return catalog.map((svc) => ({
+    ...svc,
+    feeConfig: {
+      id: `fee_${svc.id}`,
+      amount: String(svc.defaultFee || 0),
+      status: "ACTIVE",
+      updatedAt: new Date().toISOString(),
+    },
+    requirements: svc.requiredDocuments || [],
+  }));
 }
 
 /**

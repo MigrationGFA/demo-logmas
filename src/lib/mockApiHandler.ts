@@ -38,6 +38,12 @@ export const DEMO_PRESET_USERS = {
     nin: "98765432101",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   admin: {
     id: "usr_admin_001",
@@ -50,6 +56,12 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   treasurer: {
     id: "usr_treasurer_001",
@@ -62,6 +74,12 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   chairman: {
     id: "usr_chairman_001",
@@ -74,6 +92,12 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   super_admin: {
     id: "usr_super_001",
@@ -86,6 +110,12 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   auditor: {
     id: "usr_auditor_001",
@@ -98,6 +128,12 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   ward_councillor: {
     id: "usr_councillor_001",
@@ -110,6 +146,12 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   field_officer: {
     id: "usr_field_001",
@@ -122,6 +164,12 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   contractor: {
     id: "usr_contractor_001",
@@ -134,6 +182,12 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   business_owner: {
     id: "usr_biz_001",
@@ -148,6 +202,12 @@ export const DEMO_PRESET_USERS = {
     businessType: "Retail & Distribution",
     isActive: true,
     onboardingCompleted: true,
+    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
+    passwordResetRequired: false,
+    suspendedAt: null,
+    suspendedById: null,
+    suspensionReason: null,
+    ward: { id: "ward_2", name: "Ward 2 - Commercial District" },
   },
 };
 
@@ -185,7 +245,16 @@ function triggerSync() {
 export async function handleMockApiRequest(config: any): Promise<any> {
   const url = (config.url || "").replace(/^https?:\/\/[^/]+/, "").replace(/^\/api\/v1/, "").replace(/^\/api\/demo/, "");
   const method = (config.method || "GET").toUpperCase();
-  const data = typeof config.data === "string" ? JSON.parse(config.data || "{}") : (config.data || {});
+  let data: any = {};
+  if (typeof config.data === "string") {
+    try {
+      data = JSON.parse(config.data || "{}");
+    } catch {
+      data = {};
+    }
+  } else if (config.data && typeof config.data === "object") {
+    data = config.data;
+  }
   const params = config.params || {};
 
   // Artificial ultra-low latency for authentic responsiveness
@@ -226,9 +295,22 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         town: "Demo City",
         isActive: true,
         onboardingCompleted: true,
+        emailVerifiedAt: new Date().toISOString(),
+        passwordResetRequired: false,
+        suspendedAt: null,
+        suspendedById: null,
+        suspensionReason: null,
+        ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
         createdAt: new Date().toISOString(),
       };
       saveRegisteredDemoUser(found);
+    } else {
+      // Ensure found user always has emailVerifiedAt in demo
+      if (!found.emailVerifiedAt) {
+        found.emailVerifiedAt = new Date().toISOString();
+      }
+      found.isActive = true;
+      found.passwordResetRequired = false;
     }
 
     const token = `demo-token-${found.role}-${found.id}`;
@@ -251,6 +333,12 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       town: "Demo City",
       isActive: true,
       onboardingCompleted: true,
+      emailVerifiedAt: new Date().toISOString(),
+      passwordResetRequired: false,
+      suspendedAt: null,
+      suspendedById: null,
+      suspensionReason: null,
+      ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
       createdAt: new Date().toISOString(),
     };
     saveRegisteredDemoUser(newUser);
@@ -596,7 +684,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         a.certificateNumber === idOrCode ||
         a.verificationCode === idOrCode ||
         a.qrToken === idOrCode
-    ) || apps[0];
+    );
 
     if (app) {
       return respond({
@@ -652,6 +740,18 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         },
       });
     }
+
+    return {
+      status: 404,
+      statusText: "Not Found",
+      headers: {},
+      config,
+      data: {
+        status: "error",
+        data: null,
+        error: "Certificate not found in registry",
+      },
+    };
   }
 
   if (url.startsWith("/public/certificates/") || url.startsWith("/certificates/verify/")) {
@@ -663,7 +763,21 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         a.applicationNo === token ||
         a.qrToken === token ||
         a.verificationCode === token
-    ) || apps[0];
+    );
+
+    if (!foundApp) {
+      return {
+        status: 404,
+        statusText: "Not Found",
+        headers: {},
+        config,
+        data: {
+          status: "error",
+          data: null,
+          error: "Certificate not found in registry",
+        },
+      };
+    }
 
     const cert = transformApplicationToPublicCertificate(foundApp, token);
     return respond(cert);
@@ -672,14 +786,17 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   if (url.startsWith("/verify/")) {
     const code = url.split("/").pop() || "";
     const result = findByQrOrCode(code);
+    if (result) {
+      return respond({
+        valid: true,
+        details: result,
+        verificationMessage: `Authentic statutory record verified in LOGMAS Registry`,
+      });
+    }
     return respond({
-      valid: true,
-      details: result || {
-        issuedTo: "Dr. Babatunde Adeleke",
-        service: "Certificate of Origin",
-        issuedBy: LGA_CONFIG.identity.councilName,
-        status: "ACTIVE_AND_VALID",
-      },
+      valid: false,
+      details: null,
+      verificationMessage: `No record matching "${code}" found in LOGMAS Registry`,
     });
   }
 

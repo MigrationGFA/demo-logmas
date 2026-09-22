@@ -50,25 +50,10 @@ export function FullPageLoader({title="Page"}:{title?:string}) {
   );
 }
 
+import { DEMO_PRESET_USERS } from "@/lib/mockApiHandler";
+
 export function RedirectIfPasswordReset({ children }: { children: React.ReactNode }) {
-  const { user, isLoadingUser } = useAuth();
-  const [open, setOpen] = useState(user?.passwordResetRequired ?? false);
-
-  useEffect(() => {
-    if (!isLoadingUser && user) {
-      setOpen(user.passwordResetRequired ?? false);
-    }
-  }, [isLoadingUser, user]);
-
-  return (
-    <>
-      {children}
-      <ForcePasswordChangeModal
-        open={open}
-        setOpen={setOpen}
-      />
-    </>
-  );
+  return <>{children}</>;
 }
 
 interface ProtectedRouteProps {
@@ -78,58 +63,36 @@ interface ProtectedRouteProps {
 // Routes that don't require authentication
 const PUBLIC_ROUTES = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password'];
 
-// Routes that citizens/business owners should be redirected to onboarding
-const ONBOARDING_REQUIRED_ROUTES = ['/dashboard', '/dashboard/services', '/dashboard/applications'];
-
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const navigate = useRouter();
   const pathname = usePathname();
-  const { isLoadingUser, isUserDataFresh, user } = useAuth();
-  const token = tokenManager.getAccessToken();
+  const { isLoadingUser, user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // In demo environment, auto-provision citizen session if none exists
+    const existingToken = tokenManager.getAccessToken();
+    const existingUser = tokenManager.getUser();
+    if (!existingToken || !existingUser) {
+      tokenManager.setAccessToken("demo-offline-session-token");
+      tokenManager.setUser(DEMO_PRESET_USERS.citizen as any);
+    }
+  }, []);
 
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
   const isOnboardingRoute = pathname === "/onboarding";
-  const isCitizenOrBusiness = user?.role === "citizen" || user?.role === "business_owner";
-  const needsOnboarding = isCitizenOrBusiness && !user?.onboardingCompleted;
-  const needsEmailVerification = isCitizenOrBusiness && !user?.emailVerifiedAt;
-
-  const isReady = !isLoadingUser && isUserDataFresh;
-
-  let redirectTarget: string | null = null;
-  const redirectToastMessage: string | null = null;
-  let shouldClearSession = false;
-
-  if (!isLoadingUser && !token) {
-    redirectTarget = "/login";
-  } else if (isReady && user) {
-    if (needsEmailVerification && !isPublicRoute) {
-      // Unverified users can't be left holding a valid session  -  clear it
-      // or they'll just get bounced straight back here from /login.
-      redirectTarget = `/login?reason=unverified&email=${encodeURIComponent(user.email)}`;
-      shouldClearSession = true;
-    } else if (isOnboardingRoute) {
-      // Onboarding route is no longer a blocking page; redirect to dashboard where modal indicator is available
-      redirectTarget = "/dashboard";
-    } else if (isPublicRoute) {
-      redirectTarget = "/dashboard";
-    }
-  }
 
   useEffect(() => {
-    if (redirectTarget) {
-      if (shouldClearSession) {
-        tokenManager.clearAllTokens();
-      }
-      navigate.push(redirectTarget);
-      if (redirectToastMessage) toast.info(redirectToastMessage);
+    if (!mounted) return;
+    if (isOnboardingRoute || isPublicRoute) {
+      navigate.push("/dashboard");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [redirectTarget]);
+  }, [mounted, isOnboardingRoute, isPublicRoute, navigate]);
 
-  if (isLoadingUser || !token || !isUserDataFresh || redirectTarget) {
-    return <FullPageLoader />;
+  if (!mounted) {
+    return <FullPageLoader title="demo dashboard" />;
   }
 
-  // return <>{children}</>;
-   return <RedirectIfPasswordReset>{children}</RedirectIfPasswordReset>;
+  return <>{children}</>;
 }

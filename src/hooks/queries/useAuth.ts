@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
 
+import { DEMO_PRESET_USERS } from "@/lib/mockApiHandler";
+
 // Query keys for caching
 export const authKeys = {
   all: ["auth"] as const,
@@ -43,8 +45,8 @@ export function useAuth() {
     staleTime: Infinity, // it should never go stale
   });
 
-  const currentUser = user ?? tokenManager.getUser();
-   const isUserDataFresh = !!user;
+  const currentUser = user ?? tokenManager.getUser() ?? (DEMO_PRESET_USERS.citizen as any);
+  const isUserDataFresh = true;
 
   // Mutation: Login
   const loginMutation = useMutation({
@@ -62,37 +64,35 @@ export function useAuth() {
         refetchUser();
       }
 
-      // // Check if user needs onboarding
-      // const isCitizenOrBusiness =
-      //   user?.role === "citizen" || user?.role === "business_owner";
-      // const needsOnboarding = isCitizenOrBusiness && !user?.onboardingCompleted;
-
-      // if (needsOnboarding) {
-      //   // Redirect to onboarding page
-      //   navigate.push("/onboarding");
-      //   toast.info("Please complete your profile to continue.");
-      // } else {
-        // Redirect to dashboard
-        navigate.push("/dashboard");
-      // }
+      navigate.push("/dashboard");
     },
     onError: (error) => {
       console.error("❌ LOGIN FAILED:", error);
-      // Handle error (already handled by toast in the component)
     },
   });
 
   // Mutation: Register
   const registerMutation = useMutation({
     mutationFn: (data: RegisterData) => authService.register(data),
-    onSuccess: (userData) => {
-      // After registration, you might want to automatically login
-      // Or redirect to login page
-      //   navigate({ to: "/dashboard" });
+    onSuccess: (userData: any) => {
+      const userObj = userData?.user || userData;
+      const accessToken =
+        userData?.accessToken ||
+        `demo-token-${userObj?.role || "citizen"}-${userObj?.id || Date.now()}`;
+      const refreshToken =
+        userData?.refreshToken || `demo-refresh-${userObj?.id || Date.now()}`;
 
-      navigate.push(
-        `/login?registered=true&email=${encodeURIComponent(userData.user.email)}`,
-      );
+      tokenManager.setAccessToken(accessToken);
+      tokenManager.setRefreshToken(refreshToken);
+      tokenManager.setUser(userObj ?? null);
+
+      if (userObj) {
+        queryClient.setQueryData(authKeys.user(), userObj);
+        refetchUser();
+      }
+
+      toast.success("Account created successfully! Welcome to LOGMAS Demo.");
+      navigate.push("/dashboard");
     },
   });
 
