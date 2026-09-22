@@ -84,7 +84,7 @@ const ROLE_NAMES: Record<Role, string> = {
 
 export const TEST_CREDENTIALS: { role: Role; email: string; password: string }[] = [
   { role: "citizen", email: "citizen@logmas.gov.ng", password: "demo1234" },
-  { role: "citizen", email: "evans@joemarineng.com", password: "demo1234" },
+  // { role: "citizen", email: "evans@joemarineng.com", password: "demo1234" },
   { role: "lga_admin", email: "admin@logmas.gov.ng", password: "demo1234" },
   { role: "treasurer", email: "treasurer@logmas.gov.ng", password: "demo1234" },
   { role: "chairman", email: "chairman@logmas.gov.ng", password: "demo1234" },
