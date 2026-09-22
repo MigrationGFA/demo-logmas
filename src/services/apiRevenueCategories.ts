@@ -73,7 +73,10 @@ export const revenueCategoriesService = {
   // Get all categories (unpaginated)
   listCategories: async (type?: "LEVY" | "PERMIT"): Promise<RevenueCategory[]> => {
     void type;
-    return await api.get<RevenueCategory[]>(`/categories`);
+    const res = await api.get<any>(`/categories`);
+    if (Array.isArray(res)) return res;
+    if (res && Array.isArray(res.data)) return res.data;
+    return [];
   },
 
   // Create new category

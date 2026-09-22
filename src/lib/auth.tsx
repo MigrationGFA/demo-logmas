@@ -135,8 +135,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let customUser: any = null;
     if (typeof window !== "undefined") {
       try {
-        const customUsers = JSON.parse(window.localStorage.getItem("logmas.demo.users") || "[]");
-        customUser = customUsers.find((u: any) => u.email?.toLowerCase() === cleanEmail);
+        const raw = window.localStorage.getItem("logmas.demo.users");
+        if (raw && !raw.startsWith("<") && raw !== "undefined" && raw !== "null") {
+          const customUsers = JSON.parse(raw);
+          if (Array.isArray(customUsers)) {
+            customUser = customUsers.find((u: any) => u.email?.toLowerCase() === cleanEmail);
+          }
+        }
       } catch {}
     }
 

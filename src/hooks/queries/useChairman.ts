@@ -92,22 +92,24 @@ export function useChairmanWards() {
   console.log(wards,"wards")
 
   // Calculate total applications, complaints, businesses across all wards
+  const wardsList: any[] = Array.isArray(wards) ? wards : (wards?.wards || []);
+
   const totalStats = {
-    applications: wards?.wards?.reduce((sum: any, w: { _count: { stateOfOriginApplications: any; }; }) => sum + w._count.stateOfOriginApplications, 0) || 0,
-    complaints: wards?.wards.reduce((sum: any, w: { _count: { complaints: any; }; }) => sum + w._count.complaints, 0) || 0,
-    businesses: wards?.wards.reduce((sum: any, w: { _count: { businesses: any; }; }) => sum + w._count.businesses, 0) || 0,
+    applications: wardsList.reduce((sum: any, w: any) => sum + (w?._count?.stateOfOriginApplications || 0), 0) || 0,
+    complaints: wardsList.reduce((sum: any, w: any) => sum + (w?._count?.complaints || 0), 0) || 0,
+    businesses: wardsList.reduce((sum: any, w: any) => sum + (w?._count?.businesses || 0), 0) || 0,
   };
 
   // Get top performing ward by applications
-  const topWardByApplications = wards?.wards?.length
-    ? [...wards?.wards].sort((a, b) => b._count.stateOfOriginApplications - a._count.stateOfOriginApplications)[0]
+  const topWardByApplications = wardsList.length
+    ? [...wardsList].sort((a: any, b: any) => (b?._count?.stateOfOriginApplications || 0) - (a?._count?.stateOfOriginApplications || 0))[0]
     : null;
 
   // Get wards with no councillor assigned
-  const wardsWithoutCouncillor = wards?.wards?.filter((w: { councillor: any; }) => !w.councillor) || [];
+  const wardsWithoutCouncillor = wardsList.filter((w: any) => !w?.councillor) || [];
 
   return {
-    wards:wards?.wards,
+    wards: wardsList,
     totalStats,
     topWardByApplications,
     wardsWithoutCouncillor,

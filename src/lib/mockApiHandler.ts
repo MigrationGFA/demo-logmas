@@ -38,12 +38,6 @@ export const DEMO_PRESET_USERS = {
     nin: "98765432101",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   admin: {
     id: "usr_admin_001",
@@ -56,12 +50,6 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   treasurer: {
     id: "usr_treasurer_001",
@@ -74,12 +62,6 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   chairman: {
     id: "usr_chairman_001",
@@ -92,12 +74,6 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   super_admin: {
     id: "usr_super_001",
@@ -110,12 +86,6 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   auditor: {
     id: "usr_auditor_001",
@@ -128,12 +98,6 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   ward_councillor: {
     id: "usr_councillor_001",
@@ -146,12 +110,6 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   field_officer: {
     id: "usr_field_001",
@@ -164,12 +122,6 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   contractor: {
     id: "usr_contractor_001",
@@ -182,12 +134,6 @@ export const DEMO_PRESET_USERS = {
     town: "Demo City",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
   },
   business_owner: {
     id: "usr_biz_001",
@@ -202,20 +148,18 @@ export const DEMO_PRESET_USERS = {
     businessType: "Retail & Distribution",
     isActive: true,
     onboardingCompleted: true,
-    emailVerifiedAt: "2024-01-01T00:00:00.000Z",
-    passwordResetRequired: false,
-    suspendedAt: null,
-    suspendedById: null,
-    suspensionReason: null,
-    ward: { id: "ward_2", name: "Ward 2 - Commercial District" },
   },
 };
 
 function getDemoUsersList() {
   if (typeof window === "undefined") return Object.values(DEMO_PRESET_USERS);
   try {
-    const custom = JSON.parse(window.localStorage.getItem("logmas.demo.users") || "[]");
-    return [...Object.values(DEMO_PRESET_USERS), ...custom];
+    const raw = window.localStorage.getItem("logmas.demo.users");
+    if (!raw || raw.startsWith("<") || raw === "undefined" || raw === "null") {
+      return Object.values(DEMO_PRESET_USERS);
+    }
+    const custom = JSON.parse(raw);
+    return [...Object.values(DEMO_PRESET_USERS), ...(Array.isArray(custom) ? custom : [])];
   } catch {
     return Object.values(DEMO_PRESET_USERS);
   }
@@ -224,7 +168,14 @@ function getDemoUsersList() {
 function saveRegisteredDemoUser(user: any) {
   if (typeof window === "undefined") return;
   try {
-    const list = JSON.parse(window.localStorage.getItem("logmas.demo.users") || "[]");
+    const raw = window.localStorage.getItem("logmas.demo.users");
+    let list: any[] = [];
+    if (raw && !raw.startsWith("<") && raw !== "undefined" && raw !== "null") {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) list = parsed;
+      } catch {}
+    }
     list.unshift(user);
     window.localStorage.setItem("logmas.demo.users", JSON.stringify(list));
   } catch {
@@ -248,7 +199,11 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   let data: any = {};
   if (typeof config.data === "string") {
     try {
-      data = JSON.parse(config.data || "{}");
+      if (config.data && !config.data.startsWith("<") && config.data !== "undefined") {
+        data = JSON.parse(config.data);
+      } else {
+        data = {};
+      }
     } catch {
       data = {};
     }
@@ -295,22 +250,9 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         town: "Demo City",
         isActive: true,
         onboardingCompleted: true,
-        emailVerifiedAt: new Date().toISOString(),
-        passwordResetRequired: false,
-        suspendedAt: null,
-        suspendedById: null,
-        suspensionReason: null,
-        ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
         createdAt: new Date().toISOString(),
       };
       saveRegisteredDemoUser(found);
-    } else {
-      // Ensure found user always has emailVerifiedAt in demo
-      if (!found.emailVerifiedAt) {
-        found.emailVerifiedAt = new Date().toISOString();
-      }
-      found.isActive = true;
-      found.passwordResetRequired = false;
     }
 
     const token = `demo-token-${found.role}-${found.id}`;
@@ -333,12 +275,6 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       town: "Demo City",
       isActive: true,
       onboardingCompleted: true,
-      emailVerifiedAt: new Date().toISOString(),
-      passwordResetRequired: false,
-      suspendedAt: null,
-      suspendedById: null,
-      suspensionReason: null,
-      ward: { id: "ward_1", name: "Ward 1 - Demo Central" },
       createdAt: new Date().toISOString(),
     };
     saveRegisteredDemoUser(newUser);
@@ -356,7 +292,9 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     if (typeof window !== "undefined") {
       try {
         const raw = window.localStorage.getItem("logmas.auth.user");
-        if (raw) user = JSON.parse(raw);
+        if (raw && !raw.startsWith("<") && raw !== "undefined" && raw !== "null") {
+          user = JSON.parse(raw);
+        }
       } catch {}
     }
     if (!user) {
@@ -488,6 +426,39 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   // ==========================================
   // INVOICES & PAYMENTS ROUTING
   // ==========================================
+  if (url.startsWith("/invoices/public/initialize")) {
+    const srv = getServiceById(data.serviceId) || DEFAULT_SERVICES[0];
+    const ref = `INV-${Date.now().toString().slice(-6)}`;
+    const newInv = {
+      id: `inv-${Date.now()}`,
+      reference: ref,
+      customerName: data.fullName || "Citizen Applicant",
+      phone: data.phone || "+2348012345678",
+      levyType: srv.name,
+      amount: srv.fee,
+      status: "pending" as const,
+      paymentMethod: "online",
+      virtualAccount: "9918273645",
+      qrToken: `QR-${ref}`,
+      createdAt: new Date().toISOString(),
+      dueDate: new Date(Date.now() + 14 * 86400000).toISOString(),
+    };
+    setStore((prev) => ({ ...prev, invoices: [newInv, ...prev.invoices] }));
+    return respond({
+      paymentUrl: `/citizen/invoices/pay/${newInv.id}`,
+      reference: ref,
+      accessCode: `ACC-${ref}`,
+      message: "Invoice generated successfully",
+    });
+  }
+
+  if (url.startsWith("/invoices/by-ref/")) {
+    const ref = decodeURIComponent(url.replace("/invoices/by-ref/", "").split("?")[0]);
+    const s = getStore();
+    const inv = s.invoices.find((i) => i.reference.toUpperCase() === ref.toUpperCase() || i.id === ref);
+    return respond(inv || null);
+  }
+
   if (url === "/invoices/hub" || url.startsWith("/invoices/hub?")) {
     const s = getStore();
     const invoices = s.invoices;
@@ -497,6 +468,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     const totalOutstanding = unpaid.reduce((sum, i) => sum + i.amount, 0);
 
     return respond({
+      success: true,
       invoices,
       stats: {
         totalInvoices: invoices.length,
@@ -504,6 +476,9 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         totalUnpaidCount: unpaid.length,
         totalCollected,
         totalOutstanding,
+        outstanding: totalOutstanding,
+        transactions: invoices.length,
+        avgPayment: paid.length ? Math.round(totalCollected / paid.length) : 0,
       },
     });
   }
@@ -571,7 +546,48 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     const inv = s.invoices.find(
       (i) => i.id === idOrRef || i.reference.toUpperCase() === idOrRef.toUpperCase()
     );
-    if (inv) return respond(inv);
+    if (inv) {
+      return respond({
+        ...inv,
+        invoiceNumber: inv.reference,
+        totalAmount: inv.amount,
+        amountPaid: inv.status === "paid" ? inv.amount : 0,
+        balanceDue: inv.status === "paid" ? 0 : inv.amount,
+        subtotal: inv.amount,
+        penaltyAmount: 0,
+        invoiceType: "standard",
+        customerPhone: inv.phone,
+        description: inv.purpose || inv.levyType,
+        fieldOfficer: inv.officerName || "Treasury Gateway",
+        qrData: inv.qrToken,
+        receipt: inv.status === "paid" ? {
+          id: `rcp-${inv.id}`,
+          receiptNumber: `RCP-${inv.reference.replace(/[^0-9]/g, "").slice(-6) || "00142"}`,
+          verificationCode: `VCODE-${inv.id.slice(-4).toUpperCase()}`,
+          qrToken: inv.qrToken,
+          issuedAt: inv.createdAt,
+        } : null,
+        permit: null,
+        virtualAccount: {
+          accountNumber: inv.virtualAccount || "9912847291",
+          bankName: "LOGMAS Revenue Settlement Bank",
+          accountName: `IKENNE LGA - ${inv.customerName}`,
+          reference: inv.reference,
+        },
+        payments: inv.status === "paid" ? [
+          {
+            id: `pay-${inv.id}`,
+            amount: inv.amount,
+            method: inv.paymentMethod || "online",
+            status: "confirmed",
+            reference: inv.reference,
+            confirmedAt: inv.createdAt,
+            createdAt: inv.createdAt,
+          }
+        ] : [],
+        paymentOptions: ["transfer", "pos", "card", "virtual_account"],
+      });
+    }
   }
 
   if (url.startsWith("/payments/verify/")) {
@@ -684,7 +700,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         a.certificateNumber === idOrCode ||
         a.verificationCode === idOrCode ||
         a.qrToken === idOrCode
-    );
+    ) || apps[0];
 
     if (app) {
       return respond({
@@ -740,18 +756,6 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         },
       });
     }
-
-    return {
-      status: 404,
-      statusText: "Not Found",
-      headers: {},
-      config,
-      data: {
-        status: "error",
-        data: null,
-        error: "Certificate not found in registry",
-      },
-    };
   }
 
   if (url.startsWith("/public/certificates/") || url.startsWith("/certificates/verify/")) {
@@ -763,21 +767,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         a.applicationNo === token ||
         a.qrToken === token ||
         a.verificationCode === token
-    );
-
-    if (!foundApp) {
-      return {
-        status: 404,
-        statusText: "Not Found",
-        headers: {},
-        config,
-        data: {
-          status: "error",
-          data: null,
-          error: "Certificate not found in registry",
-        },
-      };
-    }
+    ) || apps[0];
 
     const cert = transformApplicationToPublicCertificate(foundApp, token);
     return respond(cert);
@@ -786,17 +776,938 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   if (url.startsWith("/verify/")) {
     const code = url.split("/").pop() || "";
     const result = findByQrOrCode(code);
-    if (result) {
+    return respond({
+      valid: true,
+      details: result || {
+        issuedTo: "Dr. Babatunde Adeleke",
+        service: "Certificate of Origin",
+        issuedBy: LGA_CONFIG.identity.councilName,
+        status: "ACTIVE_AND_VALID",
+      },
+    });
+  }
+
+  // ==========================================
+  // REPORTS & EXPORTS ROUTING
+  // ==========================================
+  if (url.startsWith("/reports/overview")) {
+    const s = getStore();
+    const paidInvoices = s.invoices.filter((i) => i.status === "paid");
+    const totalRev = paidInvoices.reduce((acc, i) => acc + i.amount, 0) || 18450000;
+
+    return respond({
+      period: {
+        from: new Date(Date.now() - 30 * 86400000).toISOString(),
+        to: new Date().toISOString(),
+      },
+      stats: {
+        totalRevenue: totalRev,
+        byMethod: {
+          transfer: 2150000,
+          pos: 3800000,
+          cash: 1200000,
+          online: totalRev > 7150000 ? totalRev - 7150000 : 11300000,
+        },
+      },
+      byLevy: [
+        { levy: "Trade Permit", transactions: 65, revenue: 6100000 },
+        { levy: "Certificate of Origin", transactions: 84, revenue: 4200000 },
+        { levy: "Market Levy", transactions: 142, revenue: 2900000 },
+        { levy: "Property Tax", transactions: 38, revenue: 4800000 },
+      ],
+      byServiceType: [
+        { type: "certificate_of_origin", transactions: 84, revenue: 4200000, label: "Certificate of Origin" },
+        { type: "trade_permit", transactions: 65, revenue: 6100000, label: "Trade Permit" },
+        { type: "market_levy", transactions: 142, revenue: 2900000, label: "Market Levy" },
+      ],
+      byService: [
+        { id: "certificate_of_origin", code: "certificate_of_origin", name: "Certificate of Origin", transactions: 84, revenue: 4200000 },
+        { id: "trade_permit", code: "trade_permit", name: "Trade Permit", transactions: 65, revenue: 6100000 },
+        { id: "market_levy", code: "market_levy", name: "Market Levy", transactions: 142, revenue: 2900000 },
+      ],
+      byOfficer: (s.officers || []).map((o) => ({
+        id: o.id,
+        name: o.name,
+        ward: o.ward,
+        invoicesIssued: o.invoicesIssued || 35,
+        totalCollected: o.totalCollected || 450000,
+        totalInvoiced: (o.totalCollected || 450000) + 120000,
+      })),
+      invoices: s.invoices.map((i) => ({
+        id: i.id,
+        reference: i.reference,
+        customerName: i.customerName,
+        levyType: i.levyType,
+        status: i.status,
+        amount: i.amount,
+        dueDate: i.dueDate,
+        paidAt: i.status === "paid" ? i.createdAt : null,
+      })),
+      receipts: s.receipts.map((r) => ({
+        id: r.id,
+        receiptNumber: r.receiptNumber,
+        customerName: r.customerName,
+        paymentMethod: r.paymentMethod,
+        officerName: r.officerName || "Treasury Gateway",
+        amount: r.amount,
+        levyType: r.levyType,
+        paidAt: r.paidAt,
+      })),
+    });
+  }
+
+  if (url.startsWith("/reports/export/invoices")) {
+    const s = getStore();
+    return respond(
+      s.invoices.map((i) => ({
+        reference: i.reference,
+        customerName: i.customerName,
+        levyType: i.levyType,
+        status: i.status,
+        amount: i.amount,
+        amountPaid: i.status === "paid" ? i.amount : 0,
+        balanceDue: i.status === "paid" ? 0 : i.amount,
+        dueDate: i.dueDate,
+        createdAt: i.createdAt,
+      }))
+    );
+  }
+
+  if (url.startsWith("/reports/export/receipts")) {
+    const s = getStore();
+    return respond(
+      s.receipts.map((r) => ({
+        receiptNumber: r.receiptNumber,
+        customerName: r.customerName,
+        levyType: r.levyType,
+        paymentMethod: r.paymentMethod,
+        officerName: r.officerName || "Treasury Gateway",
+        amount: r.amount,
+        paidAt: r.paidAt,
+      }))
+    );
+  }
+
+  if (url.startsWith("/reports/collections")) {
+    const s = getStore();
+    return respond({
+      total: s.receipts.reduce((a, b) => a + b.amount, 0) || 18450000,
+      rows: s.receipts,
+    });
+  }
+
+  // ==========================================
+  // TREASURER ROUTING
+  // ==========================================
+  if (url.startsWith("/treasurer/overview")) {
+    const s = getStore();
+    const apps = getLgaApplications();
+    const paidInvoices = s.invoices.filter((i) => i.status === "paid");
+    const unpaidInvoices = s.invoices.filter((i) => i.status !== "paid");
+    const totalCollected = paidInvoices.reduce((a, b) => a + b.amount, 0) || 18450000;
+    const totalOutstanding = unpaidInvoices.reduce((a, b) => a + b.amount, 0) || 6350000;
+
+    return respond({
+      period: {
+        from: new Date(Date.now() - 30 * 86400000).toISOString(),
+        to: new Date().toISOString(),
+      },
+      summary: {
+        totalInvoices: s.invoices.length || 142,
+        totalInvoiced: totalCollected + totalOutstanding,
+        totalCollected,
+        totalOutstanding,
+        collectionRate: `${Math.round((paidInvoices.length / (s.invoices.length || 1)) * 100)}%`,
+        confirmedTransactions: paidInvoices.length || 118,
+        totalPaymentTransactions: s.invoices.length || 142,
+      },
+      paymentMethods: [
+        { method: "online", totalCollected: 12500000, transactions: 84 },
+        { method: "pos", totalCollected: 3800000, transactions: 24 },
+        { method: "bank_transfer", totalCollected: 2150000, transactions: 10 },
+      ],
+      applicationStatuses: [
+        { status: "Approved", count: apps.filter((a) => a.status === "Approved").length || 32 },
+        { status: "Under Review", count: apps.filter((a) => a.status === "Under Review").length || 8 },
+        { status: "Submitted", count: apps.filter((a) => a.status === "Submitted").length || 14 },
+      ],
+      revenueByService: DEFAULT_SERVICES.map((srv) => ({
+        serviceId: srv.id,
+        serviceName: srv.name,
+        serviceCode: srv.id,
+        totalCollected: 450000,
+        transactions: 12,
+      })),
+      recentPayments: s.receipts.slice(0, 10).map((r) => ({
+        id: r.id,
+        amount: r.amount,
+        method: r.paymentMethod,
+        status: "confirmed",
+        reference: r.receiptNumber,
+        gatewayRef: `GTW-${r.id}`,
+        createdAt: r.paidAt,
+        confirmedAt: r.paidAt,
+        invoice: {
+          id: r.invoiceId,
+          invoiceNumber: r.invoiceRef,
+          amount: r.amount,
+          application: {
+            applicationNumber: r.invoiceRef,
+            fullName: r.customerName,
+            service: { name: r.levyType },
+          },
+        },
+      })),
+    });
+  }
+
+  if (url.startsWith("/treasurer/revenue/by-officer")) {
+    const s = getStore();
+    return respond({
+      revenueByOfficer: (s.officers || []).map((o) => ({
+        id: o.id,
+        officerName: o.name,
+        ward: o.ward,
+        totalCollected: o.totalCollected || 250000,
+        invoicesIssued: o.invoicesIssued || 18,
+        collectionRate: "92%",
+      })),
+    });
+  }
+
+  if (url.startsWith("/treasurer/revenue/by-ward")) {
+    return respond({
+      revenueByWard: [
+        { wardId: "w1", wardName: "Atan Ward", totalCollected: 5800000, target: 6000000, percentage: 96 },
+        { wardId: "w2", wardName: "Ojowo Ward", totalCollected: 4900000, target: 5500000, percentage: 89 },
+        { wardId: "w3", wardName: "Owu Ward", totalCollected: 4200000, target: 5000000, percentage: 84 },
+      ],
+    });
+  }
+
+  if (url.startsWith("/treasurer/revenue")) {
+    return respond({
+      period: { from: "2026-01-01", to: "2026-12-31" },
+      byCategory: [
+        { category: "state_of_origin_fee", invoiced: 4500000, collected: 4200000, invoiceCount: 84 },
+        { category: "trade_permits", invoiced: 6800000, collected: 6100000, invoiceCount: 65 },
+        { category: "market_levy", invoiced: 3200000, collected: 2900000, invoiceCount: 142 },
+        { category: "property_tax", invoiced: 5100000, collected: 4800000, invoiceCount: 38 },
+      ],
+      dailyTrend: [
+        { date: "2026-09-18", collected: 540000, transactions: 14 },
+        { date: "2026-09-19", collected: 620000, transactions: 18 },
+        { date: "2026-09-20", collected: 780000, transactions: 22 },
+        { date: "2026-09-21", collected: 890000, transactions: 25 },
+        { date: "2026-09-22", collected: 940000, transactions: 28 },
+      ],
+    });
+  }
+
+  if (url.startsWith("/treasurer/field-officers")) {
+    const s = getStore();
+    return respond({
+      data: (s.officers || []).map((o) => ({
+        id: o.id,
+        name: o.name,
+        email: o.email,
+        phone: o.phone,
+        ward: o.ward,
+        status: o.status,
+        totalCollected: o.totalCollected,
+        invoicesIssued: o.invoicesIssued,
+      })),
+      summary: {
+        totalOfficers: s.officers.length,
+        activeOfficers: s.officers.filter((o) => o.status === "active").length,
+        totalCollected: s.officers.reduce((acc, o) => acc + o.totalCollected, 0),
+      },
+    });
+  }
+
+  if (url.startsWith("/treasurer/reconciliation")) {
+    const s = getStore();
+    return respond({
+      data: s.invoices.slice(0, 20).map((i) => ({
+        id: i.id,
+        reference: i.reference,
+        amount: i.amount,
+        status: i.status === "paid" ? "matched" : "pending",
+        date: i.createdAt,
+        customerName: i.customerName,
+      })),
+      stats: {
+        totalTransactions: s.invoices.length,
+        totalAmount: s.invoices.reduce((a, b) => a + b.amount, 0),
+        matched: s.invoices.filter((i) => i.status === "paid").length,
+        discrepancies: 0,
+        pendingCount: s.invoices.filter((i) => i.status !== "paid").length,
+      },
+    });
+  }
+
+  if (url.startsWith("/treasurer/service-fees")) {
+    return respond(
+      DEFAULT_SERVICES.map((srv) => ({
+        id: `fee-${srv.id}`,
+        serviceId: srv.id,
+        serviceName: srv.name,
+        amount: srv.fee,
+        status: "ACTIVE",
+        updatedAt: new Date().toISOString(),
+      }))
+    );
+  }
+
+  if (url.startsWith("/treasurer/invoices")) {
+    const s = getStore();
+    return respond({
+      items: s.invoices,
+      total: s.invoices.length,
+      page: 1,
+      limit: 50,
+    });
+  }
+
+  // ==========================================
+  // CHAIRMAN ROUTING
+  // ==========================================
+  if (url.startsWith("/chairman/overview")) {
+    const s = getStore();
+    const apps = getLgaApplications();
+    return respond({
+      success: true,
+      role: "chairman",
+      metrics: {
+        totalRevenue: s.receipts.reduce((a, b) => a + b.amount, 0) || 18450000,
+        activePermits: s.permits.length || 34,
+        overdueInvoices: s.invoices.filter((i) => i.status === "overdue").length || 3,
+        wardCoverage: 100,
+        pendingApplications: apps.filter((a) => a.status === "Submitted" || a.status === "Under Review").length || 8,
+        approvedCertificates: apps.filter((a) => a.status === "Approved").length || 42,
+        pendingComplaints: 2,
+        activeOfficersCount: s.officers.filter((o) => o.status === "active").length || 14,
+        totalInvoicesCount: s.invoices.length || 142,
+        pendingBillsCount: s.invoices.filter((i) => i.status !== "paid").length || 24,
+      },
+    });
+  }
+
+  if (url.startsWith("/chairman/revenue")) {
+    return respond({
+      period: { from: "2026-01-01", to: "2026-12-31" },
+      byCategory: [
+        { category: "state_of_origin_fee", invoiced: 4500000, collected: 4200000, invoiceCount: 84 },
+        { category: "trade_permits", invoiced: 6800000, collected: 6100000, invoiceCount: 65 },
+        { category: "market_levy", invoiced: 3200000, collected: 2900000, invoiceCount: 142 },
+        { category: "property_tax", invoiced: 5100000, collected: 4800000, invoiceCount: 38 },
+      ],
+      dailyTrend: [
+        { date: "2026-09-18", collected: 540000, transactions: 14 },
+        { date: "2026-09-19", collected: 620000, transactions: 18 },
+        { date: "2026-09-20", collected: 780000, transactions: 22 },
+        { date: "2026-09-21", collected: 890000, transactions: 25 },
+        { date: "2026-09-22", collected: 940000, transactions: 28 },
+      ],
+    });
+  }
+
+  if (url.startsWith("/chairman/wards")) {
+    const list = [
+      {
+        id: "w-1",
+        name: "Atan Ward",
+        code: "WRD-ATAN",
+        description: "Atan urban center and trade precinct",
+        councillor: { id: "c-1", firstName: "Hon. Taiwo", lastName: "Adeleke", isActive: true },
+        _count: { complaints: 2, stateOfOriginApplications: 14, businesses: 32 },
+      },
+      {
+        id: "w-2",
+        name: "Ojowo Ward",
+        code: "WRD-OJOWO",
+        description: "Ojowo market trade area",
+        councillor: { id: "c-2", firstName: "Hon. Bisi", lastName: "Ogunleye", isActive: true },
+        _count: { complaints: 1, stateOfOriginApplications: 18, businesses: 45 },
+      },
+      {
+        id: "w-3",
+        name: "Owu Ward",
+        code: "WRD-OWU",
+        description: "Owu commercial district",
+        councillor: { id: "c-3", firstName: "Hon. Femi", lastName: "Daramola", isActive: true },
+        _count: { complaints: 0, stateOfOriginApplications: 11, businesses: 26 },
+      },
+    ];
+    return respond({ wards: list });
+  }
+
+  if (url.startsWith("/chairman/applications")) {
+    return respond({
+      byStatus: {
+        pending: 4,
+        submitted: 8,
+        payment_pending: 3,
+        paid: 12,
+        under_review: 6,
+        forwarded_to_councillor: 2,
+        approved: 42,
+        rejected: 2,
+        certificate_issued: 38,
+      },
+      byWard: [
+        { ward: { id: "w-1", name: "Atan Ward" }, count: 24 },
+        { ward: { id: "w-2", name: "Ojowo Ward" }, count: 32 },
+        { ward: { id: "w-3", name: "Owu Ward" }, count: 18 },
+      ],
+    });
+  }
+
+  if (url.startsWith("/chairman/complaints")) {
+    return respond({
+      total: 8,
+      resolved: 6,
+      pending: 2,
+      byStatus: { open: 2, in_progress: 1, resolved: 5, closed: 0 },
+      byWard: [
+        { ward: { id: "w-1", name: "Atan Ward" }, count: 1 },
+        { ward: { id: "w-2", name: "Ojowo Ward" }, count: 1 },
+      ],
+    });
+  }
+
+  // ==========================================
+  // AUDITOR ROUTING
+  // ==========================================
+  if (url.startsWith("/auditor/audit-logs")) {
+    const s = getStore();
+    const subMatch = url.match(/^\/auditor\/audit-logs\/([^/?]+)$/);
+    if (subMatch) {
+      const id = subMatch[1];
+      const a = s.audits.find((x) => x.id === id) || s.audits[0] || {
+        id,
+        createdAt: new Date().toISOString(),
+        actor: "Auditor Demo",
+        actorRole: "auditor",
+        action: "verification_check",
+        target: "System Registry",
+        meta: {},
+      };
       return respond({
-        valid: true,
-        details: result,
-        verificationMessage: `Authentic statutory record verified in LOGMAS Registry`,
+        ...a,
+        entity: "AuditRecord",
+        entityId: a.id,
+        ipAddress: "127.0.0.1",
+        email: "auditor@logmas.gov.ng",
+        user: {
+          id: "usr_auditor_001",
+          firstName: "Council",
+          lastName: "Auditor",
+          email: "auditor@logmas.gov.ng",
+          role: "auditor",
+        },
       });
     }
+
     return respond({
-      valid: false,
-      details: null,
-      verificationMessage: `No record matching "${code}" found in LOGMAS Registry`,
+      stats: {
+        total: s.audits.length || 45,
+        paymentEvents: s.audits.filter((a) => a.action?.includes("payment")).length || 18,
+        permitEvents: s.audits.filter((a) => a.action?.includes("permit")).length || 12,
+        suspicious: 0,
+      },
+      data: s.audits.map((a) => ({
+        id: a.id,
+        createdAt: a.createdAt,
+        actor: a.actor,
+        actorRole: a.actorRole,
+        action: a.action,
+        target: a.target,
+        meta: a.meta || {},
+        entity: "SystemTransaction",
+        entityId: a.id,
+        ipAddress: "192.168.1.1",
+        email: "auditor@logmas.gov.ng",
+      })),
+      pagination: {
+        total: s.audits.length || 45,
+        page: 1,
+        limit: 25,
+        totalPages: 1,
+      },
+    });
+  }
+
+  // ==========================================
+  // COMPLAINTS ROUTING
+  // ==========================================
+  if (url.startsWith("/complaints")) {
+    const demoComplaints = [
+      {
+        id: "cmp-1",
+        ticketNumber: "LOG-CMP-2026-001",
+        title: "Market stall billing inquiry",
+        description: "Request clarification on quarterly market levy assessment rate.",
+        status: "resolved",
+        category: "Levy Assessment",
+        wardId: "w-1",
+        raisedById: "usr_citizen_001",
+        ward: { id: "w-1", name: "Atan Ward", code: "W1" },
+        raisedBy: { id: "usr_citizen_001", firstName: "Dr. Babatunde", lastName: "Adeleke", email: "citizen@logmas.gov.ng" },
+        createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+        resolvedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+        resolutionNote: "Rate verified according to official LGA Bye-Law Schedule 2.",
+        responses: [
+          {
+            id: "res-1",
+            message: "Assessed based on standard retail floor area rate.",
+            respondedBy: { id: "adm-1", firstName: "Council", lastName: "Admin", role: "lga_admin" },
+            createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+          },
+        ],
+      },
+      {
+        id: "cmp-2",
+        ticketNumber: "LOG-CMP-2026-002",
+        title: "Certificate verification status update",
+        description: "Checking processing status of Indigene Certificate submitted last week.",
+        status: "open",
+        category: "Statutory Certificate",
+        wardId: "w-2",
+        raisedById: "usr_citizen_001",
+        ward: { id: "w-2", name: "Ojowo Ward", code: "W2" },
+        raisedBy: { id: "usr_citizen_001", firstName: "Dr. Babatunde", lastName: "Adeleke", email: "citizen@logmas.gov.ng" },
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      },
+    ];
+
+    if (url.includes("/stats")) {
+      return respond({
+        total: demoComplaints.length,
+        breakdown: { open: 1, assigned: 0, in_progress: 0, resolved: 1, closed: 0 },
+      });
+    }
+
+    if (method === "POST" && !url.includes("/respond")) {
+      const newCmp = {
+        id: `cmp-${Date.now()}`,
+        ticketNumber: `LOG-CMP-2026-${Math.floor(100 + Math.random() * 900)}`,
+        title: data.title || "Citizen Feedback",
+        description: data.description || "General complaint inquiry",
+        status: "open",
+        category: data.category || "General",
+        wardId: "w-1",
+        raisedById: "usr_citizen_001",
+        ward: { id: "w-1", name: "Atan Ward", code: "W1" },
+        raisedBy: { id: "usr_citizen_001", firstName: "Dr. Babatunde", lastName: "Adeleke", email: "citizen@logmas.gov.ng" },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return respond(newCmp);
+    }
+
+    if (url.includes("/admin") || url.includes("/ward")) {
+      return respond({
+        complaints: demoComplaints,
+        meta: { total: demoComplaints.length, page: 1, limit: 20, totalPages: 1 },
+      });
+    }
+
+    return respond({
+      complaints: demoComplaints,
+      meta: { total: demoComplaints.length, page: 1, limit: 20, totalPages: 1 },
+    });
+  }
+
+  // ==========================================
+  // BUSINESS ROUTING
+  // ==========================================
+  if (url.startsWith("/business")) {
+    const s = getStore();
+    const demoBiz = {
+      id: "biz_demo_001",
+      businessName: "Adeleke & Sons Agro Allied Enterprises",
+      ownerName: "Dr. Babatunde Adeleke",
+      address: "14 Adeleke Crescent, Demo City",
+      phone: "+234 803 123 4567",
+      email: "citizen@logmas.gov.ng",
+      cacNumber: "RC-892341",
+      category: "Agricultural & Food Processing",
+      description: "Licensed municipal commercial agricultural distributor",
+      isActive: true,
+      wardId: "w-1",
+      ownerId: "usr_citizen_001",
+      createdAt: new Date(Date.now() - 90 * 86400000).toISOString(),
+      updatedAt: new Date().toISOString(),
+      ward: { id: "w-1", name: "Atan Ward", code: "W1" },
+      permits: (s.permits || []).map((p) => ({
+        id: p.id,
+        permitNumber: p.permitNumber,
+        permitType: p.permitType,
+        status: p.status,
+        issueDate: p.issueDate || new Date().toISOString().slice(0, 10),
+        expiryDate: p.expiryDate || new Date(Date.now() + 300 * 86400000).toISOString().slice(0, 10),
+        qrToken: p.qrToken,
+        businessName: p.businessName,
+        fee: p.fee,
+        invoiceId: `inv-${p.id}`,
+        invoice: {
+          id: `inv-${p.id}`,
+          status: "paid",
+          totalAmount: p.fee,
+          balanceDue: 0,
+        },
+      })),
+    };
+
+    if (url.startsWith("/business/permits")) {
+      if (url.includes("/verify/")) {
+        const code = url.split("/").pop() || "";
+        return respond({
+          valid: true,
+          permit: demoBiz.permits[0] || {
+            permitNumber: code,
+            businessName: demoBiz.businessName,
+            status: "issued",
+            fee: 25000,
+          },
+        });
+      }
+      return respond({
+        permits: demoBiz.permits,
+        total: demoBiz.permits.length,
+      });
+    }
+
+    if (url.startsWith("/business/invoices")) {
+      return respond({
+        items: s.invoices.slice(0, 10),
+        total: s.invoices.length,
+        page: 1,
+        limit: 10,
+      });
+    }
+
+    if (url.startsWith("/business/my") || url === "/business") {
+      if (method === "PATCH" || method === "POST") {
+        return respond({ ...demoBiz, ...data, updatedAt: new Date().toISOString() });
+      }
+      return respond(demoBiz);
+    }
+  }
+
+  // ==========================================
+  // FIELD OFFICER ROUTING
+  // ==========================================
+  if (url.startsWith("/field-officer")) {
+    const s = getStore();
+
+    if (url.startsWith("/field-officer/collections/summary")) {
+      return respond({
+        totalCollected: 450000,
+        count: 18,
+        cash: 120000,
+        pos: 330000,
+      });
+    }
+
+    if (url.startsWith("/field-officer/collections")) {
+      return respond({
+        data: s.receipts,
+        total: s.receipts.length,
+        page: 1,
+        limit: 20,
+      });
+    }
+
+    if (url.startsWith("/field-officer/businesses")) {
+      if (method === "POST") {
+        const newBiz = {
+          id: `biz-${Date.now()}`,
+          businessName: data.businessName || "New Enterprise",
+          ownerName: data.ownerName || "Business Owner",
+          address: data.address || "Market Road",
+          phone: data.phone || "+234 800 000 1122",
+          category: data.category || "Retail",
+          wardId: data.wardId || "w-1",
+          ownerId: "usr_citizen_001",
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        return respond(newBiz);
+      }
+      return respond(
+        s.customers.map((c) => ({
+          id: c.id,
+          businessName: c.businessName || c.name,
+          ownerName: c.name,
+          address: c.address,
+          phone: c.phone,
+          email: c.email,
+          category: "Retail Commerce",
+          isActive: true,
+          wardId: "w-1",
+          ownerId: c.id,
+          createdAt: c.createdAt,
+          updatedAt: c.createdAt,
+        }))
+      );
+    }
+
+    if (url.startsWith("/field-officer/permits")) {
+      return respond({
+        data: s.permits,
+        total: s.permits.length,
+      });
+    }
+
+    if (url.startsWith("/field-officer/violations")) {
+      return respond({
+        id: `viol-${Date.now()}`,
+        businessName: data.businessName || "Default Business",
+        reason: data.reason || "Trade permit non-compliance",
+        loggedAt: new Date().toISOString(),
+      });
+    }
+  }
+
+  // ==========================================
+  // LGA ADMIN ROUTING
+  // ==========================================
+  if (url.startsWith("/lga/contractors/overview")) {
+    return respond({
+      summary: { totalContractors: 2, totalAgents: 28, totalCollections: 14200000 },
+      contractors: [
+        {
+          id: "c-1",
+          name: "Prime Revenue Services Ltd",
+          rcNumber: "RC-482910",
+          contactPerson: "Alhaji Garba",
+          phone: "+234 802 334 1122",
+          agentsCount: 14,
+          totalCollected: 7800000,
+          status: "active",
+        },
+        {
+          id: "c-2",
+          name: "Metro Tax Associates",
+          rcNumber: "RC-392811",
+          contactPerson: "Chief O. Okonjo",
+          phone: "+234 803 556 2233",
+          agentsCount: 14,
+          totalCollected: 6400000,
+          status: "active",
+        },
+      ],
+    });
+  }
+
+  if (url.startsWith("/lga/accounts/overview")) {
+    return respond({
+      summary: { totalAccounts: 18, activeAccounts: 18, suspendedAccounts: 0 },
+      accounts: [
+        { id: "acc-1", email: "chairman@logmas.gov.ng", name: "Council Chairman", role: "chairman", isActive: true, lastLogin: new Date().toISOString() },
+        { id: "acc-2", email: "treasurer@logmas.gov.ng", name: "Council Treasurer", role: "treasurer", isActive: true, lastLogin: new Date().toISOString() },
+        { id: "acc-3", email: "auditor@logmas.gov.ng", name: "Council Auditor", role: "auditor", isActive: true, lastLogin: new Date().toISOString() },
+        { id: "acc-4", email: "admin@logmas.gov.ng", name: "LGA Admin", role: "lga_admin", isActive: true, lastLogin: new Date().toISOString() },
+      ],
+    });
+  }
+
+  if (url.startsWith("/lga/wards")) {
+    const s = getStore();
+    const subMatch = url.match(/^\/lga\/wards\/([^/?]+)$/);
+    if (subMatch) {
+      const id = subMatch[1];
+      return respond({
+        id,
+        name: "Atan Ward",
+        code: "W1",
+        description: "Administrative central ward",
+      });
+    }
+    return respond([
+      { id: "w-1", name: "Atan Ward", code: "W1", description: "Central commercial ward" },
+      { id: "w-2", name: "Ojowo Ward", code: "W2", description: "Market sector ward" },
+      { id: "w-3", name: "Owu Ward", code: "W3", description: "Urban residential ward" },
+    ]);
+  }
+
+  if (url.startsWith("/lga/staff")) {
+    const s = getStore();
+    const subMatch = url.match(/^\/lga\/staff\/([^/?]+)$/);
+    if (subMatch) {
+      const id = subMatch[1];
+      const off = s.officers.find((o) => o.id === id) || s.officers[0];
+      return respond({
+        id,
+        firstName: off?.name?.split(" ")[0] || "Staff",
+        lastName: off?.name?.split(" ")[1] || "Officer",
+        email: off?.email || "staff@logmas.gov.ng",
+        role: "field_officer",
+        isActive: true,
+      });
+    }
+    return respond(
+      (s.officers || []).map((o) => ({
+        id: o.id,
+        firstName: o.name.split(" ")[0] || "Officer",
+        lastName: o.name.split(" ")[1] || "Field",
+        email: o.email,
+        phone: o.phone,
+        role: "field_officer",
+        isActive: o.status === "active",
+      }))
+    );
+  }
+
+  if (url.startsWith("/lga/permits")) {
+    const s = getStore();
+    return respond({
+      data: s.permits,
+      total: s.permits.length,
+    });
+  }
+
+  // ==========================================
+  // CUSTOMERS & PERMITS & LEVIES ROUTING
+  // ==========================================
+  if (url.startsWith("/customers")) {
+    const s = getStore();
+    const subMatch = url.match(/^\/customers\/([^/?]+)$/);
+    if (subMatch) {
+      const id = subMatch[1];
+      if (method === "DELETE") {
+        setStore((prev) => ({
+          ...prev,
+          customers: prev.customers.filter((c) => c.id !== id),
+        }));
+        return respond({ message: "Customer removed" });
+      }
+      const cust = s.customers.find((c) => c.id === id) || s.customers[0];
+      return respond(cust);
+    }
+
+    if (method === "POST") {
+      const newC = {
+        id: `c-${Date.now()}`,
+        name: data.name || data.businessName || "New Customer",
+        phone: data.phone || "+2348000000000",
+        email: data.email || "user@example.com",
+        address: data.address || "Local Address",
+        businessName: data.businessName,
+        ward: data.ward || "Atan",
+        createdAt: new Date().toISOString(),
+      };
+      setStore((prev) => ({ ...prev, customers: [newC, ...prev.customers] }));
+      return respond(newC);
+    }
+
+    return respond(s.customers);
+  }
+
+  if (url.startsWith("/categories")) {
+    const list = [
+      {
+        id: "cat-1",
+        name: "Commercial & Business Trade",
+        slug: "commercial-business-trade",
+        type: "permit",
+        description: "Business operations, shops, and trade premises",
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        _count: { levyConfigs: 2, permitConfigs: 4, invoices: 45 },
+        levyConfigs: [],
+        permitConfigs: [
+          { id: "pc-1", name: "Major Commercial Trade Permit", baseAmount: 35000, isActive: true, type: "yearly" },
+          { id: "pc-2", name: "Small Business Permit", baseAmount: 15000, isActive: true, type: "yearly" },
+        ],
+      },
+      {
+        id: "cat-2",
+        name: "Statutory Certificates",
+        slug: "statutory-certificates",
+        type: "service",
+        description: "Official LGA documentation and certifications",
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        _count: { levyConfigs: 1, permitConfigs: 2, invoices: 88 },
+        levyConfigs: [],
+        permitConfigs: [],
+      },
+    ];
+    return respond(Object.assign([...list], { data: list }));
+  }
+
+  if (url.startsWith("/permits")) {
+    const s = getStore();
+    const verifyMatch = url.match(/^\/permits\/verify\/([^/?]+)$/);
+    if (verifyMatch) {
+      const token = decodeURIComponent(verifyMatch[1]);
+      const p = s.permits.find((x) => x.id === token || x.permitNumber === token || x.qrToken === token) || s.permits[0];
+      return respond(p);
+    }
+    const singleMatch = url.match(/^\/permits\/([^/?]+)$/);
+    if (singleMatch) {
+      const id = singleMatch[1];
+      const p = s.permits.find((x) => x.id === id) || s.permits[0];
+      return respond(p);
+    }
+    return respond(s.permits);
+  }
+
+  if (url.startsWith("/permit-types")) {
+    return respond([
+      { id: "pt-1", name: "Shop Permit", baseAmount: 12000, category: "trade_permit" },
+      { id: "pt-2", name: "Market Trader Permit", baseAmount: 7500, category: "market_levy" },
+      { id: "pt-3", name: "Liquor Licence", baseAmount: 25000, category: "other" },
+    ]);
+  }
+
+  if (url.startsWith("/permit-configs")) {
+    const s = getStore();
+    return respond(s.permitConfigs);
+  }
+
+  if (url.startsWith("/levy-prices")) {
+    const s = getStore();
+    return respond(s.levies);
+  }
+
+  if (url.startsWith("/wards") || url.startsWith("/general/wards")) {
+    const list = [
+      { id: "w-1", name: "Atan Ward", code: "W1" },
+      { id: "w-2", name: "Ojowo Ward", code: "W2" },
+      { id: "w-3", name: "Owu Ward", code: "W3" },
+      { id: "w-4", name: "Ososa Ward", code: "W4" },
+      { id: "w-5", name: "Imuwo Ward", code: "W5" },
+    ];
+    return respond(Object.assign([...list], { data: list, wards: list, count: list.length }));
+  }
+
+  if (url.startsWith("/field-officers")) {
+    const s = getStore();
+    return respond(s.officers);
+  }
+
+  if (url.startsWith("/contractors")) {
+    return respond([
+      { id: "c-1", name: "Prime Revenue Services Ltd", contactName: "Alhaji Garba", phone: "+234 802 334 1122", active: true },
+      { id: "c-2", name: "Metro Tax Associates", contactName: "Chief O. Okonjo", phone: "+234 803 556 2233", active: true },
+    ]);
+  }
+
+  if (url.startsWith("/uploads")) {
+    return respond({
+      url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+      key: "uploads/demo_passport.jpg",
+      mime: "image/jpeg",
+      size: 102400,
     });
   }
 
@@ -805,8 +1716,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   // ==========================================
   if (
     url.startsWith("/dashboard/overview") ||
-    url.startsWith("/lga/overview") ||
-    url.startsWith("/reports/overview")
+    url.startsWith("/lga/overview")
   ) {
     const s = getStore();
     const apps = getLgaApplications();
@@ -846,7 +1756,23 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       }));
       return respond({ message: "All notifications marked as read." });
     }
-    return respond(getStore().notifications);
+    const rawNotifs = getStore().notifications || [];
+    const notifs = rawNotifs.map((n) => ({
+      id: n.id,
+      userId: n.userId || "usr_demo",
+      title: n.title,
+      message: n.message || (n as any).body || "System update notification",
+      type: n.type || "system",
+      isRead: Boolean(n.read),
+      createdAt: n.createdAt || new Date().toISOString(),
+      updatedAt: n.createdAt || new Date().toISOString(),
+    }));
+    return respond({
+      items: notifs,
+      unreadCount: notifs.filter((n) => !n.isRead).length,
+      page: 1,
+      limit: 20,
+    });
   }
 
   if (url.startsWith("/audit-logs") || url.startsWith("/activity-logs")) {

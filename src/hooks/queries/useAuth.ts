@@ -13,7 +13,6 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
-
 import { DEMO_PRESET_USERS } from "@/lib/mockApiHandler";
 
 // Query keys for caching
@@ -46,7 +45,7 @@ export function useAuth() {
   });
 
   const currentUser = user ?? tokenManager.getUser() ?? (DEMO_PRESET_USERS.citizen as any);
-  const isUserDataFresh = true;
+  const isUserDataFresh = !!currentUser;
 
   // Mutation: Login
   const loginMutation = useMutation({
@@ -74,25 +73,17 @@ export function useAuth() {
   // Mutation: Register
   const registerMutation = useMutation({
     mutationFn: (data: RegisterData) => authService.register(data),
-    onSuccess: (userData: any) => {
-      const userObj = userData?.user || userData;
-      const accessToken =
-        userData?.accessToken ||
-        `demo-token-${userObj?.role || "citizen"}-${userObj?.id || Date.now()}`;
-      const refreshToken =
-        userData?.refreshToken || `demo-refresh-${userObj?.id || Date.now()}`;
-
-      tokenManager.setAccessToken(accessToken);
-      tokenManager.setRefreshToken(refreshToken);
-      tokenManager.setUser(userObj ?? null);
-
-      if (userObj) {
-        queryClient.setQueryData(authKeys.user(), userObj);
-        refetchUser();
-      }
-
-      toast.success("Account created successfully! Welcome to LOGMAS Demo.");
+    onSuccess: (response: any) => {
+      const regUser = response?.user || response;
+      const token = response?.accessToken || `demo-token-${regUser?.role || 'citizen'}-${regUser?.id || Date.now()}`;
+      tokenManager.setAccessToken(token);
+      tokenManager.setUser(regUser);
+      queryClient.setQueryData(authKeys.user(), regUser);
+      toast.success("Account created successfully. Welcome!");
       navigate.push("/dashboard");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Registration failed");
     },
   });
 

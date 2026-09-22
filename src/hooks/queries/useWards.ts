@@ -21,8 +21,10 @@ export function useWards() {
   });
 
   // Extract the wards array from response
-  const wards = wardsResponse || [];
-  const count = wardsResponse?.length || 0;
+  const wards: Ward[] = Array.isArray(wardsResponse)
+    ? wardsResponse
+    : ((wardsResponse as any)?.data || (wardsResponse as any)?.wards || []);
+  const count = wards.length;
 
   // Helper function to get ward name by ID
   const getWardName = (wardId: string): string => {

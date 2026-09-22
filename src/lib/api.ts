@@ -27,24 +27,40 @@ export interface ApiEnvelope<T = unknown> {
 
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(TOKEN_KEY);
+  try {
+    const t = window.localStorage.getItem(TOKEN_KEY);
+    if (!t || t.startsWith("<") || t === "undefined" || t === "null") return null;
+    return t;
+  } catch {
+    return null;
+  }
 }
 
 export function setAuthToken(token: string | null) {
   if (typeof window === "undefined") return;
-  if (token) window.localStorage.setItem(TOKEN_KEY, token);
-  else window.localStorage.removeItem(TOKEN_KEY);
+  try {
+    if (token && !token.startsWith("<")) window.localStorage.setItem(TOKEN_KEY, token);
+    else window.localStorage.removeItem(TOKEN_KEY);
+  } catch {}
 }
 
 export function getRefreshToken(): string | null {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+  try {
+    const t = window.localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!t || t.startsWith("<") || t === "undefined" || t === "null") return null;
+    return t;
+  } catch {
+    return null;
+  }
 }
 
 export function setRefreshToken(token: string | null) {
   if (typeof window === "undefined") return;
-  if (token) window.localStorage.setItem(REFRESH_TOKEN_KEY, token);
-  else window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+  try {
+    if (token && !token.startsWith("<")) window.localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    else window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+  } catch {}
 }
 
 // Phase 1 Guard: In Demo Mode, prevent ANY direct external fetch calls

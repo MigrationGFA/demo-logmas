@@ -174,48 +174,82 @@ export const authService = {
 export const tokenManager = {
   getAccessToken: () => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("logmas.auth.token");
+    try {
+      const token = localStorage.getItem("logmas.auth.token");
+      if (!token || token.startsWith("<") || token === "undefined" || token === "null") {
+        return null;
+      }
+      return token;
+    } catch {
+      return null;
+    }
   },
 
   setAccessToken: (token: string | null) => {
     if (typeof window === "undefined") return;
-    if (token) {
-      localStorage.setItem("logmas.auth.token", token);
-    } else {
-      localStorage.removeItem("logmas.auth.token");
-    }
+    try {
+      if (token && !token.startsWith("<")) {
+        localStorage.setItem("logmas.auth.token", token);
+      } else {
+        localStorage.removeItem("logmas.auth.token");
+      }
+    } catch {}
   },
 
   getRefreshToken: () => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("logmas.auth.refreshToken");
+    try {
+      const token = localStorage.getItem("logmas.auth.refreshToken");
+      if (!token || token.startsWith("<") || token === "undefined" || token === "null") {
+        return null;
+      }
+      return token;
+    } catch {
+      return null;
+    }
   },
 
   setRefreshToken: (token: string | null) => {
     if (typeof window === "undefined") return;
-    if (token) {
-      localStorage.setItem("logmas.auth.refreshToken", token);
-    } else {
-      localStorage.removeItem("logmas.auth.refreshToken");
-    }
+    try {
+      if (token && !token.startsWith("<")) {
+        localStorage.setItem("logmas.auth.refreshToken", token);
+      } else {
+        localStorage.removeItem("logmas.auth.refreshToken");
+      }
+    } catch {}
   },
 
   getUser: (): User | null => {
     if (typeof window === "undefined") return null;
-    const raw = localStorage.getItem("logmas.auth.user");
-    return raw ? JSON.parse(raw) : null;
+    try {
+      const raw = localStorage.getItem("logmas.auth.user");
+      if (!raw || raw.startsWith("<") || raw === "undefined" || raw === "null") {
+        return null;
+      }
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
   },
 
   setUser: (user: User | null) => {
     if (typeof window === "undefined") return;
-    if (user) localStorage.setItem("logmas.auth.user", JSON.stringify(user));
-    else localStorage.removeItem("logmas.auth.user");
+    try {
+      if (user && typeof user === "object") {
+        localStorage.setItem("logmas.auth.user", JSON.stringify(user));
+      } else {
+        localStorage.removeItem("logmas.auth.user");
+      }
+    } catch {}
   },
 
   clearAllTokens: () => {
     if (typeof window === "undefined") return;
-    localStorage.removeItem("logmas.auth.token");
-    localStorage.removeItem("logmas.auth.refreshToken");
-    localStorage.removeItem("logmas.auth.user"); // ← add this line
+    try {
+      localStorage.removeItem("logmas.auth.token");
+      localStorage.removeItem("logmas.auth.refreshToken");
+      localStorage.removeItem("logmas.auth.user");
+    } catch {}
   },
 };
