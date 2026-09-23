@@ -553,7 +553,38 @@ export function findByQrOrCode(token: string): { receipt: Receipt; invoice?: Inv
 }
 
 export function findInvoiceByRef(ref: string): Invoice | null {
-  return getStore().invoices.find((i) => i.reference.toUpperCase() === ref.trim().toUpperCase()) || null;
+  if (!ref) return null;
+  const clean = ref.trim().toUpperCase();
+  const s = getStore();
+
+  // 1. Direct match on id or exact reference
+  const direct = s.invoices.find(
+    (i) => i.id === ref.trim() || i.reference.toUpperCase() === clean
+  );
+  if (direct) return direct;
+
+  // 2. Receipt number or verification code match
+  const rcp = s.receipts.find(
+    (r) =>
+      r.receiptNumber.toUpperCase() === clean ||
+      r.verificationCode.toUpperCase() === clean ||
+      r.qrToken.toUpperCase() === clean
+  );
+  if (rcp) {
+    const fromRcp = s.invoices.find((i) => i.id === rcp.invoiceId);
+    if (fromRcp) return fromRcp;
+  }
+
+  // 3. Partial/gateway reference match (handles prefix e.g. LOGMAS- or timestamp suffixes)
+  const partial = s.invoices.find(
+    (i) =>
+      clean.includes(i.reference.toUpperCase()) ||
+      clean.includes(i.id.toUpperCase()) ||
+      i.reference.toUpperCase().includes(clean)
+  );
+  if (partial) return partial;
+
+  return null;
 }
 
 // ============== Trade Permits ==============

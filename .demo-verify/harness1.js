@@ -57,8 +57,8 @@ Module._extensions[".ts"] = function (mod, filename) {
 };
 Module._extensions[".tsx"] = Module._extensions[".ts"];
 
-const handler = require(path.join(OUT, "mockApiHandler.js"));
-const appsStore = require(path.join(OUT, "applicationsStore.js"));
-const store = require(path.join(OUT, "store.js"));
+const handler = require(path.join(SRC, "lib", "mockApiHandler.ts"));
+const appsStore = require(path.join(SRC, "lib", "applicationsStore.ts"));
+const store = require(path.join(SRC, "lib", "store.ts"));
 
 module.exports = { handler, appsStore, store, lls };

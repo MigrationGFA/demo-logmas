@@ -57,6 +57,7 @@ export interface TreasuryAssessment {
 export interface LgaApplication {
   id: string;
   applicationNo: string;
+  applicationNumber?: string;
   serviceId: string;
   serviceName: string;
   category: string;
@@ -444,6 +445,19 @@ export function getLgaApplications(): LgaApplication[] {
   }
 }
 
+export function resetLgaApplications(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_APPLICATIONS_STORAGE_KEY);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_SEED_APPLICATIONS));
+    window.dispatchEvent(new CustomEvent(EVT_KEY));
+    window.dispatchEvent(new CustomEvent(LEGACY_APPLICATIONS_EVENT_KEY));
+  } catch (err) {
+    console.error("Failed to reset applications", err);
+  }
+}
+
 export function saveLgaApplications(apps: LgaApplication[]): void {
   if (typeof window === "undefined") return;
   try {
@@ -493,6 +507,7 @@ export function createLgaApplication(data: {
   const newApp: LgaApplication = {
     id,
     applicationNo: appNo,
+    applicationNumber: appNo,
     serviceId: data.serviceId,
     serviceName: data.serviceName,
     category: data.category,
@@ -563,6 +578,7 @@ export function linkApplicationInvoice(id: string, invoiceId: string, invoiceNum
     ...apps[index],
     invoiceId,
     invoiceNumber,
+    status: apps[index].status === "Draft" ? "Draft" : "Awaiting Payment",
     updatedAt: new Date().toISOString(),
   };
   apps[index] = updated;

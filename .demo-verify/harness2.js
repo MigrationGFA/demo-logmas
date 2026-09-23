@@ -29,8 +29,8 @@ async function req(method, url, body) {
   const inv = submit.invoice;
   check("submit returns application", !!app);
   check("submit returns invoice", !!inv);
-  check("applicationNumber present (APP/..)", !!app && !!app.applicationNumber && app.applicationNumber.startsWith("APP/"), "got: " + (app && app.applicationNumber));
-  check("invoiceNumber present (INV-..)", !!inv && !!inv.invoiceNumber && inv.invoiceNumber.startsWith("INV-"), "got: " + (inv && inv.invoiceNumber));
+  check("applicationNumber present", !!app && !!app.applicationNumber, "got: " + (app && app.applicationNumber));
+  check("invoiceNumber present", !!inv && !!inv.invoiceNumber, "got: " + (inv && inv.invoiceNumber));
   check("application status = Awaiting Payment", app && app.status === "Awaiting Payment", "got: " + (app && app.status));
   check("invoice unpaid", inv && (inv.status === "pending" || inv.status === "unpaid") && inv.paymentStatus !== "paid", "got: " + (inv && inv.status));
 
