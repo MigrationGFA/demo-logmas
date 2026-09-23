@@ -200,40 +200,85 @@ function PublicServiceApplyWidgetInner({
     setIsProcessing(true);
 
     try {
-      const response = await invoicesService.initializePublicPayment({
+      // Step 1: create the invoice + underlying (pay-first) application in the
+      // local demo store. This also stamps the single citizen user so the app
+      // shows up under "My Applications" after login.
+      const created: any = await invoicesService.initializePublicPayment({
         serviceId: selectedService.id,
         fullName: fullName.trim(),
         email: email.trim(),
         phone: phoneValidation.formattedNumber,
       });
 
-      const paymentUrl =
-        (response as any)?.paymentUrl ||
-        (response as any)?.data?.paymentUrl ||
-        (response as any)?.authorizationUrl ||
-        (response as any)?.data?.authorizationUrl;
+      const invoiceId: string =
+        created?.invoiceId || created?.data?.invoiceId || "";
+      const createdAppId: string =
+        created?.applicationId || created?.data?.applicationId || "";
+      const invoiceNumber: string =
+        created?.reference ||
+        created?.data?.reference ||
+        created?.invoiceNumber ||
+        invoiceId;
+      const payableAmount: number = Number(
+        created?.amount ?? created?.data?.amount ?? statutoryFee ?? 0
+      );
 
-      const reference =
-        (response as any)?.reference || (response as any)?.data?.reference;
-
-      if (!paymentUrl) {
+      if (!invoiceId && !invoiceNumber) {
         throw new Error(
-          (response as any)?.message ||
-            "Payment gateway URL was not returned. Please check service status and try again.",
+          created?.message ||
+            "Invoice could not be generated. Please try again."
         );
       }
 
-      // Preserve the returned payment reference so it can be used when the applicant returns
-      if (reference) {
-        sessionStorage.setItem("pendingPaymentReference", reference);
+      // Step 2: hand off to the Paystack initialize route — exactly like the
+      // dashboard invoice flow. With keys configured this returns Paystack's
+      // hosted checkout URL (user pays there, then lands on /payment/result).
+      // Without keys it returns configured:false and we settle locally, then
+      // jump straight to verification — no /pay/:id detour either way.
+      const initRes = await fetch("/api/paystack/initialize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoiceId: invoiceId || invoiceNumber,
+          invoiceNumber,
+          amount: payableAmount,
+          email: email.trim(),
+          applicationId: createdAppId || undefined,
+        }),
+      });
+      const initJson: any = await initRes.json().catch(() => null);
+      const checkoutUrl: string | null =
+        initJson?.data?.authorization_url ||
+        initJson?.data?.payment_url ||
+        null;
+
+      const paystackRef: string =
+        initJson?.data?.reference || invoiceNumber;
+
+      if (paystackRef) {
+        sessionStorage.setItem("pendingPaymentReference", paystackRef);
         sessionStorage.setItem("publicPaymentServiceId", selectedService.id);
-        localStorage.setItem("pendingPaymentReference", reference);
+        try {
+          localStorage.setItem("pendingPaymentReference", paystackRef);
+        } catch {}
       }
 
-      toast.success("Redirecting to Paystack secure checkout...");
+      if (checkoutUrl) {
+        toast.success("Redirecting to Paystack secure checkout...");
+        window.location.href = checkoutUrl;
+        return;
+      }
 
-      // Redirect applicant to the returned Paystack checkout URL
-      window.location.href = paymentUrl;
+      // No gateway configured: settle locally (receipt + Payment Confirmed)
+      // and go straight to the verification page for the completion step.
+      await invoicesService.simulatePayment(invoiceId || invoiceNumber);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("logmas:store-change"));
+      }
+      toast.success("Payment confirmed! Proceed to complete your application.");
+      router.push(
+        `/payment/result?reference=${encodeURIComponent(invoiceNumber)}`
+      );
     } catch (err: any) {
       console.error("Public payment initialization failed:", err);
       const errorMessage =
