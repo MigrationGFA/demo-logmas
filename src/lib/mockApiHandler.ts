@@ -734,10 +734,59 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   }
 
   // Specific application lookup / legacy status change
-  const appMatch = url.match(/^\/applications\/([^/?]+)(.*)/);
+    const appMatch = url.match(/^\/applications\/([^/?]+)(.*)/);
   if (appMatch) {
     const appId = appMatch[1];
     const subPath = appMatch[2] || "";
+
+    // PATCH /applications/:id/complete — post-payment form completion (public
+    // pay-first flow): merge the submitted statutory form into details, clear
+    // the __formIncomplete marker and advance the application to review.
+    if (subPath.includes("complete") && method !== "GET") {
+      const target = getLgaApplicationById(appId);
+      if (!target) return respondError("Application not found", "NOT_FOUND");
+
+      const form: Record<string, any> =
+        data && data.formData && typeof data.formData === "object" ? data.formData : {};
+      const fileList: any[] = Array.isArray(data?.files)
+        ? data.files
+        : Array.isArray(data?.documents)
+          ? data.documents
+          : [];
+
+      const mergedDetails: Record<string, any> = {
+        ...(target.details || {}),
+        ...form,
+      };
+      delete mergedDetails.__formIncomplete; // statutory form is now complete
+
+      const docs = fileList.length
+        ? fileList.map((f) => ({
+            name: typeof f === "string" ? f : String(f?.name || "Document"),
+            url: typeof f === "string" ? "#" : String(f?.url || "#"),
+            status: "uploaded" as const,
+          }))
+        : target.documents || [];
+
+      // Payment already happened in this flow — take it straight to review.
+      const nextStatus =
+        target.paymentStatus === "paid" ? ("Under Review" as const) : target.status;
+
+      const updated = updateApplicationStatus(
+        appId,
+        nextStatus,
+        { name: target.applicant || "Citizen", role: "citizen" },
+        {
+          details: mergedDetails,
+          documents: docs,
+          ...(form.ward ? { ward: form.ward } : {}),
+          ...(form.nin ? { nin: form.nin } : {}),
+          ...(form.cacNumber ? { cacNumber: form.cacNumber } : {}),
+        },
+      );
+      triggerSync();
+      if (updated) return respond(updated);
+    }
 
     if (subPath.includes("decline") || subPath.includes("reject")) {
       const reason = (data.reason || data.declineReason || "").trim();
@@ -775,11 +824,15 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       applicant: fullName,
       phone,
       email,
-      address: (data.details && (data.details.address || data.details.siteAddress)) || "Demo Secretariat Road, Demo City",
+            address: (data.details && (data.details.address || data.details.siteAddress)) || "Demo Secretariat Road, Demo City",
       ward: (data.details && data.details.ward) || "Ward 1 - Central Urban",
       revenueHead: srv.revenueHead || "1001 - Statutory LGA Fees",
       amount: fee.amount,
-      details: data.details || { fullName, phone, email },
+      // Public (pay-first) flow: only contact details are captured before payment,
+      // so the statutory form must still be completed afterwards. Tag the details
+      // so /payments/verify can tell this flow apart from the dashboard flow
+      // (where the full form was already submitted BEFORE payment).
+      details: { ...(data.details || { fullName, phone, email }), __formIncomplete: true },
       documents: [],
     });
 
@@ -934,8 +987,13 @@ export async function handleMockApiRequest(config: any): Promise<any> {
           amountPaid: inv.amount,
           balanceDue: 0,
         },
-        applicationId: matchedApp?.id,
+                applicationId: matchedApp?.id,
         applicationNumber: matchedApp?.applicationNo,
+        // Mirrors /payments/verify — lets the result page pick the right CTA
+        // even when settlement happened via the Paystack mirror path.
+        flow: matchedApp?.details?.__formIncomplete
+          ? "new_application"
+          : "existing_application",
       });
     }
 
@@ -962,6 +1020,15 @@ export async function handleMockApiRequest(config: any): Promise<any> {
           a.id.toUpperCase() === inv.reference.toUpperCase(),
       ) as any;
 
+      // Which post-payment CTA should /payment/result show?
+      // - "new_application"      → public pay-first flow: only contact details
+      //                            were captured; the statutory form is still due.
+      // - "existing_application" → dashboard flow: the full form was submitted
+      //                            BEFORE payment, so no completion step is needed.
+      const flow = linkedApp?.details?.__formIncomplete
+        ? "new_application"
+        : "existing_application";
+
       const virtualAccountNumber = inv.virtualAccount || "9912847291";
       const savedReceipt = s.receipts.find((r) => r.invoiceId === inv.id || r.invoiceRef === inv.reference);
       const receiptNumber = savedReceipt?.receiptNumber || `DEMO-RCP-${inv.reference.replace(/[^0-9]/g, "").slice(-6) || "00142"}`;
@@ -973,10 +1040,11 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         issuedAt: savedReceipt?.paidAt || inv.paidAt || inv.createdAt,
       } : null;
 
-      return respond({
+            return respond({
         ...inv,
         invoiceNumber: inv.reference,
         paymentStatus: inv.status === "paid" ? "paid" : "pending",
+        flow,
         applicationId: linkedApp?.id || (inv as any).applicationId || null,
         applicationNumber: linkedApp?.applicationNo || linkedApp?.applicationNumber || null,
         totalAmount: inv.amount,

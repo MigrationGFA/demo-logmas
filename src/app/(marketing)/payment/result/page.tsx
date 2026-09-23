@@ -235,7 +235,7 @@ function PaymentResultPage() {
               )}
 
               <div className="pt-2 space-y-2">
-                {isNormalFlow ? (
+                                {isNormalFlow && applicationId ? (
                   <Button
                     asChild
                     className="w-full bg-gradient-hero text-primary-foreground font-semibold h-11 shadow-sm"

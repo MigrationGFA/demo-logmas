@@ -324,9 +324,9 @@ export const invoicesService = {
           return {
             ...(mirrored || {}),
             ...json,
-            status: "confirmed",
+                        status: "confirmed",
             success: true,
-            flow: json?.flow || "new_application",
+            flow: json?.flow || (mirrored as any)?.flow || "existing_application",
             reference: json?.reference || reference,
           } as unknown as VerifyPaymentResponse;
         }
@@ -350,9 +350,9 @@ export const invoicesService = {
     if (mock && (mock.verified || mock.status === "paid")) {
       return {
         ...mock,
-        status: "confirmed",
+                status: "confirmed",
         success: true,
-        flow: mock.flow || "new_application",
+        flow: mock.flow || "existing_application",
       } as unknown as VerifyPaymentResponse;
     }
     return mock as VerifyPaymentResponse;
