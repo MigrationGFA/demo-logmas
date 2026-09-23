@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="800" viewBox="0 0 640 800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b3d2e"/>
+      <stop offset="1" stop-color="#14532d"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.38" r="0.55">
+      <stop offset="0" stop-color="#fbbf24" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="800" fill="url(#bg)"/>
+  <rect width="640" height="800" fill="url(#halo)"/>
+  <circle cx="320" cy="300" r="150" fill="#f5d0a9"/>
+  <path d="M170 300 a150 150 0 0 1 300 0 l0 -30 a150 120 0 0 0 -300 0 z" fill="#1f2937"/>
+  <rect x="170" y="430" width="300" height="370" rx="40" fill="#111827"/>
+  <rect x="170" y="430" width="300" height="370" rx="40" fill="#ffffff" opacity="0.06"/>
+  <path d="M290 440 l30 60 30 -60 14 200 -44 0 z" fill="#f8fafc"/>
+  <path d="M320 500 l-16 26 16 90 16 -90 z" fill="#b91c1c"/>
+  <circle cx="265" cy="295" r="10" fill="#1f2937"/>
+  <circle cx="375" cy="295" r="10" fill="#1f2937"/>
+  <path d="M275 360 q45 28 90 0" stroke="#7c4a2d" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <text x="320" y="720" text-anchor="middle" font-family="Georgia, serif" font-size="30" fill="#fbbf24">Executive Chairman</text>
+  <text x="320" y="752" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#ffffff" opacity="0.75">Demo portrait — replace me</text>
+</svg>

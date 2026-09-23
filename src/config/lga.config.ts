@@ -233,7 +233,9 @@ export const LGA_CONFIG: LgaConfiguration = {
       title: "Executive Chairman",
       fullTitle: "Executive Chairman\nDemo Local Government Council",
       signatureImagePath: "/certificates/signatures/chairman-signature.png",
-      portraitImagePath: "/assets/chairman.jpg",
+      // Demo placeholder portrait — swap this path for the real chairman photo
+      // during testing (original file kept at src/assets/chairman.jpg).
+      portraitImagePath: "/assets/chairman-demo.svg",
       officeEmail: "chairman@demo.logmas.com.ng",
       tenureNote: "Executive Chairman, Demo Local Government Council",
     },

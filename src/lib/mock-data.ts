@@ -1,5 +1,7 @@
 import { LGA_CONFIG } from "@/config/lga.config";
-import chairmanPhoto from "@/assets/chairman.jpg";
+
+// Demo placeholder — swap for the real chairman photo when ready.
+const chairmanPhoto = "/assets/chairman-demo.svg";
 
 export const STATS = [
   { label: "Land Area", value: "1,560 km²", trend: "Agricultural Hub" },
