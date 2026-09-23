@@ -69,9 +69,12 @@ function PublicServiceApplyWidgetInner({
   const [selectedServiceId, setSelectedServiceId] = useState<string>(
     urlServiceId || initialServiceId || "certificate_of_origin",
   );
+  // Demo has exactly ONE citizen user — prefill + lock their email so the
+  // public pay-first flow always links back to the same login-able account.
+  const DEMO_CITIZEN_EMAIL = "citizen@logmas.gov.ng";
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState(DEMO_CITIZEN_EMAIL);
+  const [phone, setPhone] = useState("+234 803 123 4567");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaidSuccess, setIsPaidSuccess] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
@@ -254,8 +257,8 @@ function PublicServiceApplyWidgetInner({
     setIsPaidSuccess(false);
     setSuccessDetails(null);
     setFullName("");
-    setEmail("");
-    setPhone("");
+    setEmail(DEMO_CITIZEN_EMAIL);
+    setPhone("+234 803 123 4567");
   };
 
   return (
@@ -468,15 +471,17 @@ function PublicServiceApplyWidgetInner({
                         type="email"
                         placeholder="e.g. applicant@gmail.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 text-sm h-11 bg-background"
+                        disabled
+                        readOnly
+                        title="Demo account email — pre-filled and locked"
+                        className="pl-10 text-sm h-11 bg-muted cursor-not-allowed"
                         required
                       />
                     </div>
                     <p className="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
                       <CheckCircle2 className="h-3 w-3 shrink-0" />
-                      Step 3: Login credentials will be automatically generated
-                      and sent to this email.
+                      Demo account email — pre-filled. After payment, log in with
+                      this email to find your application in the dashboard.
                     </p>
                   </div>
 
