@@ -984,7 +984,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       return respond({
         success: true,
         status: "paid",
-        paymentStatus: "paid",
+        paymentStatus: "confirmed",
         message: "Payment processed successfully",
         receipt: receipt || {
           receiptNumber: `DEMO-RCP-${Date.now().toString().slice(-6)}`,
@@ -994,7 +994,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         invoice: {
           ...inv,
           status: "paid",
-          paymentStatus: "paid",
+          paymentStatus: "confirmed",
           invoiceNumber: inv.reference,
           totalAmount: inv.amount,
           amountPaid: inv.amount,
@@ -1056,7 +1056,9 @@ export async function handleMockApiRequest(config: any): Promise<any> {
             return respond({
         ...inv,
         invoiceNumber: inv.reference,
-        paymentStatus: inv.status === "paid" ? "paid" : "pending",
+        // UI checks `paymentStatus === "confirmed"` (list + detail pages). Emit
+        // "confirmed" here — "paid" elsewhere breaks the hide-pay-options gate.
+        paymentStatus: inv.status === "paid" ? "confirmed" : "pending",
         flow,
         applicationId: linkedApp?.id || (inv as any).applicationId || null,
         applicationNumber: linkedApp?.applicationNo || linkedApp?.applicationNumber || null,
@@ -1188,7 +1190,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       invoice: {
         ...inv,
         status: "paid",
-        paymentStatus: "paid",
+        paymentStatus: "confirmed",
         invoiceNumber: inv.reference,
         totalAmount: inv.amount,
         amountPaid: inv.amount,
