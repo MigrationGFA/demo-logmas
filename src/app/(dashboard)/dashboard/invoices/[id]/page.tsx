@@ -382,6 +382,7 @@ export default function InvoiceDetail({
                       </Link>
                     </Button>
                   )}
+                  {/* DEMO: certificates page commented out for now
                   <Button asChild className="bg-gradient-hero" size="sm">
                     <Link
                       href={
@@ -393,6 +394,7 @@ export default function InvoiceDetail({
                       <FileBadge className="h-4 w-4 mr-1.5" /> View / Print Certificate
                     </Link>
                   </Button>
+                  */}
                 </div>
               </div>
             </Card>

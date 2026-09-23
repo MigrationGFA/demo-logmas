@@ -60,7 +60,12 @@ import Link from "next/link";
 
 type Item = { title: string; url: string; icon: any };
 
-const NAV: Record<Role, { label: string; items: Item[] }[]> = {
+// DEMO: contractor / agent / super_admin roles hidden for this demo —
+// keep their nav entries in code but exclude them from the type so the
+// sidebar renders only the remaining demo roles.
+type DemoRole = Exclude<Role, "contractor" | "agent" | "super_admin">;
+
+const NAV: Record<DemoRole, { label: string; items: Item[] }[]> = {
   field_officer: [
     {
       label: "Operations",
@@ -68,7 +73,8 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         { title: "Service Catalogue", url: "/dashboard/services", icon: FilePlus2 },
         { title: "Applications Registry", url: "/dashboard/applications", icon: Stamp },
-        { title: "Issued Certificates", url: "/dashboard/certificates", icon: FileBadge },
+        // DEMO: certificates page commented out for now
+        // { title: "Issued Certificates", url: "/dashboard/certificates", icon: FileBadge },
         // { title: "Generate Invoice", url: "/dashboard/invoices/new", icon: FileText },
         { title: "All Invoices", url: "/dashboard/invoices", icon: Receipt },
         // { title: "Trade Permits", url: "/dashboard/permits", icon: Stamp },
@@ -92,23 +98,24 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
   //   ]},
   // ],
 
-  contractor: [
-    {
-      label: "Workspace",
-      items: [
-        { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-        // { title: "Generate Invoice", url: "/dashboard/invoices/new", icon: FilePlus2 },
-        { title: "All Invoices", url: "/dashboard/invoices", icon: FileText },
-        { title: "Field Officers", url: "/dashboard/field-officers", icon: UserCog },
-        // { title: "Verify Payment", url: "/dashboard/verify-payment", icon: ScanLine },
-        { title: "Receipts", url: "/dashboard/receipts", icon: Receipt },
-        // { title: "Customers", url: "/dashboard/customers", icon: Users },
-        { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
-        { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
-        { title: "Settings", url: "/dashboard/settings", icon: Settings },
-      ],
-    },
-  ],
+  // DEMO: contractor role hidden for this demo (one user per remaining role).
+  // contractor: [
+  //   {
+  //     label: "Workspace",
+  //     items: [
+  //       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  //       // { title: "Generate Invoice", url: "/dashboard/invoices/new", icon: FilePlus2 },
+  //       { title: "All Invoices", url: "/dashboard/invoices", icon: FileText },
+  //       { title: "Field Officers", url: "/dashboard/field-officers", icon: UserCog },
+  //       // { title: "Verify Payment", url: "/dashboard/verify-payment", icon: ScanLine },
+  //       { title: "Receipts", url: "/dashboard/receipts", icon: Receipt },
+  //       // { title: "Customers", url: "/dashboard/customers", icon: Users },
+  //       { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
+  //       { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
+  //       { title: "Settings", url: "/dashboard/settings", icon: Settings },
+  //     ],
+  //   },
+  // ],
   citizen: [
     {
       label: "My Account",
@@ -116,7 +123,8 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         { title: "Government Services", url: "/dashboard/services", icon: Briefcase },
         { title: "My Applications", url: "/dashboard/applications", icon: FileBadge },
-        { title: "My Certificates", url: "/dashboard/certificates", icon: Stamp },
+        // DEMO: certificates page commented out for now
+        // { title: "My Certificates", url: "/dashboard/certificates", icon: Stamp },
         { title: "Payment & Bills", url: "/dashboard/invoices", icon: CreditCard },
         { title: "Receipts", url: "/dashboard/receipts", icon: Receipt },
         { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
@@ -132,7 +140,8 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         { title: "Government Services", url: "/dashboard/services", icon: Briefcase },
         { title: "My Applications", url: "/dashboard/applications", icon: FileBadge },
-        { title: "Certificates & Licences", url: "/dashboard/certificates", icon: Stamp },
+        // DEMO: certificates page commented out for now
+        // { title: "Certificates & Licences", url: "/dashboard/certificates", icon: Stamp },
         { title: "My Invoices", url: "/dashboard/invoices", icon: FileText },
         // { title: "Trade Permits", url: "/dashboard/permits", icon: Stamp },
         // { title: "Apply for Permit", url: "/dashboard/permits/new", icon: FilePlus2 },
@@ -154,7 +163,8 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
         { title: "Reconciliation", url: "/dashboard/invoices", icon: Wallet },
         // { title: "Payments", url: "/dashboard/invoices", icon: CreditCard },
         { title: "Receipts", url: "/dashboard/receipts", icon: Receipt },
-        { title: "Issued Certificates", url: "/dashboard/certificates", icon: FileBadge },
+        // DEMO: certificates page commented out for now
+        // { title: "Issued Certificates", url: "/dashboard/certificates", icon: FileBadge },
         { title: "Financial Reports", url: "/dashboard/reports", icon: FileText },
         { title: "Contractors Billing", url: "/dashboard/field-officers", icon: Briefcase },
         { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
@@ -171,7 +181,8 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
         // { title: "Payments Monitoring", url: "/dashboard/invoices", icon: CreditCard },
         // { title: "Receipts Verification", url: "/dashboard/receipts", icon: Receipt },
         { title: "Invoice Audit", url: "/dashboard/invoices", icon: FileText },
-        { title: "Certificates Registry", url: "/dashboard/certificates", icon: FileBadge },
+        // DEMO: certificates page commented out for now
+        // { title: "Certificates Registry", url: "/dashboard/certificates", icon: FileBadge },
         // { title: "Trade Permits", url: "/dashboard/permits", icon: Stamp },
         // { title: "Field Officer Activities", url: "/dashboard/field-officers", icon: UserCog },
         // { title: "Contractor Collections", url: "/dashboard/contractors", icon: Briefcase },
@@ -188,7 +199,8 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         // { title: "Service Catalogue", url: "/dashboard/services", icon: Briefcase },
         { title: "Service Applications", url: "/dashboard/applications", icon: FileBadge },
-        { title: "Issued Certificates", url: "/dashboard/certificates", icon: Stamp },
+        // DEMO: certificates page commented out for now
+        // { title: "Issued Certificates", url: "/dashboard/certificates", icon: Stamp },
         // { title: "Trade Permits", url: "/dashboard/permits", icon: Stamp },
         // { title: "Ward Management", url: "/dashboard/wards", icon: Map },
         { title: "Account Management", url: "/dashboard/accounts", icon: KeyRound },
@@ -210,7 +222,8 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
       items: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         { title: "State of Origin Reviews", url: "/dashboard/applications", icon: FileBadge },
-        { title: "Ward Certificates", url: "/dashboard/certificates", icon: Stamp },
+        // DEMO: certificates page commented out for now
+        // { title: "Ward Certificates", url: "/dashboard/certificates", icon: Stamp },
         { title: "Ward Complaints", url: "/dashboard/complaints", icon: MessageSquare },
         { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
         { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
@@ -226,7 +239,8 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
         { title: "Revenue Overview", url: "/dashboard/reports", icon: BarChart3 },
         // { title: "Trade Permits Overview", url: "/dashboard/permits", icon: Stamp },
         { title: "Application Overview", url: "/dashboard/applications", icon: FileBadge },
-        { title: "Certificates Registry", url: "/dashboard/certificates", icon: Stamp },
+        // DEMO: certificates page commented out for now
+        // { title: "Certificates Registry", url: "/dashboard/certificates", icon: Stamp },
         { title: "Complaints Overview", url: "/dashboard/complaints", icon: MessageSquare },
         // { title: "Ward Performance", url: "/dashboard/customers", icon: Activity },
         // { title: "Audit Logs", url: "/dashboard/audit-logs", icon: AlertTriangle },
@@ -237,25 +251,27 @@ const NAV: Record<Role, { label: string; items: Item[] }[]> = {
     },
   ],
   
-  super_admin: [
-    {
-      label: "Platform",
-      items: [
-        { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-        // { title: "Manage LGAs", url: "/dashboard/customers", icon: Building2 },
-        { title: "Ward Management", url: "/dashboard/wards", icon: Map },
-        { title: "Account Management", url: "/dashboard/accounts", icon: KeyRound },
-        { title: "Global Configurations", url: "/dashboard/pricing", icon: Tag },
-        { title: "Certificates Registry", url: "/dashboard/certificates", icon: FileBadge },
-        { title: "User Management", url: "/dashboard/field-officers", icon: Users },
-        { title: "System Analytics", url: "/dashboard/reports", icon: BarChart3 },
-        { title: "Trade Permits", url: "/dashboard/permits", icon: Stamp },
-        { title: "Audit Logs", url: "/dashboard/audit-logs", icon: AlertTriangle },
-
-        { title: "Platform Settings", url: "/dashboard/settings", icon: Settings },
-      ],
-    },
-  ],
+  // DEMO: super_admin role hidden for this demo (one user per remaining role).
+  // super_admin: [
+  //   {
+  //     label: "Platform",
+  //     items: [
+  //       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  //       // { title: "Manage LGAs", url: "/dashboard/customers", icon: Building2 },
+  //       { title: "Ward Management", url: "/dashboard/wards", icon: Map },
+  //       { title: "Account Management", url: "/dashboard/accounts", icon: KeyRound },
+  //       { title: "Global Configurations", url: "/dashboard/pricing", icon: Tag },
+  //       // DEMO: certificates page commented out for now
+  //       // { title: "Certificates Registry", url: "/dashboard/certificates", icon: FileBadge },
+  //       { title: "User Management", url: "/dashboard/field-officers", icon: Users },
+  //       { title: "System Analytics", url: "/dashboard/reports", icon: BarChart3 },
+  //       { title: "Trade Permits", url: "/dashboard/permits", icon: Stamp },
+  //       { title: "Audit Logs", url: "/dashboard/audit-logs", icon: AlertTriangle },
+  //
+  //       { title: "Platform Settings", url: "/dashboard/settings", icon: Settings },
+  //     ],
+  //   },
+  // ],
 };
 
 export function AppSidebar() {
@@ -268,7 +284,7 @@ export function AppSidebar() {
   // console.log(path,"path")
 
   // console.log(user, "user in sidebar");
-  const groups = NAV[user?.role as Role];
+  const groups = NAV[user?.role as DemoRole] || [];
   const initials = user?.firstName
     .split(" ")
     .map((p) => p[0])
