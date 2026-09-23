@@ -1473,9 +1473,89 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   // REPORTS & EXPORTS ROUTING
   // ==========================================
   if (url.startsWith("/reports/overview")) {
+    // Fully local: derive revenue from the store's own paid invoices +
+    // receipts, grouped by the REAL statutory service catalog. No hardcoded
+    // phantom services (Trade Permit / Market Levy etc.) — the By Service tab
+    // must match the services catalogue, the invoices ledger and receipts.
     const s = getStore();
+    const apps = getLgaApplications();
     const paidInvoices = s.invoices.filter((i) => i.status === "paid");
-    const totalRev = paidInvoices.reduce((acc, i) => acc + i.amount, 0) || 18450000;
+    const totalRev = paidInvoices.reduce((acc, i) => acc + Number(i.amount || 0), 0);
+
+    // method buckets from receipts (fall back to paymentMethod on invoices)
+    const byMethod = { transfer: 0, pos: 0, cash: 0, online: 0 };
+    const methodOf = (m: any) => {
+      const v = String(m || "online").toLowerCase();
+      if (v.includes("transfer") || v.includes("virtual") || v.includes("bank")) return "transfer";
+      if (v.includes("pos")) return "pos";
+      if (v.includes("cash")) return "cash";
+      return "online";
+    };
+    for (const r of s.receipts) {
+      byMethod[methodOf((r as any).paymentMethod)] += Number((r as any).amount || 0);
+    }
+    if (s.receipts.length === 0) {
+      for (const i of paidInvoices) {
+        byMethod[methodOf((i as any).paymentMethod)] += Number(i.amount || 0);
+      }
+    }
+
+    // Group paid revenue by statutory service id via the invoice -> application link.
+    const appById = new Map<string, any>(apps.map((a: any) => [a.id, a]));
+    const byServiceMap = new Map<string, { transactions: number; revenue: number }>();
+    for (const i of paidInvoices) {
+      const app: any = appById.get((i as any).applicationId || "");
+      const svcId: string =
+        app?.serviceId ||
+        (DEFAULT_SERVICES.find((sv: any) => sv.name === (i as any).purpose)?.id) ||
+        "certificate_of_origin";
+      const cur = byServiceMap.get(svcId) || { transactions: 0, revenue: 0 };
+      cur.transactions += 1;
+      cur.revenue += Number(i.amount || 0);
+      byServiceMap.set(svcId, cur);
+    }
+    const byServiceRows = DEFAULT_SERVICES.map((srv: any) => {
+      const agg = byServiceMap.get(srv.id) || { transactions: 0, revenue: 0 };
+      return {
+        id: srv.id,
+        code: srv.id,
+        name: srv.name,
+        revenueHead: srv.revenueHead || "",
+        transactions: agg.transactions,
+        revenue: agg.revenue,
+      };
+    });
+
+    // Back-compat aliases the reports page derives from byService.
+    const byServiceType = byServiceRows.map((r: any) => ({
+      type: r.id,
+      label: r.name,
+      transactions: r.transactions,
+      revenue: r.revenue,
+    }));
+    const byLevy = byServiceRows.map((r: any) => ({
+      levy: r.name,
+      transactions: r.transactions,
+      revenue: r.revenue,
+    }));
+
+    const appNoOf = (invoiceId: string) => {
+      const a: any = apps.find((x: any) => (x as any).invoiceId === invoiceId);
+      return a?.applicationNo || a?.applicationNumber || null;
+    };
+    const serviceOfInvoice = (i: any) => {
+      const app: any = appById.get(i.applicationId || "");
+      if (app?.serviceId) {
+        const srv: any = DEFAULT_SERVICES.find((sv: any) => sv.id === app.serviceId);
+        return { name: srv?.name || app.serviceName || i.purpose || i.levyType, revenueHead: srv?.revenueHead || "" };
+      }
+      const srv: any = DEFAULT_SERVICES.find((sv: any) => sv.name === i.purpose);
+      return { name: srv?.name || i.purpose || i.levyType, revenueHead: srv?.revenueHead || "" };
+    };
+    const serviceOfReceipt = (r: any) => {
+      const inv: any = s.invoices.find((i: any) => i.id === (r as any).invoiceId || i.reference === (r as any).invoiceRef);
+      return inv ? serviceOfInvoice(inv) : { name: (r as any).levyType || "", revenueHead: "" };
+    };
 
     return respond({
       period: {
@@ -1484,29 +1564,11 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       },
       stats: {
         totalRevenue: totalRev,
-        byMethod: {
-          transfer: 2150000,
-          pos: 3800000,
-          cash: 1200000,
-          online: totalRev > 7150000 ? totalRev - 7150000 : 11300000,
-        },
+        byMethod,
       },
-      byLevy: [
-        { levy: "Trade Permit", transactions: 65, revenue: 6100000 },
-        { levy: "Certificate of Origin", transactions: 84, revenue: 4200000 },
-        { levy: "Market Levy", transactions: 142, revenue: 2900000 },
-        { levy: "Property Tax", transactions: 38, revenue: 4800000 },
-      ],
-      byServiceType: [
-        { type: "certificate_of_origin", transactions: 84, revenue: 4200000, label: "Certificate of Origin" },
-        { type: "trade_permit", transactions: 65, revenue: 6100000, label: "Trade Permit" },
-        { type: "market_levy", transactions: 142, revenue: 2900000, label: "Market Levy" },
-      ],
-      byService: [
-        { id: "certificate_of_origin", code: "certificate_of_origin", name: "Certificate of Origin", transactions: 84, revenue: 4200000 },
-        { id: "trade_permit", code: "trade_permit", name: "Trade Permit", transactions: 65, revenue: 6100000 },
-        { id: "market_levy", code: "market_levy", name: "Market Levy", transactions: 142, revenue: 2900000 },
-      ],
+      byLevy,
+      byServiceType,
+      byService: byServiceRows,
       byOfficer: (s.officers || []).map((o) => ({
         id: o.id,
         name: o.name,
@@ -1521,19 +1583,29 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         customerName: i.customerName,
         levyType: i.levyType,
         status: i.status,
+        paymentStatus: i.status === "paid" ? "confirmed" : "pending",
         amount: i.amount,
+        amountPaid: i.status === "paid" ? i.amount : 0,
+        balanceDue: i.status === "paid" ? 0 : i.amount,
+        service: serviceOfInvoice(i),
+        applicationNumber: appNoOf(i.id),
         dueDate: i.dueDate,
-        paidAt: i.status === "paid" ? i.createdAt : null,
+        createdAt: i.createdAt,
+        paidAt: i.status === "paid" ? (i as any).paidAt || i.createdAt : null,
       })),
       receipts: s.receipts.map((r) => ({
         id: r.id,
         receiptNumber: r.receiptNumber,
+        invoiceNumber: (r as any).invoiceRef || "",
         customerName: r.customerName,
         paymentMethod: r.paymentMethod,
         officerName: r.officerName || "Treasury Gateway",
         amount: r.amount,
         levyType: r.levyType,
+        service: serviceOfReceipt(r),
+        applicationNumber: appNoOf((r as any).invoiceId || ""),
         paidAt: r.paidAt,
+        issuedAt: r.paidAt,
       })),
     });
   }
