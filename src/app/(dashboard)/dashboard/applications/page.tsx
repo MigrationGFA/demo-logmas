@@ -261,7 +261,13 @@ export default function ApplicationsPage() {
     if (app.formData?.firstName && app.formData?.lastName) {
       return `${app.formData.firstName} ${app.formData.lastName}`;
     }
-    if(app.applicant) return `${app.applicant.firstName} ${app.applicant.lastName}`
+    if (app.applicant) {
+      if (typeof app.applicant === "string") return app.applicant;
+      if (app.applicant.name) return app.applicant.name;
+      if (app.applicant.firstName || app.applicant.lastName) {
+        return (app.applicant.firstName + " " + (app.applicant.lastName || "")).trim();
+      }
+    }
     return "N/A";
   };
 

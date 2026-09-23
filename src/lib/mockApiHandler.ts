@@ -284,6 +284,77 @@ function triggerSync() {
 // ==========================================
 // CENTRAL CLIENT-SIDE MOCK REQUEST HANDLER
 // ==========================================
+
+// ==========================================
+// DEMO ACCOUNT MANAGEMENT STATE (LGA Admin -> Accounts page)
+// Persisted overrides layered on the preset/registered demo users so suspend,
+// activate, password-reset and verification actions survive page refreshes.
+// ==========================================
+const ACCOUNT_STATE_KEY = "logmas.demo.accountState";
+
+interface DemoAccountStateOverride {
+  isActive?: boolean;
+  isReset?: boolean;
+  emailVerified?: boolean;
+  suspendedAt?: string | null;
+  suspensionReason?: string | null;
+}
+
+function getAccountOverrides(): Record<string, DemoAccountStateOverride> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(ACCOUNT_STATE_KEY);
+    if (!raw || raw.startsWith("<") || raw === "undefined" || raw === "null") return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveAccountOverride(id: string, patch: DemoAccountStateOverride) {
+  if (typeof window === "undefined") return;
+  try {
+    const all = getAccountOverrides();
+    all[id] = { ...(all[id] || {}), ...patch };
+    window.localStorage.setItem(ACCOUNT_STATE_KEY, JSON.stringify(all));
+    triggerSync();
+  } catch {}
+}
+
+function findDemoAccountById(id: string) {
+  return getDemoUsersList().find(
+    (u: any) =>
+      u.id === id || u.email?.toLowerCase() === String(id).toLowerCase()
+  );
+}
+
+function toDemoAccount(u: any) {
+  const ov = getAccountOverrides()[u.id] || {};
+  const isActive = ov.isActive ?? u.isActive !== false;
+  const name =
+    `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.name || "Demo User";
+  return {
+    id: u.id,
+    name,
+    email: u.email,
+    phone: u.phone || "",
+    role: u.role,
+    ward: null as string | null,
+    status: (isActive ? "active" : "suspended") as "active" | "suspended",
+    isReset: !!ov.isReset,
+    lastLogin: u.lastLogin || null,
+    avatarUrl: null as string | null,
+    emailVerified:
+      ov.emailVerified ?? (u.onboardingCompleted ? true : !!u.emailVerified),
+    createdAt: u.createdAt || new Date().toISOString(),
+    suspendedAt: ov.suspendedAt || null,
+    suspensionReason: ov.suspensionReason || null,
+    contractor: null as any,
+  };
+}
+
+
 export async function handleMockApiRequest(config: any): Promise<any> {
   const url = (config.url || "").replace(/^https?:\/\/[^/]+/, "").replace(/^\/api\/v1/, "").replace(/^\/api\/demo/, "");
   const method = (config.method || "GET").toUpperCase();
@@ -388,6 +459,17 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       saveRegisteredDemoUser(found);
     }
 
+    // Demo account suspension check (LGA Admin -> Accounts). A 403 + SUSPENDED
+    // code triggers the global api.ts handler: toast + redirect to /login?reason=suspended.
+    const acctOv = getAccountOverrides()[found.id];
+    if (acctOv?.isActive === false) {
+      return respondError(
+        "Your account has been suspended. Please contact the LGA Secretariat.",
+        "SUSPENDED",
+        403
+      );
+    }
+
     const token = `demo-token-${found.role}-${found.id}`;
     return respond({
       accessToken: token,
@@ -456,6 +538,16 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   if (url.startsWith("/auth/logout")) {
     return respond({ message: "Successfully logged out" });
   }
+
+  if (url.startsWith("/auth/resend-verification")) {
+    const email = String((data && data.email) || "").trim().toLowerCase();
+    const account = getDemoUsersList().find(
+      (u: any) => u.email?.toLowerCase() === email
+    );
+    if (account) saveAccountOverride(account.id, { emailVerified: true });
+    return respond({ message: "Verification email sent." });
+  }
+
 
   if (
     url.startsWith("/auth/forgot-password") ||
@@ -1987,16 +2079,59 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   }
 
   if (url.startsWith("/lga/accounts/overview")) {
+    // Real demo-roster account management (LGA Admin -> Accounts). Derived from
+    // DEMO_PRESET_USERS + registered demo users + persisted suspend/reset/verify
+    // overrides, so create/suspend/reset actions on this page actually stick.
+    const search = (params.search || "").toString().toLowerCase();
+    const roleFilter = (params.role || "").toString();
+    const page = Number(params.page) || 1;
+    const limit = Number(params.limit) || 20;
+
+    let accounts = getDemoUsersList().map((u: any) => toDemoAccount(u));
+    if (roleFilter && roleFilter !== "all") {
+      accounts = accounts.filter((a: any) => a.role === roleFilter);
+    }
+    if (search) {
+      accounts = accounts.filter(
+        (a: any) =>
+          a.name.toLowerCase().includes(search) ||
+          String(a.email || "").toLowerCase().includes(search) ||
+          String(a.phone || "").toLowerCase().includes(search)
+      );
+    }
+
+    const total = accounts.length;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const safePage = Math.min(page, totalPages);
+    const paged = accounts.slice((safePage - 1) * limit, safePage * limit);
+
     return respond({
-      summary: { totalAccounts: 18, activeAccounts: 18, suspendedAccounts: 0 },
-      accounts: [
-        { id: "acc-1", email: "chairman@logmas.gov.ng", name: "Council Chairman", role: "chairman", isActive: true, lastLogin: new Date().toISOString() },
-        { id: "acc-2", email: "treasurer@logmas.gov.ng", name: "Council Treasurer", role: "treasurer", isActive: true, lastLogin: new Date().toISOString() },
-        { id: "acc-3", email: "auditor@logmas.gov.ng", name: "Council Auditor", role: "auditor", isActive: true, lastLogin: new Date().toISOString() },
-        { id: "acc-4", email: "admin@logmas.gov.ng", name: "LGA Admin", role: "lga_admin", isActive: true, lastLogin: new Date().toISOString() },
-      ],
+      counts: {
+        total,
+        active: accounts.filter((a: any) => a.status === "active").length,
+        suspended: accounts.filter((a: any) => a.status === "suspended").length,
+        pending: accounts.filter((a: any) => a.isReset).length,
+      },
+      accounts: paged,
+      meta: { total, page: safePage, limit, totalPages },
     });
   }
+
+  // Reset account password (LGA Admin -> Accounts -> Reset Password)
+  const resetPwMatch = url.match(/^\/lga\/accounts\/([^\/?]+)\/reset-password$/);
+  if (resetPwMatch && method === "PATCH") {
+    const acctId = decodeURIComponent(resetPwMatch[1]);
+    const account = findDemoAccountById(acctId);
+    if (!account) {
+      return respondError("Account not found.", "ACCOUNT_NOT_FOUND", 404);
+    }
+    saveAccountOverride(account.id, { isReset: true });
+    return respond({
+      message: `Password reset link sent to ${account.email}.`,
+      notice: "The user must set a new password before signing in again.",
+    });
+  }
+
 
   if (url.startsWith("/lga/wards")) {
     const s = getStore();
@@ -2018,6 +2153,79 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   }
 
   if (url.startsWith("/lga/staff")) {
+
+    // Create account (LGA Admin -> Accounts -> New Account). Persists to the
+    // demo users store so the account appears on the Accounts page instantly.
+    if (method === "POST" && url === "/lga/staff") {
+      const email = String(data.email || "").trim().toLowerCase();
+      if (!email) {
+        return respondError("Email is required to create an account.");
+      }
+      const duplicate = getDemoUsersList().find(
+        (u: any) => u.email?.toLowerCase() === email
+      );
+      if (duplicate) {
+        return respondError(
+          "An account with this email already exists.",
+          "ACCOUNT_EXISTS"
+        );
+      }
+      const staffUser = {
+        id: `usr_staff_${Date.now().toString().slice(-8)}`,
+        email,
+        firstName: data.firstName || "New",
+        lastName: data.lastName || "Officer",
+        role: data.role || "field_officer",
+        phone: data.phone || "",
+        address: "Demo LGA Secretariat",
+        town: "Demo City",
+        isActive: true,
+        onboardingCompleted: false,
+        createdAt: new Date().toISOString(),
+      };
+      saveRegisteredDemoUser(staffUser);
+      triggerSync();
+      return respond({
+        staff: {
+          id: staffUser.id,
+          email: staffUser.email,
+          firstName: staffUser.firstName,
+          lastName: staffUser.lastName,
+          role: staffUser.role,
+          phone: staffUser.phone,
+          isActive: true,
+          createdAt: staffUser.createdAt,
+        },
+        notice:
+          "Account created. Login credentials would be emailed in a live deployment.",
+      });
+    }
+
+    // Suspend / reactivate (LGA Admin -> Accounts -> Suspend/Reactivate).
+    const toggleMatch = url.match(/^\/lga\/staff\/([^\/?]+)\/toggle-status$/);
+    if (toggleMatch && method === "PATCH") {
+      const acctId = decodeURIComponent(toggleMatch[1]);
+      const account = findDemoAccountById(acctId);
+      if (!account) {
+        return respondError("Account not found.", "ACCOUNT_NOT_FOUND", 404);
+      }
+      const currentlyActive =
+        getAccountOverrides()[account.id]?.isActive ?? account.isActive !== false;
+      saveAccountOverride(account.id, {
+        isActive: !currentlyActive,
+        suspendedAt: currentlyActive ? new Date().toISOString() : null,
+        suspensionReason: currentlyActive
+          ? (data && data.reason) || "Suspended by LGA Admin"
+          : null,
+      });
+      return respond({
+        id: account.id,
+        email: account.email,
+        isActive: !currentlyActive,
+        role: account.role,
+      });
+    }
+
     const s = getStore();
     const subMatch = url.match(/^\/lga\/staff\/([^/?]+)$/);
     if (subMatch) {

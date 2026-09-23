@@ -124,7 +124,30 @@ function normalizeApplication(raw: any): any {
     cacNumber: detailsObj.cacNumber || raw.cacNumber || null,
     applicantId: raw.applicantId || raw.applicant?.id || null,
     createdById: raw.createdById || raw.createdBy?.id,
-    applicant: raw.applicant || null,
+    // The demo store persists `applicant` as a plain string plus contact fields at
+    // the top level. Coerce it into the object shape the UI expects
+    // (applicant.firstName etc.) so pages never render "undefined undefined".
+    applicant: (() => {
+      const rawApplicant: any = raw.applicant;
+      const displayName =
+        typeof rawApplicant === "string"
+          ? rawApplicant.trim()
+          : rawApplicant?.name || rawApplicant?.fullName || applicantName || "";
+      const firstPart = displayName.split(" ")[0] || undefined;
+      const restPart = displayName.split(" ").slice(1).join(" ") || undefined;
+      if (!rawApplicant && !displayName) return null;
+      return {
+        id: raw.applicantId || rawApplicant?.id || undefined,
+        firstName: rawApplicant?.firstName ?? firstPart,
+        lastName: rawApplicant?.lastName ?? restPart,
+        name: displayName,
+        email: raw.email || detailsObj.email || rawApplicant?.email || null,
+        phone: raw.phone || detailsObj.phone || rawApplicant?.phone || null,
+        address: raw.address || detailsObj.address || rawApplicant?.address || null,
+        nin: raw.nin || detailsObj.nin || rawApplicant?.nin || null,
+        cacNumber: raw.cacNumber || detailsObj.cacNumber || rawApplicant?.cacNumber || null,
+      };
+    })(),
     createdBy: raw.createdBy || null,
     formData: detailsObj,
     applicationDocuments: docs,
