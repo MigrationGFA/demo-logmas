@@ -814,17 +814,30 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     const fee = getEffectiveServiceFee(serviceId);
     const fullName = data.fullName || (data.details && (data.details.fullName || data.details.applicantName)) || "Citizen Applicant";
     const phone = data.phone || (data.details && data.details.phone) || "+2348012345678";
-    const email = data.email || (data.details && data.details.email) || "applicant@demo.gov.ng";
+        const email = data.email || (data.details && data.details.email) || "applicant@demo.gov.ng";
+
+    // Attribution: a logged-out citizen can start this flow from the public site.
+    // Resolve the owner from the entered email/phone against the demo roster so
+    // the application shows up under "My Applications" once that user logs in
+    // (falls back to the single demo citizen — one user per role in this demo).
+    const owner = getDemoUsersList().find(
+      (u: any) =>
+        (u.email && u.email.toLowerCase() === String(email).toLowerCase()) ||
+        (u.phone && String(u.phone) === String(phone)),
+    );
+    const ownerUserId = owner?.id || DEMO_PRESET_USERS.citizen.id;
 
     // Create the underlying statutory application first so it can be tracked.
     const createdApp = createLgaApplication({
       serviceId,
       serviceName: srv.name,
       category: srv.category || "Statutory Services",
-      applicant: fullName,
+            applicant: fullName,
       phone,
       email,
-            address: (data.details && (data.details.address || data.details.siteAddress)) || "Demo Secretariat Road, Demo City",
+      applicantId: ownerUserId,
+      createdById: ownerUserId,
+      address: (data.details && (data.details.address || data.details.siteAddress)) || "Demo Secretariat Road, Demo City",
       ward: (data.details && data.details.ward) || "Ward 1 - Central Urban",
       revenueHead: srv.revenueHead || "1001 - Statutory LGA Fees",
       amount: fee.amount,
