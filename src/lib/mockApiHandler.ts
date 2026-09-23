@@ -2123,6 +2123,152 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       return respond(newCmp);
     }
 
+    // ---------- DETAIL BY ID ----------
+    // Citizen detail:  GET /complaints/my/:id
+    const myIdMatch = url.match(/^\/complaints\/my\/([^/]+)$/);
+    if (myIdMatch) {
+      const found = demoComplaints.find((c) => c.id === myIdMatch[1]) || null;
+      return respond(found || { error: "Complaint not found" });
+    }
+
+    // Admin detail:  GET /complaints/admin/:id
+    const adminIdMatch = url.match(/^\/complaints\/admin\/([^/]+)$/);
+    if (adminIdMatch) {
+      const found = demoComplaints.find((c) => c.id === adminIdMatch[1]) || null;
+      return respond(found || { error: "Complaint not found" });
+    }
+
+    // Ward detail:  GET /complaints/ward/:id
+    const wardIdMatch = url.match(/^\/complaints\/ward\/([^/]+)$/);
+    if (wardIdMatch) {
+      const found = demoComplaints.find((c) => c.id === wardIdMatch[1]) || null;
+      return respond(found || { error: "Complaint not found" });
+    }
+
+    // ---------- MUTATIONS ----------
+    // Citizen reply:  POST /complaints/my/:id/respond
+    const myRespondMatch = url.match(/^\/complaints\/my\/([^/]+)\/respond$/);
+    if (method === "POST" && myRespondMatch) {
+      const id = myRespondMatch[1];
+      const target = demoComplaints.find((c) => c.id === id);
+      const newResponse = {
+        id: `res-${Date.now()}`,
+        message: data?.message || "Acknowledged.",
+        respondedBy: {
+          id: "usr_citizen_001",
+          firstName: "Dr. Babatunde",
+          lastName: "Adeleke",
+          role: "citizen",
+        },
+        createdAt: new Date().toISOString(),
+      };
+      if (target) {
+        target.responses = target.responses || [];
+        target.responses.push(newResponse);
+        target.updatedAt = new Date().toISOString();
+      }
+      return respond(newResponse);
+    }
+
+    // Councillor reply:  POST /complaints/ward/:id/respond
+    const wardRespondMatch = url.match(/^\/complaints\/ward\/([^/]+)\/respond$/);
+    if (method === "POST" && wardRespondMatch) {
+      const id = wardRespondMatch[1];
+      const target = demoComplaints.find((c) => c.id === id);
+      const newResponse = {
+        id: `res-${Date.now()}`,
+        message: data?.message || "Received.",
+        respondedBy: {
+          id: "adm-ward-1",
+          firstName: "Councillor",
+          lastName: "Bisi",
+          role: "ward_councillor",
+        },
+        createdAt: new Date().toISOString(),
+      };
+      if (target) {
+        target.responses = target.responses || [];
+        target.responses.push(newResponse);
+        target.updatedAt = new Date().toISOString();
+      }
+      return respond(newResponse);
+    }
+
+    // Admin reply:  POST /complaints/admin/:id/respond
+    const adminRespondMatch = url.match(/^\/complaints\/admin\/([^/]+)\/respond$/);
+    if (method === "POST" && adminRespondMatch) {
+      const id = adminRespondMatch[1];
+      const target = demoComplaints.find((c) => c.id === id);
+      const newResponse = {
+        id: `res-${Date.now()}`,
+        message: data?.message || "Received.",
+        respondedBy: {
+          id: "adm-1",
+          firstName: "Council",
+          lastName: "Admin",
+          role: "lga_admin",
+        },
+        createdAt: new Date().toISOString(),
+      };
+      if (target) {
+        target.responses = target.responses || [];
+        target.responses.push(newResponse);
+        target.updatedAt = new Date().toISOString();
+      }
+      return respond(newResponse);
+    }
+
+    // Admin assign:  PATCH /complaints/admin/:id/assign
+    const assignMatch = url.match(/^\/complaints\/admin\/([^/]+)\/assign$/);
+    if ((method === "PATCH" || method === "POST") && assignMatch) {
+      const id = assignMatch[1];
+      const target = demoComplaints.find((c) => c.id === id);
+      if (target) {
+        target.assignedToId = data?.assignedToId || target.assignedToId;
+        target.assignedTo = data?.assignedToId
+          ? { id: data.assignedToId, firstName: "Councillor", lastName: "Bisi", role: "ward_councillor" }
+          : target.assignedTo;
+        if (target.status === "open") target.status = "assigned";
+        target.updatedAt = new Date().toISOString();
+      }
+      return respond(target || { error: "Complaint not found" });
+    }
+
+    // Admin status update:  PATCH /complaints/admin/:id/status
+    const statusMatch = url.match(/^\/complaints\/admin\/([^/]+)\/status$/);
+    if ((method === "PATCH" || method === "POST") && statusMatch) {
+      const id = statusMatch[1];
+      const target = demoComplaints.find((c) => c.id === id);
+      if (target) {
+        target.status = data?.status || target.status;
+        if (data?.status === "resolved") target.resolvedAt = new Date().toISOString();
+        target.resolutionNote = data?.resolutionNote || target.resolutionNote;
+        target.updatedAt = new Date().toISOString();
+      }
+      return respond(target || { error: "Complaint not found" });
+    }
+
+    // Admin update (assign + status in one):  PATCH /complaints/admin/:id
+    const adminUpdateMatch = url.match(/^\/complaints\/admin\/([^/]+)$/);
+    if ((method === "PATCH" || method === "POST") && adminUpdateMatch) {
+      const id = adminUpdateMatch[1];
+      const target = demoComplaints.find((c) => c.id === id);
+      if (target) {
+        if (data?.assignedToId) {
+          target.assignedToId = data.assignedToId;
+          target.assignedTo = { id: data.assignedToId, firstName: "Councillor", lastName: "Bisi", role: "ward_councillor" };
+        }
+        if (data?.status) {
+          target.status = data.status;
+          if (data.status === "resolved") target.resolvedAt = new Date().toISOString();
+          target.resolutionNote = data.resolutionNote || target.resolutionNote;
+        }
+        target.updatedAt = new Date().toISOString();
+      }
+      return respond(target || { error: "Complaint not found" });
+    }
+
+    // ---------- LIST ----------
     if (url.includes("/admin") || url.includes("/ward")) {
       return respond({
         complaints: demoComplaints,
