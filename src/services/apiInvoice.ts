@@ -83,6 +83,47 @@ export interface InvoiceDetails {
 
   // Payment options available
   paymentOptions: string[];
+
+  // ---------------------------------------------------------------------------
+  // DEMO / MOCK COMPATIBILITY FIELDS
+  // The original (backend) schema used balanceDue/status. The standalone demo
+  // mock also returns a few convenience aliases that older screens still read.
+  // Everything below is optional so real backend payloads stay valid.
+  // ---------------------------------------------------------------------------
+
+  /** Total amount alias (same value as `totalAmount`). */
+  amount?: number;
+  /** Human readable payment state: "paid" | "pending" | "confirmed"... */
+  paymentStatus?: string | null;
+  /** Creation timestamp (alias of `issuedAt`). */
+  createdAt?: string;
+  /** Flat virtual account number (alias of `virtualAccount.accountNumber`). */
+  virtualAccountNumber?: string | null;
+  /** Flat virtual bank name (alias of `virtualAccount.bankName`). */
+  virtualBankName?: string | null;
+  /** Multiple receipts (some legacy screens render a list). */
+  receipts?: Receipt[] | null;
+  /** Linked statutory application, enriched by the demo mock. */
+  application?: {
+    id?: string;
+    applicationNumber?: string;
+    applicationNo?: string;
+    status?: string;
+    feeAmount?: number;
+    revenueHead?: string;
+    ward?: string;
+    createdAt?: string;
+    submittedAt?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    formData?: Record<string, any> | null;
+    applicant?: { fullName?: string; phone?: string; email?: string } | null;
+    service?: {
+      id?: string;
+      name?: string;
+      code?: string;
+      revenueHead?: string;
+    } | null;
+  } | null;
 }
 
 export interface InvoiceStats {
@@ -235,9 +276,75 @@ export const invoicesService = {
   return await api.post<OnlinePaymentInitResponse>(`/invoices/${id}/pay-online`, {});
 },
 
-verifyPayment: async (reference: string): Promise<VerifyPaymentResponse> => {
-  return await api.get<VerifyPaymentResponse>(`/payments/verify/${reference}`);
-},
+  verifyPayment: async (reference: string): Promise<VerifyPaymentResponse> => {
+    // Prefer the server-side Paystack verification route (real gateway when
+    // PAYSTACK_SECRET_KEY is configured). Falls back to the in-browser mock.
+    try {
+      const res = await fetch(
+        `/api/paystack/verify/${encodeURIComponent(reference)}`,
+      );
+      if (res.ok) {
+        const json: any = await res.json();
+
+        if (json?.paid) {
+          // Gateway confirmed. Mirror the settlement into the local demo store so
+          // receipts, dashboards and the linked application all update.
+          //
+          // IMPORTANT: the Paystack reference (LOGMAS-<invoice>-<ts>-<rnd>) is NOT
+          // the invoice number, so we resolve the real invoice from the metadata
+          // Paystack echoes back (set during initialize).
+          const mirrorKey =
+            json?.metadata?.invoiceNumber ||
+            json?.metadata?.invoiceId ||
+            reference;
+
+          let mirrored: any = null;
+          try {
+            mirrored = await api.post(
+              `/invoices/${encodeURIComponent(String(mirrorKey))}/simulate-payment`,
+              {},
+            );
+          } catch {
+            /* ignore — the gateway result is still authoritative */
+          }
+
+          // Merge so /payment/result can show invoice + receipt + application.
+          return {
+            ...(mirrored || {}),
+            ...json,
+            status: "confirmed",
+            success: true,
+            flow: json?.flow || "new_application",
+            reference: json?.reference || reference,
+          } as unknown as VerifyPaymentResponse;
+        }
+
+        if (json?.source === "paystack" || json?.source === "unconfigured") {
+          // Genuine gateway failure/abandoned/pending, or Paystack not configured
+          // yet — for "unconfigured" we still let the local mock settle below.
+          if (json?.source === "paystack") {
+            return json as VerifyPaymentResponse;
+          }
+        }
+      }
+    } catch {
+      /* route unavailable — use the mock below */
+    }
+
+    // Local (no-gateway) path: the mock settles the invoice and issues the receipt.
+    const mock: any = await api.get<VerifyPaymentResponse>(
+      `/payments/verify/${encodeURIComponent(reference)}`,
+    );
+    if (mock && (mock.verified || mock.status === "paid")) {
+      return {
+        ...mock,
+        status: "confirmed",
+        success: true,
+        flow: mock.flow || "new_application",
+      } as unknown as VerifyPaymentResponse;
+    }
+    return mock as VerifyPaymentResponse;
+  },
 
    // Field officer sends Paystack link via SMS + email
   sendPaymentLink: async (id: string): Promise<SendPaymentLinkResponse> => {

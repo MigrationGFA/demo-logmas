@@ -238,8 +238,12 @@ const rand = (n = 6) => Math.random().toString(36).slice(2, 2 + n).toUpperCase()
 const today = () => new Date().toISOString();
 const datePart = () => new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
-export const genInvoiceRef = () => `DEMO/INV/${new Date().getFullYear()}/${rand(6)}`;
-export const genReceiptNumber = () => `DEMO/RCP/${new Date().getFullYear()}/${rand(6)}`;
+// NOTE: refs intentionally contain NO forward slashes. Slashes break Next.js
+// single-segment [id] routes (e.g. /dashboard/invoices/<ref>) and the mock's
+// `/invoices/:id` / `/payments/verify/:ref` regexes. Using a dash-delimited
+// format keeps every link, redirect and lookup working in the all-local demo.
+export const genInvoiceRef = () => `DEMO-INV-${new Date().getFullYear()}-${rand(6)}`;
+export const genReceiptNumber = () => `DEMO-RCP-${new Date().getFullYear()}-${rand(6)}`;
 export const genVerificationCode = () => `DEMO-VCODE-${rand(6)}`;
 export const genQRToken = () => `QR-DEMO-${rand(8)}`;
 export const genVirtualAccount = () => `99${Math.floor(10000000 + Math.random() * 89999999)}`;
@@ -423,6 +427,8 @@ export interface CreateInvoiceInput {
   description?: string;
   quantity: number;
   unitPrice: number;
+  /** Optional direct amount fallback when quantity/unitPrice are not meaningful (e.g. statutory flat fees). */
+  amount?: number;
   frequency: Frequency;
   dueDate: string;
   officerId?: string;
@@ -456,7 +462,7 @@ export function createInvoice(input: CreateInvoiceInput): Invoice {
     description: input.description,
     quantity: input.quantity,
     unitPrice: input.unitPrice,
-    amount: input.quantity * input.unitPrice,
+    amount: input.unitPrice ? (input.quantity || 1) * input.unitPrice : (input.amount ?? 0),
     frequency: input.frequency,
     dueDate: input.dueDate,
     status: "unpaid",

@@ -67,6 +67,8 @@ export interface LgaApplication {
   ward: string;
   nin?: string;
   cacNumber?: string;
+  applicantId?: string;
+  createdById?: string;
   revenueHead: string;
   amount: number;
   status: ApplicationStatus;
@@ -113,6 +115,8 @@ const INITIAL_SEED_APPLICATIONS: LgaApplication[] = [
   {
     id: "DEMO-2026-001",
     applicationNo: "DEMO/COO/2026/0001",
+    applicantId: "usr_citizen_001",
+    createdById: "usr_citizen_001",
     serviceId: "certificate_of_origin",
     serviceName: "Certificate of Origin",
     category: "Certificates",
@@ -163,6 +167,8 @@ const INITIAL_SEED_APPLICATIONS: LgaApplication[] = [
   {
     id: "DEMO-2026-002",
     applicationNo: "DEMO/TEN/2026/0002",
+    applicantId: "usr_citizen_001",
+    createdById: "usr_citizen_001",
     serviceId: "tenement_rate",
     serviceName: "Tenement Rate",
     category: "Rates & Levies",
@@ -214,6 +220,8 @@ const INITIAL_SEED_APPLICATIONS: LgaApplication[] = [
   {
     id: "DEMO-2026-003",
     applicationNo: "DEMO/FAR/2026/0003",
+    applicantId: "usr_citizen_001",
+    createdById: "usr_citizen_001",
     serviceId: "farmers_registration",
     serviceName: "Certificate of Farmers Registration",
     category: "Community & Agriculture",
@@ -463,6 +471,8 @@ export function createLgaApplication(data: {
   ward: string;
   nin?: string;
   cacNumber?: string;
+  applicantId?: string;
+  createdById?: string;
   revenueHead: string;
   amount: number;
   details: Record<string, any>;
@@ -493,6 +503,8 @@ export function createLgaApplication(data: {
     ward: data.ward || "the LGA",
     nin: data.nin,
     cacNumber: data.cacNumber,
+    applicantId: data.applicantId,
+    createdById: data.createdById,
     revenueHead: data.revenueHead,
     amount: data.amount,
     status: initialStatus,
@@ -539,6 +551,26 @@ export function createLgaApplication(data: {
   return newApp;
 }
 
+/**
+ * Workflow helper: attach a generated invoice to an application so payment
+ * initiates can be traced back to the underlying statutory application.
+ */
+export function linkApplicationInvoice(id: string, invoiceId: string, invoiceNumber: string): LgaApplication | null {
+  const apps = getLgaApplications();
+  const index = apps.findIndex((a) => a.id === id || a.applicationNo === id);
+  if (index === -1) return null;
+  const updated: LgaApplication = {
+    ...apps[index],
+    invoiceId,
+    invoiceNumber,
+    updatedAt: new Date().toISOString(),
+  };
+  apps[index] = updated;
+  saveLgaApplications(apps);
+  addAudit({ actor: "System", actorRole: "system", action: "APPLICATION_INVOICE_LINKED", target: updated.applicationNo, meta: { invoiceId, invoiceNumber } });
+  return updated;
+}
+
 export function updateApplicationStatus(
   id: string,
   newStatus: ApplicationStatus,
@@ -554,7 +586,7 @@ export function updateApplicationStatus(
   const dateStr = now.replace("T", " ").substring(0, 16);
 
   // Mark all previous timeline events as completed
-  const updatedTimeline = (current.timeline || []).map((t) => ({ ...t, status: "completed" as const }));
+  const updatedTimeline: ApplicationTimelineEvent[] = (current.timeline || []).map((t) => ({ ...t, status: "completed" as const }));
 
   // Add new stage event
   updatedTimeline.push({

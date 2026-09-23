@@ -72,7 +72,10 @@ export default function ServiceDetailPage({ params }: PageProps) {
   const isFieldOfficer = userRole === "field_officer";
 
   const submitApplicationMutation = useSubmitApplication();
-  const [submittedApp, setSubmittedApp] = useState<Application | null>(null);
+  // Submission receipt envelope returned by POST /applications:
+  // { application, invoice, invoiceNumber }. Typed loosely because the success
+  // card reads both the legacy flat shape and the new nested one.
+  const [submittedApp, setSubmittedApp] = useState<any | null>(null);
 
   // Loading UI
   if (isServiceLoading) {
@@ -145,7 +148,7 @@ export default function ServiceDetailPage({ params }: PageProps) {
     }
 
     try {
-      const res = await submitApplicationMutation.mutateAsync({
+      const res = await submitApplicationMutation.mutateAsync({ /* no-op carry */
         serviceId: service.id,
         applicantId: applicant?.applicantId || undefined,
         formData,
@@ -154,10 +157,38 @@ export default function ServiceDetailPage({ params }: PageProps) {
 
       console.log("Submission response:", res);
 
-      if (res.application.applicationNumber) {
-        router.push(`/dashboard/invoices/${res.invoice.invoiceNumber}`);
+      // The mock handler returns { application, invoice }; older handlers returned a
+      // flat application object. Normalise both shapes so the redirect always fires.
+      const raw: any = res as any;
+      const appObj: any = raw.application ?? raw;
+      const invObj: any = raw.invoice ?? null;
+      const appNumber =
+        appObj?.applicationNumber ?? appObj?.applicationNo ?? raw.applicationNumber;
+      const invoiceRef =
+        invObj?.invoiceNumber ??
+        invObj?.reference ??
+        raw.invoiceNumber ??
+        raw.reference ??
+        appObj?.invoiceNumber;
+      const paymentUrl = raw.paymentUrl as string | undefined;
 
-        setSubmittedApp(res);
+      if (appNumber || invoiceRef) {
+        // Live Paystack link? Go pay immediately. Otherwise land on the invoice
+        // page where the "Pay Online" button kicks off Paystack redirection.
+                if (paymentUrl) {
+          router.push(paymentUrl);
+        } else if (invoiceRef) {
+          // Prefer the store's internal id (always slash-free) so the
+          // single-segment /dashboard/invoices/<id> route resolves reliably.
+          const stableRef = invObj?.id || invoiceRef;
+          router.push(`/dashboard/invoices/${stableRef}`);
+        }
+
+        setSubmittedApp({
+          application: appObj,
+          invoice: invObj,
+          invoiceNumber: invoiceRef ?? appNumber,
+        } as any);
       }
     } catch (err) {
       console.error("Submission failed:", err);

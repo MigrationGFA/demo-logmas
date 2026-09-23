@@ -59,7 +59,7 @@ export default function InvoiceDetail({
   const isOfficer = userRole === "field_officer";
 
   // Use real API hooks
-  const { invoice, isLoading, error, isPayable, paymentProgress } =
+  const { invoice, isLoading, error, refetch, isPayable, paymentProgress } =
     useInvoiceDetails(invoiceId);
 
   const {
@@ -158,7 +158,7 @@ export default function InvoiceDetail({
     <div>
       <PageHeader
         title={`Invoice ${invoice.invoiceNumber}`}
-        subtitle={`Issued ${new Date(invoice.createdAt).toLocaleDateString()} • ${invoice.application?.applicationNumber ? `Application: ${invoice.application.applicationNumber}` : ""}`}
+        subtitle={`Issued ${new Date(invoice.createdAt || invoice.issuedAt).toLocaleDateString()} • ${invoice.application?.applicationNumber ? `Application: ${invoice.application.applicationNumber}` : ""}`}
         action={
           <div className="flex gap-2">
             <Button asChild variant="outline">
@@ -323,19 +323,19 @@ export default function InvoiceDetail({
                       Demo Online Payment
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Simulate instantaneous online card or account payment of ₦{totalAmount.toLocaleString()} without external gateway redirects.
+                      Pay ₦{totalAmount.toLocaleString()} securely via Paystack (card, bank transfer or USSD). You will be redirected back here once payment settles.
                     </p>
                     <Button
                       className="w-full bg-gradient-hero"
-                      onClick={() => simulatePayment()}
-                      disabled={isRecordingPayment}
+                      onClick={() => initializeOnlinePayment()}
+                      disabled={isInitializingPayment}
                     >
-                      {isRecordingPayment ? (
+                      {isInitializingPayment ? (
                         <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
                       ) : (
-                        <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                        <CreditCard className="h-4 w-4 mr-1.5" />
                       )}
-                      Pay ₦{totalAmount.toLocaleString()} Now (Instant Demo)
+                      Pay ₦{totalAmount.toLocaleString()} with Paystack
                     </Button>
                   </div>
                 </TabsContent>

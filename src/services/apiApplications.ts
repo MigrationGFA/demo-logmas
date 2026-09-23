@@ -14,6 +14,37 @@ import {
 } from "@/config/lgaServices";
 import { LGA_CONFIG } from "@/config/lga.config";
 
+/**
+ * Shape returned by `POST /applications`.
+ *
+ * The original backend returned a flat application object. The standalone demo
+ * mock returns `{ application, invoice }` plus a couple of convenience aliases so
+ * the UI can both show the confirmation panel AND redirect straight to the
+ * generated invoice for payment. Both shapes are represented here.
+ */
+export interface SubmitApplicationResult {
+  /** The created (or completed) statutory application. */
+  application?: Partial<Application> | null;
+  /** The generated statutory invoice awaiting payment. */
+  invoice?: {
+    id?: string;
+    invoiceNumber?: string;
+    reference?: string;
+    status?: string;
+    amount?: number;
+    totalAmount?: number;
+    paymentStatus?: string;
+    virtualAccountNumber?: string | null;
+    virtualBankName?: string | null;
+    [key: string]: any;
+  } | null;
+  /** Convenience aliases (present on both flat and nested responses). */
+  invoiceNumber?: string;
+  /** Present when the gateway was initialised server-side during submission. */
+  paymentUrl?: string;
+  [key: string]: any;
+}
+
 // Helper to normalize an application from backend or local storage
 function normalizeApplication(raw: any): any {
   if (!raw) return raw;
@@ -185,7 +216,7 @@ export const apiApplications = {
    */
   submitApplication: async (
     payload: CreateApplicationData,
-  ): Promise<Application> => {
+  ): Promise<SubmitApplicationResult> => {
     const formData = new FormData();
 
     formData.append("serviceId", payload.serviceId);
@@ -210,7 +241,7 @@ export const apiApplications = {
         })),
     );
 
-    return api.upload<Application>("/applications", formData);
+    return api.upload<SubmitApplicationResult>("/applications", formData);
   },
 
   completeApplication: async (

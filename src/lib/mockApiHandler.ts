@@ -18,9 +18,100 @@ import {
   getLgaApplicationById,
   createLgaApplication,
   updateApplicationStatus,
+  linkApplicationInvoice,
   type LgaApplication,
 } from "./applicationsStore";
 import { transformApplicationToPublicCertificate } from "@/services/apiPublicCertificate";
+
+// ==========================================
+// TREASURY FEE CONFIGURATION (demo single source of truth)
+// Merges the ServiceFeeConfigurationTab upserts, the Certificate/Levy schedule
+// tabs, and the service defaults so treasurer changes affect new invoices.
+// ==========================================
+const TREASURER_FEES_STORAGE_KEY = "logmas.treasurer.fees";
+
+export interface DemoServiceFeeOverride {
+  amount: number;
+  status: "ACTIVE" | "INACTIVE";
+  updatedAt: string;
+}
+
+function getTreasurerFeeOverrides(): Record<string, DemoServiceFeeOverride> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(TREASURER_FEES_STORAGE_KEY);
+    if (!raw || raw.startsWith("<") || raw === "undefined" || raw === "null") return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveTreasurerFeeOverride(serviceId: string, amount: number, status: "ACTIVE" | "INACTIVE") {
+  if (typeof window === "undefined") return;
+  try {
+    const overrides = getTreasurerFeeOverrides();
+    overrides[serviceId] = { amount, status, updatedAt: new Date().toISOString() };
+    window.localStorage.setItem(TREASURER_FEES_STORAGE_KEY, JSON.stringify(overrides));
+  } catch {}
+}
+
+// Surface fees edited inside the CertificateFeeTab / LevyPermitFeeTab (they persist
+// to their own schedule keys) so those edits also drive invoice generation.
+function readTabScheduleFee(serviceId: string): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const keys = [
+      `${LGA_CONFIG.identity.id}_certificate_fees`,
+      `${LGA_CONFIG.identity.id}_levy_permit_fees`,
+    ];
+    for (const key of keys) {
+      const raw = window.localStorage.getItem(key);
+      if (!raw || raw.startsWith("<") || raw === "undefined" || raw === "null") continue;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) continue;
+      const row = parsed.find(
+        (r: any) =>
+          r.serviceId === serviceId ||
+          r.service === serviceId ||
+          r.id === `SCH-CERT-${serviceId}` ||
+          r.id === `SCH-LEVY-${serviceId}`
+      );
+      if (row) {
+        const fee = Number(row.baseFee ?? row.fee ?? row.amount);
+        if (fee && fee > 0) return fee;
+      }
+    }
+  } catch {}
+  return null;
+}
+
+export function getEffectiveServiceFee(serviceId: string): DemoServiceFeeOverride {
+  const srv = getServiceById(serviceId) || DEFAULT_SERVICES.find((s) => s.id === serviceId) || DEFAULT_SERVICES[0];
+  const defaultAmount = Number(srv?.defaultFee ?? (srv as any)?.fee ?? 3500);
+  const override = getTreasurerFeeOverrides()[serviceId];
+  if (override) return { amount: override.amount, status: override.status, updatedAt: override.updatedAt };
+  const tabFee = readTabScheduleFee(serviceId);
+  if (tabFee && tabFee > 0) return { amount: tabFee, status: "ACTIVE", updatedAt: srv?.updatedAt || new Date().toISOString() };
+  return { amount: defaultAmount, status: "ACTIVE", updatedAt: srv?.updatedAt || new Date().toISOString() };
+}
+
+function serviceWithEffectiveFee(service: any) {
+  const fee = getEffectiveServiceFee(service.id);
+  return {
+    ...service,
+    feeConfig: {
+      id: `fee-${service.id}`,
+      serviceId: service.id,
+      amount: fee.amount,
+      status: fee.status,
+      updatedAt: fee.updatedAt,
+    },
+    defaultFee: fee.amount,
+    fee: fee.amount,
+  };
+}
 
 // ==========================================
 // PRESET DEMO USERS
@@ -197,7 +288,34 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   const url = (config.url || "").replace(/^https?:\/\/[^/]+/, "").replace(/^\/api\/v1/, "").replace(/^\/api\/demo/, "");
   const method = (config.method || "GET").toUpperCase();
   let data: any = {};
-  if (typeof config.data === "string") {
+  // FormData bodies (api.upload) must be flattened to a plain object —
+  // property access on FormData returns undefined and silently broke POST /applications.
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    const JSON_KEYS = new Set(["formData", "files", "details", "documents", "applicant", "metadata"]);
+    config.data.forEach((value: any, key: string) => {
+      if (value instanceof File) {
+        data[key] = { name: value.name, size: value.size, type: value.type };
+      } else if (JSON_KEYS.has(key) && typeof value === "string") {
+        try {
+          data[key] = JSON.parse(value);
+        } catch {
+          data[key] = value;
+        }
+      } else if (key.includes("[")) {
+        // e.g. files[passport_photo] → nest under "files"
+        const match = key.match(/^(\w+)\[(\w+)\]$/);
+        if (match) {
+          data[match[1]] = data[match[1]] || {};
+          data[match[1]][match[2]] =
+            value instanceof File
+              ? { name: value.name, size: value.size, type: value.type }
+              : value;
+        }
+      } else {
+        data[key] = value;
+      }
+    });
+  } else if (typeof config.data === "string") {
     try {
       if (config.data && !config.data.startsWith("<") && config.data !== "undefined") {
         data = JSON.parse(config.data);
@@ -224,6 +342,21 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       status: "success",
       data,
       error: null,
+      meta: { timestamp: new Date().toISOString(), demo: true },
+    },
+  });
+
+  // Error envelope so the api client's `unwrap` throws a surfaced ApiError (toast).
+  const respondError = (message: string, code = "REQUEST_FAILED", status = 400) => ({
+    status,
+    statusText: "Bad Request",
+    headers: {},
+    config,
+    data: {
+      status: "error",
+      data: null,
+      error: message,
+      code,
       meta: { timestamp: new Date().toISOString(), demo: true },
     },
   });
@@ -288,7 +421,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   }
 
   if (url.startsWith("/auth/me")) {
-    let user = null;
+    let user: any = null;
     if (typeof window !== "undefined") {
       try {
         const raw = window.localStorage.getItem("logmas.auth.user");
@@ -339,81 +472,189 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   // ==========================================
   if (url === "/applications" || url.startsWith("/applications?")) {
     if (method === "GET") {
-      const all = getLgaApplications();
-      return respond({
-        items: all,
-        total: all.length,
-        page: 1,
-        limit: 50,
-        totalPages: 1,
-      });
+      let all = getLgaApplications() as any[];
+
+      // Light client-side filtering so dashboard filters stay functional.
+      const q = (params.search || "").toString().toLowerCase();
+      if (q) {
+        all = all.filter((a) =>
+          (a.applicant && a.applicant.toLowerCase().includes(q)) ||
+          (a.serviceName && a.serviceName.toLowerCase().includes(q)) ||
+          (a.applicationNo && a.applicationNo.toLowerCase().includes(q)) ||
+          (a.details && JSON.stringify(a.details).toLowerCase().includes(q))
+        );
+      }
+      if (params.status) {
+        const st = String(params.status).toLowerCase();
+        all = all.filter((a) => String(a.status || "").toLowerCase().includes(st) || String(a.paymentStatus || "").toLowerCase() === st);
+      }
+      if (params.serviceId) {
+        all = all.filter((a) => a.serviceId === params.serviceId);
+      }
+      if (params.wardId) {
+        all = all.filter((a) => String(a.ward || "").toLowerCase().includes(String(params.wardId).toLowerCase()));
+      }
+
+      return respond(all);
     }
 
     if (method === "POST") {
+      // Fields may arrive top-level or nested inside the JSON "formData" blob.
+      const form =
+        data.formData && typeof data.formData === "object" ? data.formData : {};
+      const serviceId = data.serviceId || "certificate_of_origin";
+      const srv = getServiceById(serviceId) || DEFAULT_SERVICES[0];
+      const fee = getEffectiveServiceFee(serviceId);
+      const fullName =
+        form.fullName || data.fullName || (typeof data.applicant === "string" ? data.applicant : "") || "";
+
       const createdApp = createLgaApplication({
-        serviceId: data.serviceId || "certificate_of_origin",
-        serviceName: data.serviceName || "Certificate of Origin",
-        category: data.category || "Statutory Certificates",
-        applicant: data.applicant || data.fullName || "Demo Applicant",
-        phone: data.phone || "+234 800 000 1122",
-        email: data.email || "applicant@demo.gov.ng",
-        address: data.address || "Demo Secretariat Road, Demo City",
-        ward: data.ward || "Ward 1 - Central Urban",
-        nin: data.nin,
-        cacNumber: data.cacNumber,
-        revenueHead: data.revenueHead || "Internal Revenue",
-        amount: Number(data.amount) || 5000,
-        details: data.details || data.formData || {},
+        serviceId,
+        serviceName: data.serviceName || srv.name,
+        category: data.category || srv.category || "Statutory Services",
+        applicant: fullName || "Demo Applicant",
+        phone: form.phone || data.phone || "+234 800 000 1122",
+        email: form.email || data.email || "applicant@demo.gov.ng",
+        address: form.address || data.address || "Demo Secretariat Road, Demo City",
+        ward: form.ward || data.ward || "Ward 1 - Central Urban",
+        nin: form.nin || data.nin,
+        cacNumber: form.cacNumber || data.cacNumber,
+        applicantId: data.applicantId || data.applicant?.applicantId || undefined,
+        createdById: data.createdById || data.applicantId || undefined,
+        revenueHead: data.revenueHead || srv.revenueHead || "1001 - Statutory LGA Fees",
+        amount: Number(data.amount) || fee.amount,
+        details: form && Object.keys(form).length ? form : data.details || {},
         documents: data.documents || [],
         isDraft: data.isDraft ?? false,
       });
 
-      // Auto create an Invoice in store.ts for this application
+      // Auto-create a linked invoice with the treasurer-configured fee.
       const dueDate = new Date();
       dueDate.setDate(dueDate.getDate() + 14);
-      createInvoice({
-        taxpayer: createdApp.applicant,
+      const inv = createInvoice({
+        customerName: createdApp.applicant,
         phone: createdApp.phone,
         email: createdApp.email,
         address: createdApp.address,
-        ward: createdApp.ward,
-        levyType: "State of Origin Fee",
-        amount: createdApp.amount,
+        levyType: "Other",
+        purpose: srv.name,
+        description: `Statutory ${srv.name} fee for ${createdApp.applicant}`,
+        quantity: 1,
+        unitPrice: fee.amount,
+        amount: fee.amount,
         frequency: "one-off",
         dueDate: dueDate.toISOString().slice(0, 10),
         actor: "System",
         actorRole: "system",
       });
+      linkApplicationInvoice(createdApp.id, inv.id, inv.reference);
+      createdApp.invoiceId = inv.id;
+      createdApp.invoiceNumber = inv.reference;
+      (inv as any).applicationId = createdApp.id;
+      (createdApp as any).applicationNumber =
+        (createdApp as any).applicationNumber || createdApp.applicationNo;
 
+      // Return the shape the submit handler expects: { application, invoice }
+      // so res.application.applicationNumber and res.invoice.invoiceNumber both exist.
       triggerSync();
-      return respond(createdApp);
+      return respond({
+        application: createdApp,
+        invoice: {
+          id: inv.id,
+          invoiceNumber: inv.reference,
+          status: inv.status,
+          amount: inv.amount,
+          customerName: inv.customerName,
+          paymentStatus: inv.status === "paid" ? "paid" : "pending",
+          issuedAt: inv.createdAt,
+          dueDate: inv.dueDate,
+          levyType: inv.levyType,
+          description: inv.description,
+          totalAmount: inv.amount,
+          amountPaid: inv.status === "paid" ? inv.amount : 0,
+          balanceDue: inv.status === "paid" ? 0 : inv.amount,
+          subtotal: inv.amount,
+          penaltyAmount: 0,
+          frequency: inv.frequency,
+          unitPrice: inv.unitPrice,
+          quantity: inv.quantity,
+          fieldOfficer: null,
+          qrData: "",
+          receipt: inv.status === "paid" ? { id: (inv as any).receiptId, receiptNumber: (inv as any).receiptNumber, verificationCode: (inv as any).verificationCode, qrToken: (inv as any).qrToken, issuedAt: inv.paidAt } : null,
+          permit: null,
+          virtualAccount: null,
+          payments: inv.status === "paid" ? [{ id: (inv as any).paymentId || inv.id, amount: inv.amount, method: "online", status: "success", reference: inv.reference, confirmedAt: inv.paidAt, createdAt: inv.paidAt }] : [],
+          paymentOptions: ["online", "card", "bank_transfer"],
+        },
+      });
     }
   }
 
-  // Specific application lookup / status change
-  const appMatch = url.match(/^\/applications\/([^/?]+)(.*)/);
-  if (appMatch) {
-    const appId = appMatch[1];
-    const subPath = appMatch[2] || "";
+  // Admin + Council work-flow actions: /applications/admin/:id/(under-review|approve|decline)
+  const adminAppAction = url.match(/^\/applications\/admin\/([^/?]+)\/(under-review|approve|decline|reject)$/);
+  if (adminAppAction) {
+    const appId = adminAppAction[1];
+    const action = adminAppAction[2];
+    const app = getLgaApplicationById(appId);
+    if (!app) return respond(null, 404);
 
-    if (subPath.includes("approve") || subPath.includes("status")) {
-      const newStatus = data.status || "Approved";
-      const updated = updateApplicationStatus(appId, newStatus, {
-        name: "Council Admin",
-        role: "lga_admin",
-      }, {
+    if (action === "under-review") {
+      const updated = updateApplicationStatus(appId, "Under Review", { name: "Council Admin", role: "lga_admin" }, { reviewNotes: data.notes || undefined } as any);
+      triggerSync();
+      return respond(updated);
+    }
+
+    if (action === "approve") {
+      if (app.paymentStatus !== "paid") {
+        return respondError(
+          "This application has not been paid yet. Payment confirmation is required before the LGA can approve and issue the certificate.",
+          "PAYMENT_REQUIRED"
+        );
+      }
+      const chairmanName = LGA_CONFIG.leadership.chairman.name;
+      const issuedAt = new Date().toISOString();
+      const year = new Date().getFullYear();
+      const expiry = new Date(Date.now() + 5 * 365 * 86400000).toISOString();
+      const certNo = app.certificateNumber || `DEMO/CERT/${year}/${app.id.slice(-6).toUpperCase()}`;
+      const updated = updateApplicationStatus(appId, "Approved", { name: "Council Admin", role: "lga_admin" }, {
         paymentStatus: "paid",
+        certificateNumber: certNo,
+        licenceNumber: app.licenceNumber || certNo,
+        issuedAt,
+        issuedBy: chairmanName,
+        expiryDate: app.expiryDate || expiry,
       });
       triggerSync();
       return respond(updated);
     }
 
+    // decline / reject — reason is mandatory
+    const reason = (data.reason || data.declineReason || "").trim();
+    if (!reason) {
+      return respondError("A specific decline reason is mandatory to reject this application.", "DECLINE_REASON_REQUIRED");
+    }
+    const updated = updateApplicationStatus(appId, "Rejected", { name: "Council Admin", role: "lga_admin" }, {
+      rejectionReason: reason,
+      correctionNotes: reason,
+    });
+    triggerSync();
+    return respond(updated);
+  }
+
+  // Specific application lookup / legacy status change
+  const appMatch = url.match(/^\/applications\/([^/?]+)(.*)/);
+  if (appMatch) {
+    const appId = appMatch[1];
+    const subPath = appMatch[2] || "";
+
     if (subPath.includes("decline") || subPath.includes("reject")) {
-      const updated = updateApplicationStatus(appId, "Rejected", {
-        name: "Council Admin",
-        role: "lga_admin",
-      }, {
-        rejectionReason: data.reason || "Documentation verification failed.",
+      const reason = (data.reason || data.declineReason || "").trim();
+      if (!reason) {
+        return respondError("A specific decline reason is mandatory to reject this application.", "DECLINE_REASON_REQUIRED");
+      }
+      const updated = updateApplicationStatus(appId, "Rejected", { name: "Council Admin", role: "lga_admin" }, {
+        rejectionReason: reason,
+        correctionNotes: reason,
       });
       triggerSync();
       return respond(updated);
@@ -427,28 +668,58 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   // INVOICES & PAYMENTS ROUTING
   // ==========================================
   if (url.startsWith("/invoices/public/initialize")) {
-    const srv = getServiceById(data.serviceId) || DEFAULT_SERVICES[0];
-    const ref = `INV-${Date.now().toString().slice(-6)}`;
-    const newInv = {
-      id: `inv-${Date.now()}`,
-      reference: ref,
-      customerName: data.fullName || "Citizen Applicant",
-      phone: data.phone || "+2348012345678",
-      levyType: srv.name,
-      amount: srv.fee,
-      status: "pending" as const,
-      paymentMethod: "online",
-      virtualAccount: "9918273645",
-      qrToken: `QR-${ref}`,
-      createdAt: new Date().toISOString(),
-      dueDate: new Date(Date.now() + 14 * 86400000).toISOString(),
-    };
-    setStore((prev) => ({ ...prev, invoices: [newInv, ...prev.invoices] }));
+    const serviceId = data.serviceId || "certificate_of_origin";
+    const srv = getServiceById(serviceId) || DEFAULT_SERVICES[0];
+    const fee = getEffectiveServiceFee(serviceId);
+    const fullName = data.fullName || (data.details && (data.details.fullName || data.details.applicantName)) || "Citizen Applicant";
+    const phone = data.phone || (data.details && data.details.phone) || "+2348012345678";
+    const email = data.email || (data.details && data.details.email) || "applicant@demo.gov.ng";
+
+    // Create the underlying statutory application first so it can be tracked.
+    const createdApp = createLgaApplication({
+      serviceId,
+      serviceName: srv.name,
+      category: srv.category || "Statutory Services",
+      applicant: fullName,
+      phone,
+      email,
+      address: (data.details && (data.details.address || data.details.siteAddress)) || "Demo Secretariat Road, Demo City",
+      ward: (data.details && data.details.ward) || "Ward 1 - Central Urban",
+      revenueHead: srv.revenueHead || "1001 - Statutory LGA Fees",
+      amount: fee.amount,
+      details: data.details || { fullName, phone, email },
+      documents: [],
+    });
+
+    const dueDate = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+    const inv = createInvoice({
+      customerName: fullName,
+      phone,
+      email,
+      address: createdApp.address,
+      levyType: "Other",
+      purpose: srv.name,
+      description: `Statutory ${srv.name} fee for ${fullName}`,
+      quantity: 1,
+      unitPrice: fee.amount,
+      amount: fee.amount,
+      frequency: "one-off",
+      dueDate,
+      actor: "System",
+      actorRole: "system",
+    });
+    linkApplicationInvoice(createdApp.id, inv.id, inv.reference);
+
+    triggerSync();
     return respond({
-      paymentUrl: `/citizen/invoices/pay/${newInv.id}`,
-      reference: ref,
-      accessCode: `ACC-${ref}`,
+      paymentUrl: `/pay/${inv.id}`,
+      reference: inv.reference,
+      accessCode: `ACC-${inv.reference}`,
       message: "Invoice generated successfully",
+      invoiceId: inv.id,
+      applicationId: createdApp.id,
+      applicationNumber: createdApp.applicationNo,
+      amount: fee.amount,
     });
   }
 
@@ -504,22 +775,27 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     if (inv) {
       const receipt = markInvoicePaid(inv.id, "online", "Demo Taxpayer", "citizen");
 
-      // Check if there is an application matching this invoice
+      // Advance the linked statutory application to "Payment Confirmed" (paid).
+      // Approval remains with the LGA Admin — payment alone does NOT approve.
       const apps = getLgaApplications();
       const matchedApp = apps.find(
         (a) =>
+          (a.invoiceId && a.invoiceId === inv.id) ||
+          (a.invoiceNumber && a.invoiceNumber === inv.reference) ||
           a.applicationNo === inv.reference ||
-          a.id === inv.reference ||
-          a.applicant.toLowerCase() === inv.customerName.toLowerCase() ||
-          a.amount === inv.amount
+          a.id === inv.reference
       );
       if (matchedApp) {
-        updateApplicationStatus(matchedApp.id, "Approved", {
-          name: "Treasury Gateway",
-          role: "treasurer",
+        updateApplicationStatus(matchedApp.id, "Payment Confirmed", {
+          name: "Demo Taxpayer",
+          role: "citizen",
         }, {
           paymentStatus: "paid",
+          invoiceId: inv.id,
+          invoiceNumber: inv.reference,
+          receiptNumber: receipt?.receiptNumber || `DEMO-RCP-${Date.now().toString().slice(-6)}`,
           paidAt: new Date().toISOString(),
+          paymentMethod: "online",
         });
       }
 
@@ -532,6 +808,9 @@ export async function handleMockApiRequest(config: any): Promise<any> {
           amount: inv.amount,
           paidAt: new Date().toISOString(),
         },
+        invoice: { ...inv, status: "paid" },
+        applicationId: matchedApp?.id,
+        applicationNumber: matchedApp?.applicationNo,
       });
     }
 
@@ -547,9 +826,22 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       (i) => i.id === idOrRef || i.reference.toUpperCase() === idOrRef.toUpperCase()
     );
     if (inv) {
+      // Resolve the linked statutory application so the invoice page can show the
+      // applicant, the service and the declaration data instead of "N/A".
+      const linkedApp = getLgaApplications().find(
+        (a: any) =>
+          a.id === (inv as any).applicationId ||
+          a.invoiceId === inv.id ||
+          a.invoiceNumber === inv.reference,
+      ) as any;
+
+      const virtualAccountNumber = inv.virtualAccount || "9912847291";
+
       return respond({
         ...inv,
         invoiceNumber: inv.reference,
+        applicationId: linkedApp?.id || (inv as any).applicationId || null,
+        applicationNumber: linkedApp?.applicationNo || linkedApp?.applicationNumber || null,
         totalAmount: inv.amount,
         amountPaid: inv.status === "paid" ? inv.amount : 0,
         balanceDue: inv.status === "paid" ? 0 : inv.amount,
@@ -557,6 +849,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         penaltyAmount: 0,
         invoiceType: "standard",
         customerPhone: inv.phone,
+        customerEmail: inv.email,
         description: inv.purpose || inv.levyType,
         fieldOfficer: inv.officerName || "Treasury Gateway",
         qrData: inv.qrToken,
@@ -569,11 +862,44 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         } : null,
         permit: null,
         virtualAccount: {
-          accountNumber: inv.virtualAccount || "9912847291",
+          accountNumber: virtualAccountNumber,
           bankName: "LOGMAS Revenue Settlement Bank",
           accountName: `IKENNE LGA - ${inv.customerName}`,
           reference: inv.reference,
         },
+        // Flat aliases the invoice detail page reads directly.
+        virtualAccountNumber,
+        virtualBankName: "LOGMAS Revenue Settlement Bank",
+        // Linked statutory application (shape the invoice page expects).
+        application: linkedApp
+          ? {
+              id: linkedApp.id,
+              applicationNumber: linkedApp.applicationNo || linkedApp.applicationNumber,
+              status: linkedApp.status,
+              feeAmount: linkedApp.amount,
+              ward: linkedApp.ward,
+              revenueHead: linkedApp.revenueHead,
+              service: { name: linkedApp.serviceName, code: linkedApp.serviceId },
+              formData: linkedApp.details || {},
+              applicant: {
+                fullName: linkedApp.applicant,
+                phone: linkedApp.phone,
+                email: linkedApp.email,
+                address: linkedApp.address,
+              },
+            }
+          : null,
+        receipts: inv.status === "paid"
+          ? [
+              {
+                id: `rcp-${inv.id}`,
+                receiptNumber: `RCP-${inv.reference.replace(/[^0-9]/g, "").slice(-6) || "00142"}`,
+                amount: inv.amount,
+                method: inv.paymentMethod || "online",
+                issuedAt: inv.paidAt || inv.createdAt,
+              },
+            ]
+          : [],
         payments: inv.status === "paid" ? [
           {
             id: `pay-${inv.id}`,
@@ -581,8 +907,8 @@ export async function handleMockApiRequest(config: any): Promise<any> {
             method: inv.paymentMethod || "online",
             status: "confirmed",
             reference: inv.reference,
-            confirmedAt: inv.createdAt,
-            createdAt: inv.createdAt,
+            confirmedAt: inv.paidAt || inv.createdAt,
+            createdAt: inv.paidAt || inv.createdAt,
           }
         ] : [],
         paymentOptions: ["transfer", "pos", "card", "virtual_account"],
@@ -591,12 +917,49 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   }
 
   if (url.startsWith("/payments/verify/")) {
-    const ref = url.split("/").pop() || "";
+        const ref = decodeURIComponent(url.replace("/payments/verify/", "").split("?")[0]);
     const inv = findInvoiceByRef(ref);
+    if (!inv) {
+      return respond({
+        status: "failed",
+        paid: false,
+        verified: false,
+        source: "local",
+        reference: ref,
+        message: "No invoice found for this payment reference.",
+      });
+    }
+    const paid = inv.status === "paid";
+    const app = getLgaApplications().find(
+      (a) =>
+        (a.invoiceId && a.invoiceId === inv.id) ||
+        (a.invoiceNumber && a.invoiceNumber === inv.reference)
+    );
     return respond({
+      status: paid ? "confirmed" : "pending",
+      paid,
       verified: true,
-      status: inv?.status === "paid" ? "paid" : "unpaid",
-      invoice: inv,
+      source: "local",
+      reference: inv.reference,
+      paid_at: paid ? (inv.paidAt || inv.createdAt) : undefined,
+      invoice: { ...inv, invoiceNumber: inv.reference },
+      receipt: paid
+        ? {
+            receiptNumber:
+              (inv as any).receiptNumber ||
+              `DEMO-RCP-${(inv.reference.replace(/[^0-9]/g, "").slice(-6) || Date.now().toString().slice(-6))}`,
+            amount: inv.amount,
+            paidAt: (inv as any).paidAt || inv.createdAt,
+          }
+        : null,
+      application: app
+        ? {
+            id: app.id,
+            applicationNumber: app.applicationNo,
+            status: app.status,
+            service: { id: app.serviceId, name: app.serviceName },
+          }
+        : null,
     });
   }
 
@@ -618,7 +981,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   // SERVICES ROUTING
   // ==========================================
   if (url === "/services" || url.startsWith("/services?")) {
-    return respond(DEFAULT_SERVICES);
+    return respond(DEFAULT_SERVICES.map(serviceWithEffectiveFee));
   }
 
   const serviceSlugMatch = url.match(/^\/services\/([^/?]+)$/);
@@ -1051,24 +1414,65 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     if (feeSubMatch) {
       const srvId = feeSubMatch[1];
       const srv = DEFAULT_SERVICES.find((s) => s.id === srvId) || DEFAULT_SERVICES[0];
+      const fee = getEffectiveServiceFee(srv.id);
+
+      // PATCH upserts the treasurer-configured fee (amount + active status).
+      if (method === "PATCH" || method === "POST" || method === "PUT") {
+        const rawAmount = Number(data.amount);
+        const amount = rawAmount && rawAmount > 0 ? rawAmount : fee.amount;
+        const active = typeof data.status === "boolean" ? data.status : (data.status ? String(data.status).toUpperCase() !== "INACTIVE" : fee.status !== "INACTIVE");
+        const status = active ? "ACTIVE" : "INACTIVE";
+        saveTreasurerFeeOverride(srv.id, amount, status);
+        addAudit({
+          actor: "Council Treasurer",
+          actorRole: "treasurer",
+          action: "SERVICE_FEE_UPDATED",
+          target: srv.id,
+          meta: { amount, status },
+        });
+        triggerSync();
+        return respond({
+          id: `fee-${srv.id}`,
+          serviceId: srv.id,
+          serviceName: srv.name,
+          amount,
+          status,
+          updatedAt: new Date().toISOString(),
+          updatedById: "usr_treasurer_001",
+          updatedBy: { id: "usr_treasurer_001", firstName: "Mrs. M. O.", lastName: "Danjuma, FCA" },
+        });
+      }
+
       return respond({
-        id: `fee-${srv.id}`,
-        serviceId: srv.id,
-        serviceName: srv.name,
-        amount: srv.fee,
-        status: "ACTIVE",
-        updatedAt: new Date().toISOString(),
+        ...serviceWithEffectiveFee(srv),
+        feeConfig: {
+          id: `fee-${srv.id}`,
+          serviceId: srv.id,
+          amount: fee.amount,
+          status: fee.status,
+          updatedAt: fee.updatedAt,
+          updatedById: "usr_treasurer_001",
+          updatedBy: { id: "usr_treasurer_001", firstName: "Mrs. M. O.", lastName: "Danjuma, FCA" },
+        },
       });
     }
+
     return respond(
-      DEFAULT_SERVICES.map((srv) => ({
-        id: `fee-${srv.id}`,
-        serviceId: srv.id,
-        serviceName: srv.name,
-        amount: srv.fee,
-        status: "ACTIVE",
-        updatedAt: new Date().toISOString(),
-      }))
+      DEFAULT_SERVICES.map((srv) => {
+        const fee = getEffectiveServiceFee(srv.id);
+        return {
+          ...serviceWithEffectiveFee(srv),
+          feeConfig: {
+            id: `fee-${srv.id}`,
+            serviceId: srv.id,
+            amount: fee.amount,
+            status: fee.status,
+            updatedAt: fee.updatedAt,
+            updatedById: "usr_treasurer_001",
+            updatedBy: { id: "usr_treasurer_001", firstName: "Mrs. M. O.", lastName: "Danjuma, FCA" },
+          },
+        };
+      })
     );
   }
 
@@ -1739,44 +2143,71 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     const pendingAmount = unpaidInvoices.reduce((acc, i) => acc + i.amount, 0) || 3450000;
 
     let currentRole: string = "citizen";
+    let currentUser: any = null;
     try {
       if (typeof window !== "undefined") {
         const storedUser = window.localStorage.getItem("logmas.auth.user");
         if (storedUser) {
           const parsed = JSON.parse(storedUser);
+          currentUser = parsed;
           if (parsed?.role) currentRole = parsed.role;
         }
       }
     } catch {}
 
-    const formattedRecentApps = apps.slice(0, 8).map((a, idx) => ({
-      id: a.id || `app-${1001 + idx}`,
-      applicant: a.applicant || a.fullName || a.customerName || "Dr. Babatunde Adeleke",
-      fullName: a.fullName || a.applicant || a.customerName || "Dr. Babatunde Adeleke",
-      service: a.serviceName || a.service || "Certificate of State of Origin",
-      serviceName: a.serviceName || a.service || "Certificate of State of Origin",
-      ward: a.ward || "Atan Ward",
-      status: a.status?.toLowerCase() === "approved" ? "approved" : (a.status?.toLowerCase() === "rejected" ? "rejected" : "pending"),
-      createdAt: a.createdAt || new Date(Date.now() - idx * 86400000).toISOString(),
-      date: a.createdAt || new Date(Date.now() - idx * 86400000).toISOString(),
-      type: a.serviceName || "Local Government Clearance",
-    }));
+    // Scope to records the current user actually owns, matching the "My Applications"
+    // page filter (applicantId/createdById) — but only for applicant-type roles.
+    // Management roles (admin, treasurer, chairman, field officer) see the full ledger.
+    const isCitizenLikeRole = currentRole === "citizen" || currentRole === "business_owner";
+    const scopedApps = (isCitizenLikeRole && currentUser && currentUser.id)
+      ? (apps as any[]).filter((a: any) => a.applicantId === currentUser.id || a.createdById === currentUser.id)
+      : apps;
+
+    const approvedAppCount = scopedApps.filter((a: any) => {
+      const st = String(a.status || "").toLowerCase();
+      return st === "approved" || st === "completed";
+    }).length;
+    const pendingPaymentsSum = scopedApps
+      .filter((a: any) => a.paymentStatus !== "paid")
+      .reduce((sum: number, a: any) => sum + Number(a.amount || 0), 0);
+    const awaitingFormCount = scopedApps.filter((a: any) => {
+      const st = String(a.status || "").toLowerCase();
+      return st !== "approved" && st !== "completed" && st !== "rejected" && st !== "draft";
+    }).length;
+    const rejectedAppCount = scopedApps.filter((a: any) => String(a.status || "").toLowerCase() === "rejected").length;
+
+    const formattedRecentApps = (scopedApps && scopedApps.length ? scopedApps : apps).slice(0, 8).map((a, idx) => {
+      const st = String(a.status || "").toLowerCase();
+      return {
+        id: a.id || `app-${1001 + idx}`,
+        applicant: a.applicant || a.fullName || a.customerName || "Dr. Babatunde Adeleke",
+        fullName: a.fullName || a.applicant || a.customerName || "Dr. Babatunde Adeleke",
+        service: a.serviceName || a.service || "Certificate of State of Origin",
+        serviceName: a.serviceName || a.service || "Certificate of State of Origin",
+        ward: a.ward || "Atan Ward",
+        status: st === "approved" || st === "completed" ? "approved" : (st === "rejected" ? "rejected" : (st === "draft" ? "draft" : "pending")),
+        createdAt: a.createdAt || new Date(Date.now() - idx * 86400000).toISOString(),
+        date: a.createdAt || new Date(Date.now() - idx * 86400000).toISOString(),
+        type: a.serviceName || "Local Government Clearance",
+      };
+    });
 
     const formattedRecentInvoices = s.invoices.slice(0, 6).map((inv) => ({
       id: inv.id,
-      reference: inv.invoiceNumber || `INV-${inv.id}`,
+      reference: (inv as any).invoiceNumber || `INV-${inv.id}`,
       amount: inv.amount,
       customerName: inv.customerName || "Registered Ratepayer",
       status: inv.status,
     }));
 
     const metrics = {
-      // Citizen metrics
-      pendingPayments: 25000,
-      approvedApplications: apps.filter((a) => a.status?.toLowerCase() === "approved").length || 4,
-      openComplaints: 1,
-      awaitingForm: 2,
-      awaitingFormSubmissions: 2,
+      // Citizen metrics (derived from the current user's own applications so the
+      // dashboard always matches the "My Applications" page).
+      pendingPayments: pendingPaymentsSum,
+      approvedApplications: approvedAppCount,
+      openComplaints: 0,
+      awaitingForm: awaitingFormCount,
+      awaitingFormSubmissions: awaitingFormCount,
 
       // Business Owner metrics
       activeNotices: 3,
@@ -1969,7 +2400,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       id: n.id,
       userId: n.userId || "usr_demo",
       title: n.title,
-      message: n.message || (n as any).body || "System update notification",
+      message: (n as any).message || (n as any).body || "System update notification",
       type: n.type || "system",
       isRead: Boolean(n.read),
       createdAt: n.createdAt || new Date().toISOString(),
