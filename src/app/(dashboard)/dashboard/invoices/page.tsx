@@ -216,8 +216,8 @@ export default function InvoicesPage() {
                   <TableCell className="font-mono text-xs">
                     {invoice.reference}
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {invoice.service.name}
+                                    <TableCell className="font-medium">
+                    {invoice.service?.name ?? invoice.levyType ?? "—"}
                   </TableCell>
                   {/* <TableCell>{invoice.invoiceType}</TableCell> */}
                   {/* <TableCell>{invoice.dueDate}</TableCell> */}
@@ -225,7 +225,7 @@ export default function InvoicesPage() {
                     ₦{invoice.amount.toLocaleString()}
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={invoice.paymentStatus} />
+                                        <StatusBadge status={invoice.paymentStatus || invoice.status || "pending"} />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
@@ -235,7 +235,7 @@ export default function InvoicesPage() {
                         </Link>
                       </Button> */}
 
-                      {invoice.paymentStatus === "confirmed" && invoice?.receipt?.receiptId ? (
+                                            {(invoice.paymentStatus === "confirmed" && invoice.receiptId) ? (
                         <Button asChild variant="outline" size="sm">
                           <Link
                             href={`/dashboard/receipts/${invoice.receiptId}`}

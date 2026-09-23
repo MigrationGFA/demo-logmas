@@ -143,6 +143,18 @@ export interface InvoiceList {
   amount: number;
   status: InvoiceStatus;
   receiptId: string | null;
+  /**
+   * DEMO/MOCK ADDITIONS — the hub endpoint (and local mock) also returns these
+   * convenience fields; older screens read them directly.
+   */
+  /** Alias of `reference`. */
+  invoiceNumber?: string;
+  /** Service/levy display object (mock builds it from the invoice purpose). */
+  service?: { name?: string };
+  /** Human readable payment state used by list tabs: pending | confirmed | ... */
+  paymentStatus?: string;
+  /** Embedded receipt summary (present once paid). */
+  receipt?: { receiptId?: string; receiptNumber?: string } | null;
 }
 
 export interface InvoicesHubResponse {

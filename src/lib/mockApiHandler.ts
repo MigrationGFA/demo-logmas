@@ -822,7 +822,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     return respond(inv || null);
   }
 
-  if (url === "/invoices/hub" || url.startsWith("/invoices/hub?")) {
+    if (url === "/invoices/hub" || url.startsWith("/invoices/hub?")) {
     const s = getStore();
     const invoices = s.invoices;
     const paid = invoices.filter((i) => i.status === "paid");
@@ -830,9 +830,29 @@ export async function handleMockApiRequest(config: any): Promise<any> {
     const totalCollected = paid.reduce((sum, i) => sum + i.amount, 0);
     const totalOutstanding = unpaid.reduce((sum, i) => sum + i.amount, 0);
 
+    // Normalise raw store invoices into the hub/list shape the UI expects.
+    // The store Invoice has `purpose`/`status` but NO `service`,
+    // `paymentStatus` or `receiptId` — the invoices list page reads all three
+    // (invoice.service.name crashed at runtime before this mapping).
+    const receiptFor = (inv: (typeof invoices)[number]) =>
+      s.receipts.find((r) => r.invoiceId === inv.id || r.invoiceRef === inv.reference);
+    const listItems = invoices.map((inv) => {
+      const rcp = receiptFor(inv);
+      return {
+        ...inv,
+        invoiceNumber: inv.reference,
+        invoiceType: inv.levyType,
+        service: { name: inv.purpose || inv.levyType },
+                // Page tabs filter on paymentStatus: all | pending | confirmed | ...
+        paymentStatus: inv.status === "paid" ? "confirmed" : "pending",
+        receiptId: rcp?.id || null,
+        receipt: rcp ? { receiptId: rcp.id, receiptNumber: rcp.receiptNumber } : null,
+      };
+    });
+
     return respond({
       success: true,
-      invoices,
+      invoices: listItems,
       stats: {
         totalInvoices: invoices.length,
         totalPaidCount: paid.length,
