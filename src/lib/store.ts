@@ -242,7 +242,7 @@ const datePart = () => new Date().toISOString().slice(0, 10).replace(/-/g, "");
 // single-segment [id] routes (e.g. /dashboard/invoices/<ref>) and the mock's
 // `/invoices/:id` / `/payments/verify/:ref` regexes. Using a dash-delimited
 // format keeps every link, redirect and lookup working in the all-local demo.
-export const genInvoiceRef = () => `DEMO-INV-${new Date().getFullYear()}-${rand(6)}`;
+export const genInvoiceRef = () => `INV-${new Date().getFullYear()}-${rand(6)}`;
 export const genReceiptNumber = () => `DEMO-RCP-${new Date().getFullYear()}-${rand(6)}`;
 export const genVerificationCode = () => `DEMO-VCODE-${rand(6)}`;
 export const genQRToken = () => `QR-DEMO-${rand(8)}`;
@@ -481,8 +481,12 @@ export function createInvoice(input: CreateInvoiceInput): Invoice {
 
 export function markInvoicePaid(invoiceId: string, method: PaymentMethod, actor: string, actorRole: string): Receipt | null {
   const s = getStore();
-  const inv = s.invoices.find((i) => i.id === invoiceId);
-  if (!inv || inv.status === "paid") return null;
+  const inv = s.invoices.find((i) => i.id === invoiceId || i.reference === invoiceId || i.reference.toUpperCase() === invoiceId.toUpperCase());
+  if (!inv) return null;
+  if (inv.status === "paid") {
+    const existing = s.receipts.find((r) => r.invoiceId === inv.id || r.invoiceRef === inv.reference);
+    if (existing) return existing;
+  }
   const receipt: Receipt = {
     id: genId(),
     receiptNumber: genReceiptNumber(),
@@ -501,8 +505,8 @@ export function markInvoicePaid(invoiceId: string, method: PaymentMethod, actor:
   };
   setStore((cur) => ({
     ...cur,
-    invoices: cur.invoices.map((i) => i.id === invoiceId ? { ...i, status: "paid", paidAt: today(), paymentMethod: method } : i),
-    receipts: [receipt, ...cur.receipts],
+    invoices: cur.invoices.map((i) => i.id === inv.id ? { ...i, status: "paid", paidAt: today(), paymentMethod: method } : i),
+    receipts: [receipt, ...cur.receipts.filter((r) => r.invoiceId !== inv.id)],
   }));
   addAudit({ actor, actorRole, action: "PAYMENT_CONFIRMED", target: inv.reference, meta: { method, amount: inv.amount } });
   addNotification({ title: "Payment received", body: `${inv.reference} marked PAID via ${method.toUpperCase()}. Receipt ${receipt.receiptNumber} issued.`, type: "success" });
@@ -554,35 +558,34 @@ export function findByQrOrCode(token: string): { receipt: Receipt; invoice?: Inv
 
 export function findInvoiceByRef(ref: string): Invoice | null {
   if (!ref) return null;
-  const clean = ref.trim().toUpperCase();
-  const s = getStore();
+  const trimmed = ref.trim().toUpperCase();
+  const invoices = getStore().invoices;
 
-  // 1. Direct match on id or exact reference
-  const direct = s.invoices.find(
-    (i) => i.id === ref.trim() || i.reference.toUpperCase() === clean
-  );
-  if (direct) return direct;
+  // 1. Exact match by reference or ID
+  let found = invoices.find((i) => i.reference.toUpperCase() === trimmed || i.id.toUpperCase() === trimmed);
+  if (found) return found;
 
-  // 2. Receipt number or verification code match
-  const rcp = s.receipts.find(
-    (r) =>
-      r.receiptNumber.toUpperCase() === clean ||
-      r.verificationCode.toUpperCase() === clean ||
-      r.qrToken.toUpperCase() === clean
-  );
-  if (rcp) {
-    const fromRcp = s.invoices.find((i) => i.id === rcp.invoiceId);
-    if (fromRcp) return fromRcp;
+  // 2. Check stored Paystack references in localStorage/sessionStorage
+  if (typeof window !== "undefined") {
+    try {
+      const stored = window.localStorage.getItem(`logmas.paystack.ref.${ref}`) ||
+                     window.sessionStorage.getItem(`logmas.paystack.ref.${ref}`) ||
+                     window.localStorage.getItem(`paystack_ref_${ref}`) ||
+                     window.sessionStorage.getItem(`paystack_ref_${ref}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const invIdOrRef = parsed.invoiceNumber || parsed.reference || parsed.id || parsed.invoiceId;
+        if (invIdOrRef) {
+          found = invoices.find((i) => i.reference.toUpperCase() === String(invIdOrRef).toUpperCase() || i.id.toUpperCase() === String(invIdOrRef).toUpperCase());
+          if (found) return found;
+        }
+      }
+    } catch {}
   }
 
-  // 3. Partial/gateway reference match (handles prefix e.g. LOGMAS- or timestamp suffixes)
-  const partial = s.invoices.find(
-    (i) =>
-      clean.includes(i.reference.toUpperCase()) ||
-      clean.includes(i.id.toUpperCase()) ||
-      i.reference.toUpperCase().includes(clean)
-  );
-  if (partial) return partial;
+  // 3. Substring match: Paystack reference formats like "PST-INV-2026-XXXXXX-timestamp"
+  found = invoices.find((i) => trimmed.includes(i.reference.toUpperCase()) || (i.id && trimmed.includes(i.id.toUpperCase())));
+  if (found) return found;
 
   return null;
 }

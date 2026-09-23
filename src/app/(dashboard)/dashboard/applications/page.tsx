@@ -430,7 +430,7 @@ export default function ApplicationsPage() {
         <div className="space-y-3">
           {displayApplications.map((app) => {
             const s = String(app.status).toLowerCase();
-            const isSubmitted = s === "submitted";
+            const isSubmitted = s === "submitted" || s === "awaiting payment" || s === "payment confirmed";
             const isUnderReview = s.includes("review");
             const isApproved = s === "approved" || s === "completed";
             const isDeclined = s === "declined" || s === "rejected";
@@ -528,7 +528,7 @@ export default function ApplicationsPage() {
                     </Button>
                   )}
 
-                  {/* {isAdmin && isUnderReview && (
+                  {isAdmin && isUnderReview && (
                     <>
                       <Button
                         size="sm"
@@ -551,7 +551,7 @@ export default function ApplicationsPage() {
                         Decline
                       </Button>
                     </>
-                  )} */}
+                  )}
 
                   {/* Certificate button if approved */}
                   {isApproved && (
@@ -559,7 +559,8 @@ export default function ApplicationsPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        window.open(getPublicCertificateUrl(app?.certificate.certificateNumber), "_blank");
+                        setSelectedApp(app);
+                        setCertificateModalOpen(true);
                       }}
                       className="text-xs h-8 gap-1.5 border-emerald-400 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-semibold"
                     >
@@ -752,7 +753,7 @@ export default function ApplicationsPage() {
               </Button>
 
               <div className="flex items-center gap-2 flex-wrap">
-                {isAdmin && selectedApp.status?.toLowerCase() === "submitted" && (
+                {isAdmin && (selectedApp.status?.toLowerCase() === "submitted" || selectedApp.status?.toLowerCase() === "payment confirmed" || selectedApp.status?.toLowerCase() === "awaiting payment") && (
                   <Button
                     size="sm"
                     onClick={() => handleMoveToReview(selectedApp)}

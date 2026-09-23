@@ -1,146 +1,91 @@
-// End-to-end test using real service layer + mock adapter
-import pkg from "dotenv";
-pkg.config({ path: ".env.local" });
+// Loads the REAL service + mock layer (axios custom adapter) so we exercise the
+// exact code path the UI uses: apiApplications.submitApplication -> axios -> mock.
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 
-// Polyfill browser globals for node execution
-const memStore = new Map();
-const listeners = new Map();
-
-global.window = {
-  fetch: global.fetch || (() => Promise.resolve({ ok: true, json: async () => ({}) })),
+// --- Minimal window/localStorage polyfill so "use client" store.ts works ---
+const store = new Map();
+global.window = global.window || {
   localStorage: {
-    getItem: (k) => (memStore.has(k) ? memStore.get(k) : null),
-    setItem: (k, v) => memStore.set(k, String(v)),
-    removeItem: (k) => memStore.delete(k),
-    clear: () => memStore.clear(),
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, String(v)),
+    removeItem: (k) => store.delete(k),
+    clear: () => store.clear(),
   },
-  sessionStorage: {
-    getItem: (k) => (memStore.has(k) ? memStore.get(k) : null),
-    setItem: (k, v) => memStore.set(k, String(v)),
-    removeItem: (k) => memStore.delete(k),
-    clear: () => memStore.clear(),
-  },
-  location: {
-    origin: "http://localhost:3000",
-    href: "http://localhost:3000",
-  },
-  addEventListener: (name, fn) => {
-    if (!listeners.has(name)) listeners.set(name, []);
-    listeners.get(name).push(fn);
-  },
-  removeEventListener: (name, fn) => {
-    const list = listeners.get(name) || [];
-    listeners.set(name, list.filter((f) => f !== fn));
-  },
-  dispatchEvent: (ev) => {
-    const list = listeners.get(ev.type) || [];
-    list.forEach((fn) => {
-      try { fn(ev); } catch {}
-    });
-    return true;
-  },
-};
-global.localStorage = global.window.localStorage;
-global.sessionStorage = global.window.sessionStorage;
-global.document = {
-  head: { appendChild: () => {} },
-  createElement: () => ({ setAttribute: () => {}, appendChild: () => {}, style: {} }),
-  createTextNode: () => ({}),
-  getElementsByTagName: () => [{ appendChild: () => {} }],
   addEventListener: () => {},
   removeEventListener: () => {},
+  dispatchEvent: () => true,
+  get location() { return { origin: 'http://localhost:3400', href: 'http://localhost:3400' }; },
 };
+global.document = { addEventListener: () => {}, removeEventListener: () => {} };
 
-const { api } = await import("../src/lib/api.ts");
-const { apiApplications } = await import("../src/services/apiApplications.ts");
-const { invoicesService } = await import("../src/services/apiInvoice.ts");
+const { api } = await import('./src/lib/api.js');
+const { apiApplications } = await import('./src/services/apiApplications.js');
+const { invoicesService } = await import('./src/services/apiInvoice.js');
 
-const log = (...a) => console.log("[harness5]", ...a);
+const log = (...a) => console.log('[harness5]', ...a);
 
-// Pre-seed auth user
-global.localStorage.setItem(
-  "logmas.auth.user",
-  JSON.stringify({ id: "usr_citizen_001", role: "citizen", fullName: "Dr. Babatunde Adeleke" })
-);
-global.localStorage.setItem("logmas.auth.token", "demo-offline-session-token");
+// Pre-seed a test auth user so citizen-scoped dashboard counts work.
+store.set('logmas.auth.user', JSON.stringify({ id: 'usr_citizen_001', role: 'citizen', fullName: 'Dr. Babatunde Adeleke' }));
+store.set('logmas.auth.token', 'demo-offline-session-token');
 
-// 1. Submit application via real service
-log("=== 1. Submitting application ===");
+// 1. Submit an application (real service + mock adapter path)
 const res = await apiApplications.submitApplication({
-  serviceId: "certificate_of_origin",
-  applicantId: "usr_citizen_001",
+  serviceId: 'certificate_of_origin',
+  applicantId: 'usr_citizen_001',
   formData: {
-    fullName: "Adeola Test Citizen",
-    phone: "08030001112",
-    email: "adeola.test@example.com",
-    address: "1 Test Crescent, Ikenne",
-    ward: "Ikenne Ward",
-    nin: "12345678901234567",
-    dob: "1992-04-15",
-    gender: "Female",
-    maritalStatus: "Married",
-    occupation: "Teacher",
-    fatherName: "James Test",
-    fatherCompound: "Test Compound",
-    fatherVillage: "Ijebu-Ode",
-    motherName: "Mary Test",
-    motherCompound: "Test Compound II",
-    motherVillage: "Ikenne",
-    familyBaale: "Chief Test",
-    purpose: "Employment",
-    previousApplication: "No",
+    fullName: 'Adeola Test Citizen', phone: '08030001112', email: 'adeola.test@example.com',
+    address: '1 Test Crescent, Ikenne', ward: 'Ikenne Ward', nin: '12345678901234567',
+    dob: '1992-04-15', gender: 'Female', maritalStatus: 'Married', occupation: 'Teacher',
+    fatherName: 'James Test', fatherCompound: 'Test Compound', fatherVillage: 'Ijebu-Ode',
+    motherName: 'Mary Test', motherCompound: 'Test Compound II', motherVillage: 'Ikenne',
+    familyBaale: 'Chief Test', purpose: 'Employment', previousApplication: 'No',
   },
-  files: {
-    passport_photo: { name: "passport.jpg" },
-    nin_slip: { name: "nin.pdf" },
-    proof_of_residency: { name: "utility.pdf" },
-  },
+  files: { passport_photo: { name: 'passport.jpg' }, nin_slip: { name: 'nin.pdf' }, proof_of_residency: { name: 'utility.pdf' } },
 });
+log('submit response keys:', Object.keys(res));
+log('application.applicationNumber =', res?.application?.applicationNumber);
+log('invoice.invoiceNumber =', res?.invoice?.invoiceNumber);
+log('invoice.amount =', res?.invoice?.amount);
 
-const appNum = res?.application?.applicationNumber || res?.application?.applicationNo;
+const appNum = res?.application?.applicationNumber;
 const invNum = res?.invoice?.invoiceNumber || res?.invoice?.reference;
 const invId = res?.invoice?.id;
 
-log("Application Number:", appNum);
-log("Invoice Number:", invNum);
-log("Invoice Amount:", res?.invoice?.amount);
+if (!appNum || !invNum) { log('FAIL: missing app/invoice numbers'); process.exit(1); }
 
-if (!appNum || !invNum) {
-  log("FAIL: Missing app/invoice numbers");
-  process.exit(1);
-}
-
-// 2. Fetch invoice detail
-log("\n=== 2. Fetching invoice detail ===");
+// 2. Fetch the invoice detail (real GET through mock adapter)
 const inv = await invoicesService.getInvoiceById(invNum);
-log("Invoice status:", inv?.status || inv?.paymentStatus);
-log("Invoice totalAmount:", inv?.totalAmount, "balanceDue:", inv?.balanceDue);
-log("Invoice application:", inv?.application ? "linked" : "null");
+log('GET invoice.status =', inv?.status || inv?.paymentStatus);
+log('GET invoice.amount =', inv?.amount, 'balanceDue =', inv?.balanceDue);
+log('GET invoice.application =', inv?.application ? 'linked' : 'null');
+log('GET invoice.virtualAccountNumber =', inv?.virtualAccountNumber);
 
-// 3. Settle payment
-log("\n=== 3. Settle payment ===");
+// 3. Pay online (real service -> Paystack API route -> local settle fallback)
 const init = await invoicesService.initializeOnlinePayment(invId);
-log("Initialize reference:", init?.reference);
+log('initializeOnlinePayment reference =', init?.reference);
 
-// 4. Verify payment
-log("\n=== 4. Verify payment ===");
+// 4. Verify the payment reference (real service -> mock /payments/verify/:ref)
 const verified = await invoicesService.verifyPayment(invNum);
-log("Verify status:", verified?.status, "paid:", verified?.paid, "source:", verified?.source);
+log('verifyPayment status =', verified?.status, 'paid =', verified?.paid, 'source =', verified?.source);
 
-// 5. Re-fetch invoice after payment
-log("\n=== 5. Re-fetch invoice ===");
+// 5. Re-fetch invoice — confirm paid + receipt issued
 const invPaid = await invoicesService.getInvoiceById(invNum);
-log("Paid status:", invPaid?.status || invPaid?.paymentStatus);
-log("Receipt number:", invPaid?.receipt?.receiptNumber);
+log('post-payment invoice.status =', invPaid?.status || invPaid?.paymentStatus);
+log('post-payment receipt =', invPaid?.receipt?.receiptNumber || '(none)');
+log('post-payment verificationCode =', invPaid?.receipt?.verificationCode || '(none)');
 
-// 6. Check overview
-log("\n=== 6. Dashboard overview ===");
-const overview = await api.get("/dashboard/overview");
-log("Approved apps:", overview?.metrics?.approvedApplications ?? overview?.stats?.approvedApplications);
+// 6. Overview consistency
+const overview = await api.get('/dashboard/overview');
+log('GET /dashboard/overview -> approvedApplications =', overview?.metrics?.approvedApplications ?? overview?.stats?.approvedApplications);
+log('GET /dashboard/overview -> recentApplications count =', (overview?.recentApplications || overview?.recentApps || []).length);
 
-console.log("\n=== E2E HARNESS 5 RESULT ===");
-console.log("Submit OK:", !!appNum);
-console.log("Invoice OK:", !!invNum, "Amount:", inv?.totalAmount || inv?.amount);
-console.log("Verify OK:", verified?.paid === true, "Status:", verified?.status);
-console.log("Receipt OK:", !!invPaid?.receipt?.receiptNumber);
-console.log("ALL TESTS PASSED SUCCESSFULLY");
+// 7. Applications list fetch (citizen-scoped)
+const appsList = await api.get('/applications');
+log('GET /applications -> count =', Array.isArray(appsList) ? appsList.length : '(non-array)');
+
+console.log('\\n=== E2E VERDICT ===');
+console.log('submit OK:', !!appNum);
+console.log('invoice OK:', !!invNum, 'amount:', inv?.amount);
+console.log('verify OK:', verified?.verified || verified?.paid, 'status:', verified?.status);
+console.log('receipt OK:', !!invPaid?.receipt?.receiptNumber);

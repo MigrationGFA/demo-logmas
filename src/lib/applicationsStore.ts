@@ -57,7 +57,6 @@ export interface TreasuryAssessment {
 export interface LgaApplication {
   id: string;
   applicationNo: string;
-  applicationNumber?: string;
   serviceId: string;
   serviceName: string;
   category: string;
@@ -445,19 +444,6 @@ export function getLgaApplications(): LgaApplication[] {
   }
 }
 
-export function resetLgaApplications(): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
-    window.localStorage.removeItem(LEGACY_APPLICATIONS_STORAGE_KEY);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_SEED_APPLICATIONS));
-    window.dispatchEvent(new CustomEvent(EVT_KEY));
-    window.dispatchEvent(new CustomEvent(LEGACY_APPLICATIONS_EVENT_KEY));
-  } catch (err) {
-    console.error("Failed to reset applications", err);
-  }
-}
-
 export function saveLgaApplications(apps: LgaApplication[]): void {
   if (typeof window === "undefined") return;
   try {
@@ -498,16 +484,15 @@ export function createLgaApplication(data: {
   const shortCode = LGA_CONFIG.identity.shortCode || "DEMO";
   const id = `DEMO-2026-${String(count).padStart(3, "0")}`;
   const serviceCode = data.serviceId.substring(0, 3).toUpperCase();
-  const appNo = `DEMO/${serviceCode}/2026/${String(count).padStart(4, "0")}`;
+  const appNo = `APP/${serviceCode}/2026/${String(count).padStart(4, "0")}`;
   const now = new Date().toISOString();
   const dateStr = now.replace("T", " ").substring(0, 16);
 
-  const initialStatus: ApplicationStatus = data.isDraft ? "Draft" : "Submitted";
+  const initialStatus: ApplicationStatus = data.isDraft ? "Draft" : "Awaiting Payment";
 
   const newApp: LgaApplication = {
     id,
     applicationNo: appNo,
-    applicationNumber: appNo,
     serviceId: data.serviceId,
     serviceName: data.serviceName,
     category: data.category,
@@ -537,7 +522,7 @@ export function createLgaApplication(data: {
         title: data.isDraft ? "Draft Saved" : "Application Submitted",
         description: data.isDraft
           ? "Application saved to draft"
-          : `Application for ${data.serviceName} submitted successfully.`,
+          : `Application for ${data.serviceName} submitted successfully. Awaiting payment.`,
         actor: data.applicant,
         actorRole: "citizen",
         timestamp: dateStr,
@@ -545,6 +530,7 @@ export function createLgaApplication(data: {
       },
     ],
   };
+  (newApp as any).applicationNumber = appNo;
 
   const updated = [newApp, ...apps];
   saveLgaApplications(updated);
@@ -572,19 +558,33 @@ export function createLgaApplication(data: {
  */
 export function linkApplicationInvoice(id: string, invoiceId: string, invoiceNumber: string): LgaApplication | null {
   const apps = getLgaApplications();
-  const index = apps.findIndex((a) => a.id === id || a.applicationNo === id);
+  const index = apps.findIndex((a) => a.id === id || a.applicationNo === id || (a as any).applicationNumber === id);
   if (index === -1) return null;
   const updated: LgaApplication = {
     ...apps[index],
     invoiceId,
     invoiceNumber,
-    status: apps[index].status === "Draft" ? "Draft" : "Awaiting Payment",
+    status: apps[index].status === "Draft" ? "Draft" : (apps[index].paymentStatus === "paid" ? apps[index].status : "Awaiting Payment"),
     updatedAt: new Date().toISOString(),
   };
+  (updated as any).applicationNumber = updated.applicationNo;
   apps[index] = updated;
   saveLgaApplications(apps);
   addAudit({ actor: "System", actorRole: "system", action: "APPLICATION_INVOICE_LINKED", target: updated.applicationNo, meta: { invoiceId, invoiceNumber } });
   return updated;
+}
+
+export function resetLgaApplications(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_APPLICATIONS_STORAGE_KEY);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_SEED_APPLICATIONS));
+    window.dispatchEvent(new CustomEvent(EVT_KEY));
+    window.dispatchEvent(new CustomEvent(LEGACY_APPLICATIONS_EVENT_KEY));
+  } catch (err) {
+    console.error("Failed to reset applications", err);
+  }
 }
 
 export function updateApplicationStatus(

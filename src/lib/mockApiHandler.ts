@@ -4,7 +4,6 @@ import { DEFAULT_SERVICES, getServiceById } from "@/config/services.config";
 import {
   getStore,
   setStore,
-  resetStore,
   createInvoice,
   markInvoicePaid,
   findInvoiceByRef,
@@ -20,7 +19,6 @@ import {
   createLgaApplication,
   updateApplicationStatus,
   linkApplicationInvoice,
-  resetLgaApplications,
   type LgaApplication,
 } from "./applicationsStore";
 import { transformApplicationToPublicCertificate } from "@/services/apiPublicCertificate";
@@ -57,18 +55,6 @@ function saveTreasurerFeeOverride(serviceId: string, amount: number, status: "AC
     overrides[serviceId] = { amount, status, updatedAt: new Date().toISOString() };
     window.localStorage.setItem(TREASURER_FEES_STORAGE_KEY, JSON.stringify(overrides));
   } catch {}
-}
-
-export function resetFullDemoData(): void {
-  resetStore();
-  resetLgaApplications();
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.removeItem(TREASURER_FEES_STORAGE_KEY);
-      window.localStorage.removeItem("logmas.treasurer.config");
-      window.localStorage.removeItem("logmas.demo.users");
-    } catch {}
-  }
 }
 
 // Surface fees edited inside the CertificateFeeTab / LevyPermitFeeTab (they persist
@@ -561,8 +547,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         actor: "System",
         actorRole: "system",
       });
-      const linked = linkApplicationInvoice(createdApp.id, inv.id, inv.reference);
-      createdApp.status = linked?.status || "Awaiting Payment";
+      linkApplicationInvoice(createdApp.id, inv.id, inv.reference);
       createdApp.invoiceId = inv.id;
       createdApp.invoiceNumber = inv.reference;
       (inv as any).applicationId = createdApp.id;
@@ -775,30 +760,22 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   }
 
   // Invoice simulation or payment
-  const invActionMatch = url.match(/^\/invoices\/(.+?)\/(simulate-payment|settle-payment|pay|pay-online|send-payment-link)(?:\?.*)?$/);
+  const invActionMatch = url.match(/^\/invoices\/([^/?]+)\/(simulate-payment|settle-payment|pay|pay-online|send-payment-link)/);
   if (invActionMatch) {
-    const rawInvId = invActionMatch[1];
-    const invId = decodeURIComponent(rawInvId);
+    const invId = invActionMatch[1];
     const action = invActionMatch[2];
 
     if (action === "send-payment-link") {
       return respond({ message: "Payment link sent to taxpayer phone & email." });
     }
 
+    // Payment simulation or execution
     const s = getStore();
     const inv = s.invoices.find((i) => i.id === invId || i.reference.toUpperCase() === invId.toUpperCase()) || findInvoiceByRef(invId);
-
     if (inv) {
-      if (action === "pay-online") {
-        return respond({
-          paymentUrl: `/payment/result?reference=${encodeURIComponent(inv.reference)}`,
-          reference: inv.reference,
-          message: "Online payment initialized successfully.",
-        });
-      }
-
-      // Payment simulation or execution (simulate-payment, settle-payment, pay)
-      const receipt = markInvoicePaid(inv.id, "online", "Demo Taxpayer", "citizen");
+      const payerName = (data && (data.payerName || data.customerName)) || "Demo Taxpayer";
+      const method = (data && data.method) || "online";
+      const receipt = markInvoicePaid(inv.id, method, payerName, "citizen");
 
       // Advance the linked statutory application to "Payment Confirmed" (paid).
       // Approval remains with the LGA Admin — payment alone does NOT approve.
@@ -813,7 +790,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       );
       if (matchedApp) {
         updateApplicationStatus(matchedApp.id, "Payment Confirmed", {
-          name: "Demo Taxpayer",
+          name: payerName,
           role: "citizen",
         }, {
           paymentStatus: "paid",
@@ -821,22 +798,32 @@ export async function handleMockApiRequest(config: any): Promise<any> {
           invoiceNumber: inv.reference,
           receiptNumber: receipt?.receiptNumber || `DEMO-RCP-${Date.now().toString().slice(-6)}`,
           paidAt: new Date().toISOString(),
-          paymentMethod: "online",
+          paymentMethod: method,
         });
       }
 
       triggerSync();
       return respond({
         success: true,
+        status: "paid",
+        paymentStatus: "paid",
         message: "Payment processed successfully",
         receipt: receipt || {
           receiptNumber: `DEMO-RCP-${Date.now().toString().slice(-6)}`,
           amount: inv.amount,
           paidAt: new Date().toISOString(),
         },
-        invoice: { ...inv, status: "paid" },
+        invoice: {
+          ...inv,
+          status: "paid",
+          paymentStatus: "paid",
+          invoiceNumber: inv.reference,
+          totalAmount: inv.amount,
+          amountPaid: inv.amount,
+          balanceDue: 0,
+        },
         applicationId: matchedApp?.id,
-        applicationNumber: matchedApp?.applicationNo || (matchedApp as any)?.applicationNumber,
+        applicationNumber: matchedApp?.applicationNo,
       });
     }
 
@@ -844,10 +831,9 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   }
 
   // Invoice single lookup
-  const invSingleMatch = url.match(/^\/invoices\/(.+?)(?:\?.*)?$/);
-  if (invSingleMatch && !url.includes("/hub") && !url.includes("/public/initialize")) {
-    const rawIdOrRef = invSingleMatch[1];
-    const idOrRef = decodeURIComponent(rawIdOrRef);
+  const invSingleMatch = url.match(/^\/invoices\/([^/?]+)$/);
+  if (invSingleMatch) {
+    const idOrRef = invSingleMatch[1];
     const s = getStore();
     const inv = s.invoices.find(
       (i) => i.id === idOrRef || i.reference.toUpperCase() === idOrRef.toUpperCase()
@@ -859,14 +845,26 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         (a: any) =>
           a.id === (inv as any).applicationId ||
           a.invoiceId === inv.id ||
-          (a.invoiceNumber && a.invoiceNumber.toUpperCase() === inv.reference.toUpperCase())
+          (a.invoiceNumber && a.invoiceNumber.toUpperCase() === inv.reference.toUpperCase()) ||
+          a.applicationNo.toUpperCase() === inv.reference.toUpperCase() ||
+          a.id.toUpperCase() === inv.reference.toUpperCase(),
       ) as any;
 
       const virtualAccountNumber = inv.virtualAccount || "9912847291";
+      const savedReceipt = s.receipts.find((r) => r.invoiceId === inv.id || r.invoiceRef === inv.reference);
+      const receiptNumber = savedReceipt?.receiptNumber || `DEMO-RCP-${inv.reference.replace(/[^0-9]/g, "").slice(-6) || "00142"}`;
+      const receiptObj = inv.status === "paid" ? {
+        id: savedReceipt?.id || `rcp-${inv.id}`,
+        receiptNumber,
+        verificationCode: savedReceipt?.verificationCode || `VCODE-${inv.id.slice(-4).toUpperCase()}`,
+        qrToken: savedReceipt?.qrToken || inv.qrToken,
+        issuedAt: savedReceipt?.paidAt || inv.paidAt || inv.createdAt,
+      } : null;
 
       return respond({
         ...inv,
         invoiceNumber: inv.reference,
+        paymentStatus: inv.status === "paid" ? "paid" : "pending",
         applicationId: linkedApp?.id || (inv as any).applicationId || null,
         applicationNumber: linkedApp?.applicationNo || linkedApp?.applicationNumber || null,
         totalAmount: inv.amount,
@@ -880,13 +878,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         description: inv.purpose || inv.levyType,
         fieldOfficer: inv.officerName || "Treasury Gateway",
         qrData: inv.qrToken,
-        receipt: inv.status === "paid" ? {
-          id: `rcp-${inv.id}`,
-          receiptNumber: `RCP-${inv.reference.replace(/[^0-9]/g, "").slice(-6) || "00142"}`,
-          verificationCode: `VCODE-${inv.id.slice(-4).toUpperCase()}`,
-          qrToken: inv.qrToken,
-          issuedAt: inv.createdAt,
-        } : null,
+        receipt: receiptObj,
         permit: null,
         virtualAccount: {
           accountNumber: virtualAccountNumber,
@@ -946,16 +938,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   if (url.startsWith("/payments/verify/")) {
     const rawRef = url.replace("/payments/verify/", "").split("?")[0];
     const ref = decodeURIComponent(rawRef);
-    let inv = findInvoiceByRef(ref);
-    if (!inv) {
-      const s = getStore();
-      inv = s.invoices.find((i) =>
-        i.id === ref ||
-        i.reference.toUpperCase() === ref.toUpperCase() ||
-        ref.toUpperCase().includes(i.reference.toUpperCase()) ||
-        i.reference.toUpperCase().includes(ref.toUpperCase())
-      ) || null;
-    }
+    const inv = findInvoiceByRef(ref);
     if (!inv) {
       return respond({
         status: "failed",
@@ -967,43 +950,40 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       });
     }
 
-    // In demo mode, verifying an invoice marks it paid if not already paid
+    const s = getStore();
     let receipt: any = null;
     if (inv.status !== "paid") {
-      receipt = markInvoicePaid(inv.id, "online", "Demo Taxpayer", "citizen");
-      const apps = getLgaApplications();
-      const matchedApp = apps.find(
-        (a) =>
-          (a.invoiceId && a.invoiceId === inv!.id) ||
-          (a.invoiceNumber && a.invoiceNumber.toUpperCase() === inv!.reference.toUpperCase()) ||
-          a.applicationNo.toUpperCase() === inv!.reference.toUpperCase() ||
-          a.id.toUpperCase() === inv!.reference.toUpperCase() ||
-          (inv as any).applicationId === a.id
-      );
-      if (matchedApp) {
-        updateApplicationStatus(matchedApp.id, "Payment Confirmed", {
-          name: "Demo Taxpayer",
-          role: "citizen",
-        }, {
-          paymentStatus: "paid",
-          invoiceId: inv.id,
-          invoiceNumber: inv.reference,
-          receiptNumber: receipt?.receiptNumber || `DEMO-RCP-${Date.now().toString().slice(-6)}`,
-          paidAt: new Date().toISOString(),
-          paymentMethod: "online",
-        });
-      }
-      triggerSync();
-      inv = getStore().invoices.find((i) => i.id === inv!.id) || inv;
+      receipt = markInvoicePaid(inv.id, "online", inv.customerName || "Demo Taxpayer", "citizen");
+      inv.status = "paid";
+    } else {
+      receipt = s.receipts.find((r) => r.invoiceId === inv.id || r.invoiceRef === inv.reference);
     }
 
-    const app = getLgaApplications().find(
+    const apps = getLgaApplications();
+    const app = apps.find(
       (a) =>
-        (a.invoiceId && a.invoiceId === inv!.id) ||
-        (a.invoiceNumber && a.invoiceNumber.toUpperCase() === inv!.reference.toUpperCase()) ||
+        (a.invoiceId && a.invoiceId === inv.id) ||
+        (a.invoiceNumber && a.invoiceNumber.toUpperCase() === inv.reference.toUpperCase()) ||
+        a.applicationNo.toUpperCase() === inv.reference.toUpperCase() ||
+        a.id.toUpperCase() === inv.reference.toUpperCase() ||
         (inv as any).applicationId === a.id
     );
 
+    if (app && (app.status === "Awaiting Payment" || app.status === "Submitted" || app.paymentStatus !== "paid")) {
+      updateApplicationStatus(app.id, "Payment Confirmed", {
+        name: inv.customerName || "Demo Taxpayer",
+        role: "citizen",
+      }, {
+        paymentStatus: "paid",
+        invoiceId: inv.id,
+        invoiceNumber: inv.reference,
+        receiptNumber: receipt?.receiptNumber || `DEMO-RCP-${Date.now().toString().slice(-6)}`,
+        paidAt: new Date().toISOString(),
+        paymentMethod: "online",
+      });
+    }
+
+    triggerSync();
     return respond({
       status: "confirmed",
       paid: true,
@@ -1011,28 +991,29 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       success: true,
       source: "local",
       reference: inv.reference,
-      paid_at: inv.paidAt || inv.createdAt || new Date().toISOString(),
+      paid_at: inv.paidAt || new Date().toISOString(),
       invoice: {
         ...inv,
+        status: "paid",
+        paymentStatus: "paid",
         invoiceNumber: inv.reference,
         totalAmount: inv.amount,
         amountPaid: inv.amount,
         balanceDue: 0,
-        status: "paid",
       },
       receipt: {
         receiptNumber:
-          (inv as any).receiptNumber ||
           receipt?.receiptNumber ||
-          `DEMO-RCP-${inv.reference.replace(/[^0-9]/g, "").slice(-6) || Date.now().toString().slice(-6)}`,
+          (inv as any).receiptNumber ||
+          `DEMO-RCP-${(inv.reference.replace(/[^0-9]/g, "").slice(-6) || Date.now().toString().slice(-6))}`,
         amount: inv.amount,
-        paidAt: (inv as any).paidAt || inv.createdAt,
+        paidAt: receipt?.paidAt || inv.paidAt || new Date().toISOString(),
       },
       application: app
         ? {
             id: app.id,
             applicationNumber: app.applicationNo || (app as any).applicationNumber,
-            status: app.status,
+            status: app.status === "Awaiting Payment" ? "Payment Confirmed" : app.status,
             service: { id: app.serviceId, name: app.serviceName },
           }
         : null,
@@ -1488,11 +1469,14 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   if (url.startsWith("/treasurer/service-fees") || url.startsWith("/treasurer/fees")) {
     const feeSubMatch = url.match(/^\/treasurer\/(?:service-fees|fees)\/([^/?]+)$/);
     if (feeSubMatch) {
-      const srvKey = (feeSubMatch[1] === "configure" ? (data.serviceId || data.id) : feeSubMatch[1]) || data.serviceId || "certificate_of_origin";
-      const srv = DEFAULT_SERVICES.find((s) => s.id === srvKey) || DEFAULT_SERVICES[0];
+      let srvId = feeSubMatch[1];
+      if (srvId === "configure" || srvId === "save" || srvId === "update") {
+        srvId = data.serviceId || data.id || "certificate_of_origin";
+      }
+      const srv = DEFAULT_SERVICES.find((s) => s.id === srvId) || DEFAULT_SERVICES[0];
       const fee = getEffectiveServiceFee(srv.id);
 
-      // PATCH / POST / PUT upserts the treasurer-configured fee (amount + active status).
+      // PATCH upserts the treasurer-configured fee (amount + active status).
       if (method === "PATCH" || method === "POST" || method === "PUT") {
         const rawAmount = Number(data.amount);
         const amount = rawAmount && rawAmount > 0 ? rawAmount : fee.amount;
@@ -1510,11 +1494,13 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         return respond({
           success: true,
           saved: true,
+          status: "success",
           id: `fee-${srv.id}`,
           serviceId: srv.id,
           serviceName: srv.name,
           amount,
-          status,
+          feeAmount: amount,
+          feeStatus: status,
           updatedAt: new Date().toISOString(),
           updatedById: "usr_treasurer_001",
           updatedBy: { id: "usr_treasurer_001", firstName: "Mrs. M. O.", lastName: "Danjuma, FCA" },
@@ -1561,60 +1547,6 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       total: s.invoices.length,
       page: 1,
       limit: 50,
-    });
-  }
-
-  // ==========================================
-  // CONFIG & DEMO RESET ROUTING
-  // ==========================================
-  if (url === "/demo/reset" || url === "/system/reset") {
-    resetFullDemoData();
-    triggerSync();
-    return respond({ success: true, message: "Demo data reset successfully to seed state." });
-  }
-
-  if (url === "/config" || url.startsWith("/config?") || url === "/system/config") {
-    const CONFIG_KEY = "logmas.treasurer.config";
-    if (method === "POST" || method === "PUT" || method === "PATCH") {
-      if (typeof window !== "undefined") {
-        try {
-          const existing = JSON.parse(window.localStorage.getItem(CONFIG_KEY) || "{}");
-          const merged = { ...existing, ...data, updatedAt: new Date().toISOString() };
-          window.localStorage.setItem(CONFIG_KEY, JSON.stringify(merged));
-          if (data.serviceFees && typeof data.serviceFees === "object") {
-            Object.entries(data.serviceFees).forEach(([srvId, amount]: [string, any]) => {
-              saveTreasurerFeeOverride(srvId, Number(amount), "ACTIVE");
-            });
-          }
-        } catch {}
-      }
-      triggerSync();
-      return respond({ success: true, message: "Configuration saved successfully", config: data });
-    }
-
-    let savedConfig: any = {};
-    if (typeof window !== "undefined") {
-      try {
-        savedConfig = JSON.parse(window.localStorage.getItem(CONFIG_KEY) || "{}");
-      } catch {}
-    }
-    const currentFees = DEFAULT_SERVICES.reduce((acc, s) => {
-      acc[s.id] = getEffectiveServiceFee(s.id).amount;
-      return acc;
-    }, {} as Record<string, number>);
-
-    return respond({
-      serviceFees: { ...currentFees, ...(savedConfig.serviceFees || {}) },
-      paymentMethods: savedConfig.paymentMethods || ["online", "card", "bank_transfer", "pos", "virtual_account"],
-      revenueHeads: savedConfig.revenueHeads || [
-        { code: "1001", name: "Statutory Certificate Fees" },
-        { code: "2001", name: "Tenement & Property Rates" },
-        { code: "3001", name: "Trade & Commercial Licences" },
-      ],
-      defaultWard: savedConfig.defaultWard || "Ward 1 - Central Urban",
-      approvalThreshold: savedConfig.approvalThreshold || 500000,
-      demoMode: true,
-      updatedAt: savedConfig.updatedAt || new Date().toISOString(),
     });
   }
 
