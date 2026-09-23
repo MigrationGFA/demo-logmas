@@ -31,7 +31,13 @@ function RaiseComplaintView() {
   } = useCitizenComplaints();
 
   const { data: myComplaintsData, refetch } = useGetMyComplaints({ limit: 10 });
-  const myComplaints = myComplaintsData?.data ?? [];
+  // The demo API returns the collection bare (Complaint[]) or wrapped
+  // ({ data } / { complaints }) depending on the endpoint — accept all three.
+  const myComplaints: any[] = Array.isArray(myComplaintsData)
+    ? myComplaintsData
+    : ((myComplaintsData as any)?.complaints ??
+       (myComplaintsData as any)?.data ??
+       []);
 
   const [sending, setSending]                   = useState(false);
   const [errors, setErrors]                     = useState<{ title?: string; description?: string }>({});
@@ -89,7 +95,7 @@ function RaiseComplaintView() {
     },
     ...(activeComplaint.responses ?? []).map((r: any) => ({
       id:   r.id,
-      from: r.responderId === activeComplaint.raisedById ? "user" as const : "admin" as const,
+      from: (r.respondedBy?.id ?? r.responderId) === activeComplaint.raisedById ? "user" as const : "admin" as const,
       text: r.message,
       time: new Date(r.createdAt).toLocaleString(),
     })),

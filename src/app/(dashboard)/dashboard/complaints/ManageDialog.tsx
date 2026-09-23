@@ -72,7 +72,7 @@ function ManageDialog({
         ...(activeComplaint.responses ?? []).map((r: any) => ({
           id: r.id,
           from:
-            r.responderId === activeComplaint.raisedById
+            (r.respondedBy?.id ?? r.responderId) === activeComplaint.raisedById
               ? ("citizen" as const)
               : ("staff" as const),
           text: r.message,

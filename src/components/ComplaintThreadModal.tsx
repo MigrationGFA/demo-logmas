@@ -58,19 +58,19 @@ export function ComplaintThreadModal({
   const messages = [
     // Original complaint as first message
     {
-      id:          "original",
-      from:        "user" as const,
-      responderId: complaint.raisedById,
-      text:        complaint.description,
-      time:        new Date(complaint.createdAt).toLocaleString(),
+      id:       "original",
+      from:     "user" as const,
+      authorId: complaint.raisedById,
+      text:     complaint.description,
+      time:     new Date(complaint.createdAt).toLocaleString(),
     },
     // All responses
     ...(complaint.responses ?? []).map((r) => ({
-      id:          r.id,
-      from:        r.responderId === complaint.raisedById ? "user" as const : "admin" as const,
-      responderId: r.responderId,
-      text:        r.message,
-      time:        new Date(r.createdAt).toLocaleString(),
+      id:       r.id,
+      from:     r.respondedBy?.id === complaint.raisedById ? ("user" as const) : ("admin" as const),
+      authorId: r.respondedBy?.id,
+      text:     r.message,
+      time:     new Date(r.createdAt).toLocaleString(),
     })),
   ];
 

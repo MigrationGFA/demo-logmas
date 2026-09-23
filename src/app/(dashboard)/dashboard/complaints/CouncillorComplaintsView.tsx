@@ -40,7 +40,12 @@ function CouncillorComplaintsView({ readOnly }: { readOnly: boolean }) {
   const {useGetComplaint:useGetWardComplaint} = useAdminComplaints()
 
   const { data: complaintsData, isLoading, refetch } = useGetWardComplaints();
-  const complaints = complaintsData || [];
+  // Ward endpoint is paginated ({ complaints, meta }); tolerate a bare array too.
+  const complaints: any[] = Array.isArray(complaintsData)
+    ? complaintsData
+    : ((complaintsData as any)?.complaints ??
+       (complaintsData as any)?.data ??
+       []);
 
   const [selectedComplaintId, setSelectedId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
@@ -84,7 +89,7 @@ function CouncillorComplaintsView({ readOnly }: { readOnly: boolean }) {
         },
         ...(activeComplaint.responses ?? []).map((r: any) => ({
           id: r.id,
-          from: r.responderId === activeComplaint.raisedById ? ("citizen" as const) : ("you" as const),
+          from: (r.respondedBy?.id ?? r.responderId) === activeComplaint.raisedById ? ("citizen" as const) : ("you" as const),
           text: r.message,
           time: new Date(r.createdAt).toLocaleString(),
         })),

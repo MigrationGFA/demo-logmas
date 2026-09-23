@@ -54,9 +54,9 @@ function AdminComplaintsView({ readOnly }: { readOnly: boolean }) {
   });
 
   // console.log(complaintsData, "complaintsData");
-  const complaints = Array.isArray(complaintsData)
+  const complaints: any[] = Array.isArray(complaintsData)
     ? complaintsData
-    : complaintsData?.data || [];
+    : ((complaintsData as any)?.complaints ?? (complaintsData as any)?.data ?? []);
   const stats = {
     open: complaints.filter((c: { status: string }) => c.status === "open")
       .length,

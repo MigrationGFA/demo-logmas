@@ -388,6 +388,95 @@ function toDemoAccount(u: any) {
 }
 
 
+// ==========================================
+// COMPLAINTS DEMO STORE
+// The handler is stateless per request, so a raised ticket must be persisted
+// (same localStorage pattern as the fee + account overrides) or it never shows
+// up in the citizen history, the ward queue, or the admin table.
+// ==========================================
+const COMPLAINTS_STORAGE_KEY = `logmas.${LGA_CONFIG.identity.id}.complaints`;
+
+function seedDemoComplaints(): any[] {
+  return [
+    {
+      id: "cmp-1",
+      ticketNumber: "LOG-CMP-2026-001",
+      title: "Market stall billing inquiry",
+      description: "Request clarification on quarterly market levy assessment rate.",
+      status: "resolved",
+      category: "Levy Assessment",
+      wardId: "w-1",
+      raisedById: "usr_citizen_001",
+      ward: { id: "w-1", name: "Atan Ward", code: "W1" },
+      raisedBy: { id: "usr_citizen_001", firstName: "Dr. Babatunde", lastName: "Adeleke", email: "citizen@logmas.gov.ng" },
+      createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      resolvedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      resolutionNote: "Rate verified according to official LGA Bye-Law Schedule 2.",
+      responses: [
+        {
+          id: "res-1",
+          message: "Assessed based on standard retail floor area rate.",
+          respondedBy: { id: "adm-1", firstName: "Council", lastName: "Admin", role: "lga_admin" },
+          createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+        },
+      ],
+    },
+    {
+      id: "cmp-2",
+      ticketNumber: "LOG-CMP-2026-002",
+      title: "Certificate verification status update",
+      description: "Checking processing status of Indigene Certificate submitted last week.",
+      status: "open",
+      category: "Statutory Certificate",
+      wardId: "w-2",
+      raisedById: "usr_citizen_001",
+      ward: { id: "w-2", name: "Ojowo Ward", code: "W2" },
+      raisedBy: { id: "usr_citizen_001", firstName: "Dr. Babatunde", lastName: "Adeleke", email: "citizen@logmas.gov.ng" },
+      createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      responses: [],
+    },
+  ];
+}
+
+function getComplaints(): any[] {
+  if (typeof window === "undefined") return seedDemoComplaints();
+  try {
+    const raw = window.localStorage.getItem(COMPLAINTS_STORAGE_KEY);
+    if (!raw || raw.startsWith("<") || raw === "undefined" || raw === "null") {
+      const seeded = seedDemoComplaints();
+      window.localStorage.setItem(COMPLAINTS_STORAGE_KEY, JSON.stringify(seeded));
+      return seeded;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : seedDemoComplaints();
+  } catch {
+    return seedDemoComplaints();
+  }
+}
+
+function saveComplaints(list: any[]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(COMPLAINTS_STORAGE_KEY, JSON.stringify(list));
+  } catch {}
+}
+
+/** Signed-in demo account, so tickets/replies carry a real author. */
+function getComplaintActor() {
+  if (typeof window !== "undefined") {
+    try {
+      const raw = window.localStorage.getItem("logmas.auth.user");
+      if (raw && !raw.startsWith("<") && raw !== "undefined" && raw !== "null") {
+        const parsed = JSON.parse(raw);
+        if (parsed?.id) return parsed;
+      }
+    } catch {}
+  }
+  return DEMO_PRESET_USERS.citizen;
+}
+
 export async function handleMockApiRequest(config: any): Promise<any> {
   const url = (config.url || "").replace(/^https?:\/\/[^/]+/, "").replace(/^\/api\/v1/, "").replace(/^\/api\/demo/, "");
   const method = (config.method || "GET").toUpperCase();
@@ -2057,69 +2146,54 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   // COMPLAINTS ROUTING
   // ==========================================
   if (url.startsWith("/complaints")) {
-    const demoComplaints = [
-      {
-        id: "cmp-1",
-        ticketNumber: "LOG-CMP-2026-001",
-        title: "Market stall billing inquiry",
-        description: "Request clarification on quarterly market levy assessment rate.",
-        status: "resolved",
-        category: "Levy Assessment",
-        wardId: "w-1",
-        raisedById: "usr_citizen_001",
-        ward: { id: "w-1", name: "Atan Ward", code: "W1" },
-        raisedBy: { id: "usr_citizen_001", firstName: "Dr. Babatunde", lastName: "Adeleke", email: "citizen@logmas.gov.ng" },
-        createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
-        updatedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-        resolvedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-        resolutionNote: "Rate verified according to official LGA Bye-Law Schedule 2.",
-        responses: [
-          {
-            id: "res-1",
-            message: "Assessed based on standard retail floor area rate.",
-            respondedBy: { id: "adm-1", firstName: "Council", lastName: "Admin", role: "lga_admin" },
-            createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-          },
-        ],
-      },
-      {
-        id: "cmp-2",
-        ticketNumber: "LOG-CMP-2026-002",
-        title: "Certificate verification status update",
-        description: "Checking processing status of Indigene Certificate submitted last week.",
-        status: "open",
-        category: "Statutory Certificate",
-        wardId: "w-2",
-        raisedById: "usr_citizen_001",
-        ward: { id: "w-2", name: "Ojowo Ward", code: "W2" },
-        raisedBy: { id: "usr_citizen_001", firstName: "Dr. Babatunde", lastName: "Adeleke", email: "citizen@logmas.gov.ng" },
-        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-        updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-      },
-    ];
+    const demoComplaints = getComplaints();
+    const actor = getComplaintActor();
 
     if (url.includes("/stats")) {
+      const count = (status: string) =>
+        demoComplaints.filter((c: any) => c.status === status).length;
       return respond({
         total: demoComplaints.length,
-        breakdown: { open: 1, assigned: 0, in_progress: 0, resolved: 1, closed: 0 },
+        breakdown: {
+          open: count("open"),
+          assigned: count("assigned"),
+          in_progress: count("in_progress"),
+          resolved: count("resolved"),
+          closed: count("closed"),
+        },
       });
     }
 
     if (method === "POST" && !url.includes("/respond")) {
+      const seq = demoComplaints.length + 1;
       const newCmp = {
         id: `cmp-${Date.now()}`,
-        ticketNumber: `LOG-CMP-2026-${Math.floor(100 + Math.random() * 900)}`,
+        ticketNumber: `LOG-CMP-${new Date().getFullYear()}-${String(seq).padStart(3, "0")}`,
         title: data.title || "Citizen Feedback",
         description: data.description || "General complaint inquiry",
         status: "open",
         category: data.category || "General",
         wardId: "w-1",
-        raisedById: "usr_citizen_001",
         ward: { id: "w-1", name: "Atan Ward", code: "W1" },
-        raisedBy: { id: "usr_citizen_001", firstName: "Dr. Babatunde", lastName: "Adeleke", email: "citizen@logmas.gov.ng" },
+        raisedById: actor.id,
+        raisedBy: {
+          id: actor.id,
+          firstName: actor.firstName,
+          lastName: actor.lastName,
+          email: actor.email,
+        },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        responses: [] as any[],
       };
+      demoComplaints.unshift(newCmp);
+      saveComplaints(demoComplaints);
+      addNotification({
+        title: "Complaint received",
+        body: `Ticket ${newCmp.ticketNumber} was logged and routed to your ward officer.`,
+        type: "info",
+        userId: actor.id,
+      });
       return respond(newCmp);
     }
 
@@ -2155,10 +2229,10 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         id: `res-${Date.now()}`,
         message: data?.message || "Acknowledged.",
         respondedBy: {
-          id: "usr_citizen_001",
-          firstName: "Dr. Babatunde",
-          lastName: "Adeleke",
-          role: "citizen",
+          id: actor.id,
+          firstName: actor.firstName,
+          lastName: actor.lastName,
+          role: actor.role || "citizen",
         },
         createdAt: new Date().toISOString(),
       };
@@ -2166,6 +2240,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         target.responses = target.responses || [];
         target.responses.push(newResponse);
         target.updatedAt = new Date().toISOString();
+        saveComplaints(demoComplaints);
       }
       return respond(newResponse);
     }
@@ -2190,6 +2265,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         target.responses = target.responses || [];
         target.responses.push(newResponse);
         target.updatedAt = new Date().toISOString();
+        saveComplaints(demoComplaints);
       }
       return respond(newResponse);
     }
@@ -2203,10 +2279,10 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         id: `res-${Date.now()}`,
         message: data?.message || "Received.",
         respondedBy: {
-          id: "adm-1",
-          firstName: "Council",
-          lastName: "Admin",
-          role: "lga_admin",
+          id: actor.id || "adm-1",
+          firstName: actor.firstName || "Council",
+          lastName: actor.lastName || "Admin",
+          role: actor.role || "lga_admin",
         },
         createdAt: new Date().toISOString(),
       };
@@ -2214,6 +2290,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         target.responses = target.responses || [];
         target.responses.push(newResponse);
         target.updatedAt = new Date().toISOString();
+        saveComplaints(demoComplaints);
       }
       return respond(newResponse);
     }
@@ -2230,6 +2307,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
           : target.assignedTo;
         if (target.status === "open") target.status = "assigned";
         target.updatedAt = new Date().toISOString();
+        saveComplaints(demoComplaints);
       }
       return respond(target || { error: "Complaint not found" });
     }
@@ -2244,6 +2322,7 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         if (data?.status === "resolved") target.resolvedAt = new Date().toISOString();
         target.resolutionNote = data?.resolutionNote || target.resolutionNote;
         target.updatedAt = new Date().toISOString();
+        saveComplaints(demoComplaints);
       }
       return respond(target || { error: "Complaint not found" });
     }
@@ -2264,22 +2343,32 @@ export async function handleMockApiRequest(config: any): Promise<any> {
           target.resolutionNote = data.resolutionNote || target.resolutionNote;
         }
         target.updatedAt = new Date().toISOString();
+        saveComplaints(demoComplaints);
       }
       return respond(target || { error: "Complaint not found" });
     }
 
     // ---------- LIST ----------
-    if (url.includes("/admin") || url.includes("/ward")) {
-      return respond({
-        complaints: demoComplaints,
-        meta: { total: demoComplaints.length, page: 1, limit: 20, totalPages: 1 },
-      });
+    // Collection shapes follow the client service contract:
+    //   GET /complaints/my | /complaints/admin  → Complaint[]
+    //   GET /complaints/ward                    → { complaints, meta }
+    const isCitizenLikeRole = actor?.role === "citizen" || actor?.role === "business_owner";
+    const myComplaints = isCitizenLikeRole && actor?.id
+      ? demoComplaints.filter((c: any) => c.raisedById === actor.id)
+      : demoComplaints;
+    const listMeta = {
+      total: demoComplaints.length,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+    };
+    if (url.includes("/ward")) {
+      return respond({ complaints: demoComplaints, meta: listMeta });
     }
-
-    return respond({
-      complaints: demoComplaints,
-      meta: { total: demoComplaints.length, page: 1, limit: 20, totalPages: 1 },
-    });
+    if (url.includes("/my")) {
+      return respond(myComplaints);
+    }
+    return respond(demoComplaints);
   }
 
   // ==========================================
@@ -2865,7 +2954,10 @@ export async function handleMockApiRequest(config: any): Promise<any> {
       // dashboard always matches the "My Applications" page).
       pendingPayments: pendingPaymentsSum,
       approvedApplications: approvedAppCount,
-      openComplaints: 0,
+      openComplaints: getComplaints().filter((c: any) => {
+        const st = String(c.status || "").toLowerCase();
+        return st !== "resolved" && st !== "closed";
+      }).length,
       awaitingForm: awaitingFormCount,
       awaitingFormSubmissions: awaitingFormCount,
 
@@ -2887,10 +2979,13 @@ export async function handleMockApiRequest(config: any): Promise<any> {
 
       // Councillor metrics
       pendingApprovals: apps.filter((a) => a.status === "Submitted" || a.status === "Under Review").length || 5,
-      wardComplaints: 2,
+      wardComplaints: getComplaints().filter((c: any) => {
+        const st = String(c.status || "").toLowerCase();
+        return st !== "resolved" && st !== "closed";
+      }).length,
       totalConstituents: 12450,
       approvedSOO: 42,
-      totalComplaints: 2,
+      totalComplaints: getComplaints().length,
       activeBusinesses: 128,
 
       // Auditor metrics

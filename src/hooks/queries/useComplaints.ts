@@ -80,7 +80,10 @@ export function useCitizenComplaints() {
     mutationFn: ({ id, data }: { id: string; data: { message: string } }) => complaintsService.citizenRespond(id,data),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey:complaintKeys.myDetail(vars.id) });
-      // queryClient.invalidateQueries({ queryKey: complaintKeys.myComplaints() });
+      // Refresh every queue that renders this thread (myDetail is a prefix of my()).
+      queryClient.invalidateQueries({ queryKey: complaintKeys.my() });
+      queryClient.invalidateQueries({ queryKey: complaintKeys.admin() });
+      queryClient.invalidateQueries({ queryKey: complaintKeys.ward() });
     },
     onError: (err: any) => toast.error(err.message || 'Failed to send'),
   });
