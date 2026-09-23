@@ -63,6 +63,20 @@ export function useAuth() {
         refetchUser();
       }
 
+      // Public pay-first flow parks here: after payment the visitor lands on
+      // the verification page, which links to the completion route with
+      // ?redirect=<completion-url>. Honour it so the applicant continues the
+      // form instead of bouncing to the generic dashboard.
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+        if (redirect && redirect.startsWith("/")) {
+          navigate.push(redirect);
+          return;
+        }
+      } catch {
+        /* fall through to dashboard */
+      }
       navigate.push("/dashboard");
     },
     onError: (error) => {
@@ -80,6 +94,16 @@ export function useAuth() {
       tokenManager.setUser(regUser);
       queryClient.setQueryData(authKeys.user(), regUser);
       toast.success("Account created successfully. Welcome!");
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+        if (redirect && redirect.startsWith("/")) {
+          navigate.push(redirect);
+          return;
+        }
+      } catch {
+        /* fall through to dashboard */
+      }
       navigate.push("/dashboard");
     },
     onError: (error: any) => {
