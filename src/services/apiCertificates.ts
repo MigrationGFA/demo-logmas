@@ -3,7 +3,7 @@ import { api } from "@/lib/api";
 import { BackendCertificate } from "@/types/certificate";
 import { PublicCertificate } from "@/types/publicCertificate";
 import { formatOfficialDate, generatePublicToken } from "@/lib/certificateTokens";
-import { LGA_CONFIG } from "@/config/lga.config";
+import { LGA_CONFIG, getLgaCertificateUrl, getLgaVerificationUrl } from "@/config/lga.config";
 import {
   buildCanonicalCertificateData,
   getServiceFieldMapping,
@@ -215,10 +215,10 @@ export const apiCertificates = {
       verification: {
         valid: true,
         verifiedAt: new Date().toISOString(),
-        qrUrl: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/certificate/${encodeURIComponent(cert.certificateNumber || effectiveToken)}`,
+        qrUrl: getLgaCertificateUrl(cert.certificateNumber || effectiveToken),
         qrToken: cert.qrToken,
         verificationCode: cert.verificationCode,
-        verificationUrl: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/verify?code=${encodeURIComponent(cert.certificateNumber || cert.verificationCode || "")}`,
+        verificationUrl: getLgaVerificationUrl(cert.certificateNumber || cert.verificationCode || ""),
         verificationMessage:
           `Authentic certificate issued by ${LGA_CONFIG.identity.fullName} Secretariat.`,
       },

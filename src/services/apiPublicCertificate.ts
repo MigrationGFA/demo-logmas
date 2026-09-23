@@ -3,7 +3,7 @@ import { api } from "@/lib/api";
 import { PublicCertificate } from "@/types/publicCertificate";
 import { formatOfficialDate } from "@/lib/certificateTokens";
 import { getLgaServiceById } from "@/config/lgaServices";
-import { LGA_CONFIG } from "@/config/lga.config";
+import { LGA_CONFIG, getLgaCertificateUrl, getLgaVerificationUrl } from "@/config/lga.config";
 import { apiCertificates } from "./apiCertificates";
 import {
   buildCanonicalCertificateData,
@@ -131,9 +131,9 @@ export function transformApplicationToPublicCertificate(app: any, publicToken: s
     verification: {
       valid: true,
       verifiedAt: new Date().toISOString(),
-      qrUrl: typeof window !== "undefined" ? `${window.location.origin}/certificate/${publicToken}` : `${LGA_CONFIG.verification.publicLookupUrl}/${publicToken}`,
+      qrUrl: getLgaCertificateUrl(publicToken),
       qrToken: app.qrToken || publicToken.substring(0, 8),
-      verificationUrl: `${LGA_CONFIG.verification.verifyUrl}?code=${encodeURIComponent(certNumber)}`,
+      verificationUrl: getLgaVerificationUrl(certNumber),
       verificationMessage: `Authentic certificate issued by ${LGA_CONFIG.identity.fullName} Secretariat.`,
     },
   };

@@ -10,6 +10,7 @@ import {
   ReceiptFieldDefinition,
 } from "@/config/receiptTemplateConfig";
 import { QRCodeSVG } from "@/components/dashboard/qr-code";
+import { getLgaVerificationUrl } from "@/config/lga.config";
 
 interface ReceiptRendererProps {
   receipt: ReceiptDetails | Receipt | any;
@@ -27,10 +28,8 @@ export function ReceiptRenderer({
   // Verification URL for QR scanning
   const qrVerificationUrl = useMemo(() => {
     const code = receipt?.verificationCode || receipt?.qrToken || receipt?.receiptNumber || "";
-    if (typeof window !== "undefined") {
-      return `${window.location.origin}/verify?code=${encodeURIComponent(code)}`;
-    }
-    return `https://logmas.gov.ng/verify?code=${encodeURIComponent(code)}`;
+    // Slashes are legal in a query value and must stay readable in the printed QR.
+    return getLgaVerificationUrl(code);
   }, [receipt]);
 
   return (

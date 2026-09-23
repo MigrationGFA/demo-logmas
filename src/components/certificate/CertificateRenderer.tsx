@@ -10,7 +10,7 @@ import {
   extractCertificateContentRows,
 } from "@/config/certificateFieldConfig";
 import { QRCodeSVG } from "@/components/dashboard/qr-code";
-import { LGA_CONFIG } from "@/config/lga.config";
+import { getLgaVerificationUrl } from "@/config/lga.config";
 
 interface CertificateRendererProps {
   certificate: PublicCertificate;
@@ -37,10 +37,9 @@ export function CertificateRenderer({
     if (certificate.verification?.verificationUrl) {
       return certificate.verification.verificationUrl;
     }
-    if (typeof window !== "undefined") {
-      return `${window.location.origin}/certificate/${certificate.publicToken}`;
-    }
-    return `https://${LGA_CONFIG.verification.domain}/certificate/${certificate.publicToken}`;
+    return getLgaVerificationUrl(
+      certificate.certificateNumber || certificate.publicToken || "",
+    );
   }, [certificate]);
 
   const isInvalid = certificate.status === "revoked" || certificate.status === "expired";

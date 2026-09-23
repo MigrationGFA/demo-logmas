@@ -398,17 +398,47 @@ export function formatLgaInvoiceNumber(uniqueSeq: string): string {
   return `${LGA_CONFIG.certificates.namingConventions.invoicePrefix}-${currentYear}-${cleanSeq}`;
 }
 
-export function getLgaVerificationUrl(codeOrToken: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || LGA_CONFIG.verification.verifyUrl;
-  if (baseUrl.includes("/verify")) {
-    return `${baseUrl}?code=${encodeURIComponent(codeOrToken)}`;
+/**
+ * Base URL for citizen-facing verification links (QR codes, printed receipts).
+ *
+ * Client-side we always use `window.location.origin` so a QR generated on
+ * localhost scans back to localhost, and one generated on the deployed domain
+ * scans back to that same domain. During SSR we fall back to
+ * `NEXT_PUBLIC_BASE_URL` and finally to the configured verification domain —
+ * never to a bare relative path, which a phone camera cannot resolve.
+ */
+export function getLgaPublicBaseUrl(): string {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return window.location.origin.replace(/\/+$/, "");
   }
-  return `${baseUrl.replace(/\/$/, "")}/verify?code=${encodeURIComponent(codeOrToken)}`;
+
+  const envUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").trim().replace(/\/+$/, "");
+  if (envUrl) return envUrl;
+
+  return `https://${LGA_CONFIG.verification.domain}`;
+}
+
+/**
+ * Escape a code for use as a query-string value without breaking the slashes
+ * that receipt / certificate numbers legitimately contain (RFC 3986 allows a
+ * literal "/" inside a query value). Prevents the printed QR from reading
+ * `?code=DEMO%2FCO%2F2026%2FAB12`.
+ */
+export function encodeLgaVerificationCode(codeOrToken: string | number | null | undefined): string {
+  return encodeURIComponent(String(codeOrToken ?? "")).replace(/%2F/gi, "/");
+}
+
+export function getLgaVerificationUrl(codeOrToken: string): string {
+  return `${getLgaPublicBaseUrl()}/verify?code=${encodeLgaVerificationCode(codeOrToken)}`;
 }
 
 export function getLgaCertificateUrl(certificateNumberOrToken: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || LGA_CONFIG.verification.publicLookupUrl;
-  return `${baseUrl.replace(/\/$/, "")}/certificate/${encodeURIComponent(certificateNumberOrToken)}`;
+  return `${getLgaPublicBaseUrl()}/certificate/${encodeURIComponent(certificateNumberOrToken)}`;
+}
+
+/** Trade permit verification link (`/permits/verify?token=...`). */
+export function getLgaPermitVerifyUrl(token: string): string {
+  return `${getLgaPublicBaseUrl()}/permits/verify?token=${encodeLgaVerificationCode(token)}`;
 }
 
 /**
