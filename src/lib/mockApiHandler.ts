@@ -99,8 +99,12 @@ export function getEffectiveServiceFee(serviceId: string): DemoServiceFeeOverrid
 
 function serviceWithEffectiveFee(service: any) {
   const fee = getEffectiveServiceFee(service.id);
+  // Layer treasurer/admin service edits (name, category, revenueHead,
+  // description, requirements, active flag...) over the static catalog.
+  const ov = (typeof window !== "undefined" ? getServiceOverrides()[service.id] : null) || {};
+  const merged = { ...service, ...ov };
   return {
-    ...service,
+    ...merged,
     feeConfig: {
       id: `fee-${service.id}`,
       serviceId: service.id,
@@ -284,6 +288,35 @@ function triggerSync() {
 // ==========================================
 // CENTRAL CLIENT-SIDE MOCK REQUEST HANDLER
 // ==========================================
+
+// ==========================================
+// DEMO SERVICE EDITS STATE (Treasurer -> Services page)
+// Persisted overrides layered on DEFAULT_SERVICES so name/category/requirements/
+// active-flag edits survive page refreshes and show everywhere (GET /services
+// list + GET /services/:id both read through here).
+// ==========================================
+const SERVICE_STATE_KEY = "logmas.demo.serviceState";
+
+function getServiceOverrides(): Record<string, any> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(SERVICE_STATE_KEY);
+    if (!raw || raw.startsWith("<") || raw === "undefined" || raw === "null") return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function persistServiceOverride(serviceId: string, patch: any) {
+  if (typeof window === "undefined") return;
+  try {
+    const all = getServiceOverrides();
+    all[serviceId] = { ...(all[serviceId] || {}), ...patch };
+    window.localStorage.setItem(SERVICE_STATE_KEY, JSON.stringify(all));
+  } catch {}
+}
 
 // ==========================================
 // DEMO ACCOUNT MANAGEMENT STATE (LGA Admin -> Accounts page)
@@ -1240,7 +1273,41 @@ export async function handleMockApiRequest(config: any): Promise<any> {
   if (serviceSlugMatch) {
     const slug = serviceSlugMatch[1];
     const s = getServiceById(slug) || DEFAULT_SERVICES[0];
-    return respond(s);
+
+    // PATCH /services/:id — treasurer/admin edits name, category, requirements,
+    // active flag AND the statutory fee. Persists to localStorage so edits stick.
+    if (method === "PATCH" || method === "PUT") {
+      persistServiceOverride(s.id, data || {});
+      const feePayload = (data as any)?.feeConfig;
+      if (feePayload && (feePayload.amount !== undefined || feePayload.status)) {
+        const fee = getEffectiveServiceFee(s.id);
+        const rawAmount = Number(feePayload.amount);
+        const amount = rawAmount && rawAmount > 0 ? rawAmount : fee.amount;
+        const status =
+          String(feePayload.status || "").toUpperCase() === "INACTIVE"
+            ? "INACTIVE"
+            : "ACTIVE";
+        saveTreasurerFeeOverride(s.id, amount, status);
+        addAudit({
+          actor: "Council Treasurer",
+          actorRole: "treasurer",
+          action: "SERVICE_FEE_UPDATED",
+          target: s.id,
+          meta: { amount, status },
+        });
+      }
+      addAudit({
+        actor: "Council Admin",
+        actorRole: "lga_admin",
+        action: "SERVICE_UPDATED",
+        target: s.id,
+        meta: data || {},
+      });
+      triggerSync();
+      return respond(serviceWithEffectiveFee(getServiceById(s.id) || s));
+    }
+
+    return respond(serviceWithEffectiveFee(s));
   }
 
   // ==========================================
