@@ -2254,10 +2254,10 @@ export async function handleMockApiRequest(config: any): Promise<any> {
         id: `res-${Date.now()}`,
         message: data?.message || "Received.",
         respondedBy: {
-          id: "adm-ward-1",
-          firstName: "Councillor",
-          lastName: "Bisi",
-          role: "ward_councillor",
+          id: actor.id || "adm-ward-1",
+          firstName: actor.firstName || "Councillor",
+          lastName: actor.lastName || "Bisi",
+          role: actor.role || "ward_councillor",
         },
         createdAt: new Date().toISOString(),
       };
