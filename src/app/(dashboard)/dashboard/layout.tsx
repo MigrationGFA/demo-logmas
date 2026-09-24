@@ -14,6 +14,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useNotifications } from "@/hooks/queries/useNotifications";
 import { OnboardingIndicator } from "@/components/dashboard/OnboardingIndicator";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function AuthenticatedLayout({
   children,
@@ -49,6 +50,7 @@ export default function AuthenticatedLayout({
                 ))}
               </nav>
               <div className="ml-auto flex items-center gap-2">
+                <LanguageSwitcher variant="compact" />
                 <div className="relative hidden sm:block">
                   <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <Input

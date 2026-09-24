@@ -27,7 +27,7 @@ import Link from "next/link";
 import { tokenManager } from "@/services/apiAuth";
 import { SITE_CONTACT } from "@/config/siteContact";
 import { LGA_CONFIG } from "@/config/lga.config";
-import logo from "@/assets/logo.png";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useServices } from "@/hooks/queries/useServices";
 import Image from "next/image";
 
@@ -241,8 +241,14 @@ export function SiteHeader() {
               <Mail className="h-3 w-3" /> {SITE_CONTACT.email}
             </a>
           </div>
-          <div className="text-[11px] opacity-80">
-            {SITE_CONTACT.operatingDays}
+          <div className="flex items-center gap-3">
+            <div className="text-[11px] opacity-80">
+              {SITE_CONTACT.operatingDays}
+            </div>
+            <LanguageSwitcher
+              variant="compact"
+              className="border border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground"
+            />
           </div>
         </div>
       </div>
@@ -251,7 +257,13 @@ export function SiteHeader() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="relative flex items-center justify-center rounded-xl bg-white shadow-elegant group-hover:scale-105 transition-bounce w-10 h-10 overflow-hidden">
-              <Image src={logo} alt="the LGA Logo" className="h-8 w-8" fill/>
+              <Image
+                src={LGA_CONFIG.branding.logoPath}
+                alt={`${LGA_CONFIG.identity.name} LGA emblem`}
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
+              />
             </div>
             <div className="leading-tight">
               <div className="text-sm font-bold tracking-tight">{LGA_CONFIG.identity.name} LGA</div>
@@ -422,6 +434,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
+            <LanguageSwitcher variant="default" />
             {isAuthenticated ? (
               <Button asChild variant="ghost" size="sm">
                 <Link href="/dashboard">Dashboard</Link>
@@ -452,6 +465,12 @@ export function SiteHeader() {
         {open && (
           <div className="lg:hidden border-t border-border/40 bg-background max-h-[80vh] overflow-y-auto">
             <div className="container mx-auto flex flex-col gap-1 p-4">
+              <div className="flex items-center justify-between pb-3 mb-2 border-b border-border/40">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Select Language / Yan Èdè
+                </span>
+                <LanguageSwitcher variant="compact" />
+              </div>
               {NAV.flatMap((n) => ("to" in n ? [n] : n.items)).map((l) => (
                 <Link
                   key={l.to}

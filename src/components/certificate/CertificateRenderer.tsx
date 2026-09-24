@@ -46,7 +46,8 @@ export function CertificateRenderer({
 
   return (
     <div
-      className={`cert-canvas-container relative w-full select-none bg-white shadow-2xl transition-all ${className}`}
+      translate="no"
+      className={`cert-canvas-container notranslate relative w-full select-none bg-white shadow-2xl transition-all ${className}`}
       style={{
         aspectRatio: config.aspectRatio || "1.414 / 1",
         maxWidth: "1120px",

@@ -330,3 +330,44 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* ─── Seamless Client-Side Translation (Google Translate) ───
+   The engine is driven programmatically by <LanguageSwitcher/>, so every
+   artefact Google would normally render must be suppressed:
+   the top banner, the floating tooltip balloon, and the blue word highlight. */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Host element for the hidden engine (real UI lives in LanguageSwitcher) */
+#google_translate_element {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* NOTE: no blanket `.skiptranslate { display:none }` rule here on purpose —
+   Google stamps that class onto the very elements marked `notranslate`, so
+   hiding it would blank out the certificate and receipt canvases. */

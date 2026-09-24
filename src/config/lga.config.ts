@@ -340,7 +340,7 @@ export const LGA_CONFIG: LgaConfiguration = {
   },
 
   branding: {
-    logoPath: "/logo.png",
+    logoPath: "/assets/logo-demo.svg",
     councilEmblemPath: "/favicon.ico",
     stateEmblemPath: "/images/ogun-crest.png",
     nationalEmblemPath: "/images/nigeria-crest.png",

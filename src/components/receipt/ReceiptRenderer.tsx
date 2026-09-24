@@ -34,7 +34,8 @@ export function ReceiptRenderer({
 
   return (
     <div
-      className={`receipt-canvas-container relative w-full select-none bg-white shadow-2xl transition-all ${className}`}
+      translate="no"
+      className={`receipt-canvas-container notranslate relative w-full select-none bg-white shadow-2xl transition-all ${className}`}
       style={{
         aspectRatio: config.aspectRatio,
         maxWidth: "1080px",
